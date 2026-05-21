@@ -1,11 +1,375 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+}
+
+// =============================================
+// MASTER WILAYAH
+// =============================================
+
+model Kecamatan {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  desas     Desa[]
+  users     User[]
+
+  @@map("kecamatans")
+}
+
+model Desa {
+  id           String    @id @default(uuid())
+  kecamatanId  String    @map("kecamatan_id")
+  name         String
+  code         String    @unique
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  kecamatan    Kecamatan  @relation(fields: [kecamatanId], references: [id])
+  posyandus    Posyandu[]
+  users        User[]
+  pengajuans   Pengajuan[]
+
+  @@map("desas")
+}
+
+model Posyandu {
+  id        String   @id @default(uuid())
+  desaId    String   @map("desa_id")
+  name      String
+  code      String   @unique
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  desa       Desa        @relation(fields: [desaId], references: [id])
+  users      User[]
+  pengajuans Pengajuan[]
+
+  @@map("posyandus")
+}
+
+// =============================================
+// OPD & LAYANAN
+// =============================================
+
+model Opd {
+  id           String   @id @default(uuid())
+  name         String
+  code         String   @unique
+  tiketPrefix  String   @unique @map("tiket_prefix")
+  description  String?
+  icon         String?
+  color        String?
+  isActive     Boolean  @default(true) @map("is_active")
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  layananjenis   LayananJenis[]
+  users          User[]
+  pengajuans     Pengajuan[]
+  tiketCounters  TiketCounter[]
+
+  @@map("opds")
+}
+
+model LayananJenis {
+  id          String   @id @default(uuid())
+  opdId       String   @map("opd_id")
+  name        String
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  opd         Opd         @relation(fields: [opdId], references: [id])
+  formFields  FormField[]
+  pengajuans  Pengajuan[]
+
+  @@map("layanan_jenis")
+}
+
+model FormField {
+  id             String    @id @default(uuid())
+  layananJenisId String    @map("layanan_jenis_id")
+  fieldLabel     String    @map("field_label")
+  fieldName      String    @map("field_name")
+  fieldType      String    @map("field_type")
+  fieldOptions   String?   @map("field_options")
+  isRequired     Boolean   @default(false) @map("is_required")
+  placeholder    String?
+  helperText     String?   @map("helper_text")
+  sortOrder      Int       @default(0) @map("sort_order")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  layananJenis       LayananJenis         @relation(fields: [layananJenisId], references: [id])
+  pengajuanFieldValues PengajuanFieldValue[]
+
+  @@map("form_fields")
+}
+
+// =============================================
+// USERS
+// =============================================
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  password     String
+  role         String
+  posyanduId   String?  @map("posyandu_id")
+  desaId       String?  @map("desa_id")
+  kecamatanId  String?  @map("kecamatan_id")
+  opdId        String?  @map("opd_id")
+  phone        String?
+  isActive     Boolean  @default(true) @map("is_active")
+  lastLoginAt  DateTime? @map("last_login_at")
+  failedLoginAttempts  Int       @default(0) @map("failed_login_attempts")
+  lockoutUntil         DateTime? @map("lockout_until")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  posyandu     Posyandu?  @relation(fields: [posyanduId], references: [id])
+  desa         Desa?      @relation(fields: [desaId], references: [id])
+  kecamatan    Kecamatan? @relation(fields: [kecamatanId], references: [id])
+  opd          Opd?       @relation(fields: [opdId], references: [id])
+
+  pengajuansAsKader    Pengajuan[]   @relation("KaderPengajuan")
+  verifikasiDesas      VerifikasiDesa[]
+  tindakLanjuts        TindakLanjut[]
+  adminActions         AdminAction[]
+  notifications        Notification[]
+
+  @@map("users")
+}
+
+// =============================================
+// TIKET COUNTER
+// =============================================
+
+model TiketCounter {
+  id           String @id @default(uuid())
+  opdId        String @map("opd_id")
+  year         Int
+  lastSequence Int    @default(0) @map("last_sequence")
+
+  opd          Opd @relation(fields: [opdId], references: [id])
+
+  @@unique([opdId, year])
+  @@map("tiket_counters")
+}
+
+// =============================================
+// PENGAJUAN (MAIN TABLE)
+// =============================================
+
+model Pengajuan {
+  id              String   @id @default(uuid())
+  tiketNumber     String   @unique @map("tiket_number")
+  kaderId         String   @map("kader_id")
+  posyanduId      String   @map("posyandu_id")
+  desaId          String   @map("desa_id")
+  opdId           String   @map("opd_id")
+  layananJenisId  String   @map("layanan_jenis_id")
+
+  namaPelapor     String   @map("nama_pelapor")
+  nikPelapor      String?  @map("nik_pelapor")
+  noHpPelapor     String?  @map("no_hp_pelapor")
+  alamatPelapor   String   @map("alamat_pelapor")
+  deskripsi       String
+
+  status          String   @default("MENUNGGU_VERIFIKASI")
+  submittedAt     DateTime @default(now()) @map("submitted_at")
+  deadlineAt      DateTime @map("deadline_at")
+  notifiedH2      Boolean  @default(false) @map("notified_h2")
+  sopExpiredAt    DateTime? @map("sop_expired_at")
+  autoBypassAt    DateTime? @map("auto_bypass_at")
+  completedAt     DateTime? @map("completed_at")
+
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  kader           User             @relation("KaderPengajuan", fields: [kaderId], references: [id])
+  posyandu        Posyandu         @relation(fields: [posyanduId], references: [id])
+  desa            Desa             @relation(fields: [desaId], references: [id])
+  opd             Opd              @relation(fields: [opdId], references: [id])
+  layananJenis    LayananJenis     @relation(fields: [layananJenisId], references: [id])
+
+  fieldValues     PengajuanFieldValue[]
+  attachments     PengajuanAttachment[]
+  verifikasiDesa  VerifikasiDesa?
+  tindakLanjuts   TindakLanjut[]
+  adminActions    AdminAction[]
+  activityLogs    ActivityLog[]
+  notifications   Notification[]
+
+  @@map("pengajuans")
+}
+
+// =============================================
+// DYNAMIC FORM VALUES
+// =============================================
+
+model PengajuanFieldValue {
+  id           String @id @default(uuid())
+  pengajuanId  String @map("pengajuan_id")
+  formFieldId  String @map("form_field_id")
+  fieldValue   String @map("field_value")
+
+  pengajuan    Pengajuan @relation(fields: [pengajuanId], references: [id], onDelete: Cascade)
+  formField    FormField @relation(fields: [formFieldId], references: [id])
+
+  @@map("pengajuan_field_values")
+}
+
+// =============================================
+// ATTACHMENTS (FILE & VIDEO LINK)
+// =============================================
+
+model PengajuanAttachment {
+  id                 String   @id @default(uuid())
+  pengajuanId        String   @map("pengajuan_id")
+  uploadedById       String   @map("uploaded_by_id")
+  attachmentContext  String   @map("attachment_context")
+  attachmentType     String   @map("attachment_type")
+  tindakLanjutId     String?  @map("tindak_lanjut_id")
+
+  filePath   String?  @map("file_path")
+  fileName   String?  @map("file_name")
+  fileSize   Int?     @map("file_size")
+  mimeType   String?  @map("mime_type")
+
+  videoUrl      String?  @map("video_url")
+  videoPlatform String?  @map("video_platform")
+
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  pengajuan    Pengajuan    @relation(fields: [pengajuanId], references: [id], onDelete: Cascade)
+  tindakLanjut TindakLanjut? @relation(fields: [tindakLanjutId], references: [id])
+
+  @@map("pengajuan_attachments")
+}
+
+// =============================================
+// VERIFIKASI DESA
+// =============================================
+
+model VerifikasiDesa {
+  id             String   @id @default(uuid())
+  pengajuanId    String   @unique @map("pengajuan_id")
+  petugasDesaId  String   @map("petugas_desa_id")
+  status         String
+  catatan        String?
+  verifiedAt     DateTime @default(now()) @map("verified_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  pengajuan      Pengajuan @relation(fields: [pengajuanId], references: [id])
+  petugasDesa    User      @relation(fields: [petugasDesaId], references: [id])
+
+  @@map("verifikasi_desas")
+}
+
+// =============================================
+// TINDAK LANJUT OPD
+// =============================================
+
+model TindakLanjut {
+  id            String   @id @default(uuid())
+  pengajuanId   String   @map("pengajuan_id")
+  petugasOpdId  String   @map("petugas_opd_id")
+  deskripsi     String
+  status        String   @default("SUBMITTED")
+  submittedAt   DateTime @default(now()) @map("submitted_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  pengajuan     Pengajuan               @relation(fields: [pengajuanId], references: [id])
+  petugasOpd    User                    @relation(fields: [petugasOpdId], references: [id])
+  attachments   PengajuanAttachment[]
+
+  @@map("tindak_lanjuts")
+}
+
+// =============================================
+// ADMIN ACTIONS
+// =============================================
+
+model AdminAction {
+  id           String   @id @default(uuid())
+  pengajuanId  String   @map("pengajuan_id")
+  adminId      String   @map("admin_id")
+  actionType   String   @map("action_type")
+  targetRole   String?  @map("target_role")
+  targetUserId String?  @map("target_user_id")
+  catatan      String
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  pengajuan    Pengajuan  @relation(fields: [pengajuanId], references: [id])
+  admin        User       @relation(fields: [adminId], references: [id])
+
+  @@map("admin_actions")
+}
+
+// =============================================
+// NOTIFICATIONS
+// =============================================
+
+model Notification {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  pengajuanId  String?  @map("pengajuan_id")
+  type         String
+  title        String
+  message      String
+  isRead       Boolean  @default(false) @map("is_read")
+  readAt       DateTime? @map("read_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  user         User       @relation(fields: [userId], references: [id])
+  pengajuan    Pengajuan? @relation(fields: [pengajuanId], references: [id])
+
+  @@map("notifications")
+}
+
+// =============================================
+// ACTIVITY LOGS (AUDIT TRAIL)
+// =============================================
+
+model ActivityLog {
+  id           String   @id @default(uuid())
+  pengajuanId  String   @map("pengajuan_id")
+  userId       String?  @map("user_id")
+  userRole     String?  @map("user_role")
+  action       String
+  oldStatus    String?  @map("old_status")
+  newStatus    String?  @map("new_status")
+  catatan      String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  pengajuan    Pengajuan @relation(fields: [pengajuanId], references: [id])
+
+  @@map("activity_logs")
+}
+
+// =============================================
+// HARI LIBUR NASIONAL
+// =============================================
+
+model PublicHoliday {
+  id        String   @id @default(uuid())
+  date      DateTime @unique
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("public_holidays")
 }
