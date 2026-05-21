@@ -8,13 +8,13 @@ export default async function RootPage() {
   }
 
   const role = session.user.role
-  const redirects: Record<string, string> = {
+  const redirects = {
     KADER: "/kader",
     PETUGAS_DESA: "/petugas-desa",
     PETUGAS_KECAMATAN: "/kecamatan",
     PETUGAS_OPD: "/opd",
     ADMIN_DPMD: "/admin",
-  }
+  } as const
 
   redirect(redirects[role] ?? "/login")
 }

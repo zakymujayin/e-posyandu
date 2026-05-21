@@ -1,4 +1,5 @@
 import { auth } from "@/auth"
+import { CheckSquare } from "lucide-react"
 import { EmptyState } from "@/components/shared/empty-state"
 
 export default async function KaderRiwayatPage() {
@@ -11,7 +12,7 @@ export default async function KaderRiwayatPage() {
       <EmptyState
         title="Belum ada pengajuan"
         description="Pengajuan baru akan muncul di sini setelah Phase B selesai."
-        icon="📋"
+        icon={<CheckSquare className="w-12 h-12" />}
       />
     </div>
   )
