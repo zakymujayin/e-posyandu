@@ -1,6 +1,10 @@
 import type { UserRole } from "@/types/next-auth"
+import type { SopStatus } from "@/lib/sop"
+import type { NotificationType } from "@/lib/notifications"
 
-type PengajuanStatus = "MENUNGGU_VERIFIKASI" | "DALAM_PROSES_OPD" | "MENUNGGU_APPROVAL_DPMD" | "SELESAI" | "DITOLAK_DESA" | "DITOLAK_OPD"
+export type PengajuanStatus = "MENUNGGU_VERIFIKASI" | "DALAM_PROSES_OPD" | "MENUNGGU_APPROVAL_DPMD" | "SELESAI" | "DITOLAK_DESA" | "DITOLAK_OPD"
+
+type _PengajuanStatus = PengajuanStatus
 
 export const MESSAGES = {
   auth: {
@@ -32,4 +36,24 @@ export const MESSAGES = {
     PETUGAS_OPD: "Petugas OPD",
     ADMIN_DPMD: "Admin DPMD",
   } as Record<UserRole, string>,
+  notificationType: {
+    NEW_SUBMISSION: "Pengajuan Baru",
+    VERIFIED: "Telah Diverifikasi",
+    REJECTED_DESA: "Ditolak Desa",
+    REJECTED_OPD: "Ditolak OPD",
+    OPD_RECEIVED: "OPD Menerima",
+    FOLLOWUP_SUBMITTED: "Tindak Lanjut Disubmit",
+    FOLLOWUP_APPROVED: "Disetujui",
+    REVISION_REQUESTED: "Minta Revisi",
+    SOP_WARNING_H2: "Peringatan SOP H-2",
+    SOP_EXPIRED: "SOP Habis",
+    ADMIN_WARNING: "Teguran Admin",
+    BYPASS_MANUAL: "Bypass Manual",
+    AUTO_BYPASS: "Auto Bypass",
+  } as Record<NotificationType, string>,
+  sopStatus: {
+    NORMAL: "Dalam batas waktu",
+    WARNING: "Hampir habis",
+    EXPIRED: "SOP habis",
+  } as Record<SopStatus, string>,
 } as const
