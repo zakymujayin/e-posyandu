@@ -46,3 +46,13 @@ next-env.d.ts
 # prisma
 /prisma/*.db
 /prisma/*.db-journal
+
+# ai agent
+.claude/
+CLAUDE.md
+AGENTS.md
+docs/superpowers/
+
+# database
+*.db
+*.db-journal
