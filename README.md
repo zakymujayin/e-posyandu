@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# E-Posyandu
 
-## Getting Started
+Sistem Tatakelola Posyandu & Pengaduan Masyarakat Online
+Dinas Pemberdayaan Masyarakat dan Desa (DPMD) Kabupaten Lebak
 
-First, run the development server:
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **Bahasa**: TypeScript
+- **Database**: SQLite (dev) / PostgreSQL (prod via libSQL adapter)
+- **ORM**: Prisma 7
+- **Auth**: NextAuth.js v5 (credentials provider)
+- **UI**: shadcn/ui + Tailwind CSS v4 + Lucide React
+
+## Quick Start
+
+### 1. Setup environment
+
+```bash
+cp .env.local.example .env.local
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Setup database
+
+```bash
+npx prisma generate
+npx prisma db push
+npm run db:seed
+```
+
+### 4. Jalankan development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 5. Login credentials (development)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Role | Email | Password |
+|------|-------|----------|
+| Admin DPMD | admin@dpmd.go.id | admin123 |
+| Kader | kader@example.com | kader123 |
+| Petugas Desa | petugas@example.com | petugas123 |
+| Petugas OPD | opd@example.com | opd123 |
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/                    ← Next.js App Router pages
+│   ├── (auth)/            ← Login page
+│   ├── (dashboard)/       ← Dashboard pages per role
+│   │   ├── kader/
+│   │   ├── petugas-desa/
+│   │   ├── kecamatan/
+│   │   ├── opd/
+│   │   └── admin/
+│   ├── tracking/          ← Halaman publik tracking tiket
+│   └── api/              ← API routes
+├── components/
+│   ├── ui/               ← shadcn/ui components
+│   └── shared/            ← Shared components (sidebar, header, etc.)
+└── lib/                   ← Utilities (auth, prisma, messages, etc.)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Documentation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [Dokumentasi Teknis](docs/E-POSYANDU_DOKUMENTASI_TEKNIS.md)
+- [Spec (Phase A)](docs/superpowers/specs/2026-05-21-e-posyandu-phase-a-design.md)
+- [Implementation Plan](docs/superpowers/plans/2026-05-21-e-posyandu-phase-a-plan.md)
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Dideploy ke Vercel:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push ke GitHub repo
+2. Connect repo ke Vercel
+3. Set environment variables di Vercel Dashboard
+4. Vercel otomatis deploy dari main branch
+
+## Development Notes
+
+- **Auth**: NextAuth v5 beta — credentials provider + JWT session
+- **Role routing**: Middleware proteksi route berdasarkan role
+- **Database**: Gunakan `npx prisma db push` untuk schema changes
+- **Form**: React Hook Form + Zod
+- **State**: Zustand + TanStack Query v5
