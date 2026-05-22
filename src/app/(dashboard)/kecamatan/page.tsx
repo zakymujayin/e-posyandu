@@ -14,7 +14,7 @@ import { id as localeId } from "date-fns/locale"
 import { MESSAGES, type PengajuanStatus } from "@/lib/messages"
 import { ClipboardList, Hourglass, CheckCircle2, XCircle, Filter } from "lucide-react"
 import { PageContainer } from "@/components/layout/page-container"
-import { FormLabel, MutedText } from "@/components/ui/typography"
+import { SectionTitle, FormLabel, MutedText } from "@/components/ui/typography"
 
 export default async function KecamatanPage({
   searchParams,
@@ -138,8 +138,13 @@ export default async function KecamatanPage({
         />
       </div>
 
-      {/* Filters Form */}
-      <form className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 bg-card border border-border p-4 rounded-2xl shadow-xs">
+      {/* Filters + Table Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-4 bg-primary rounded-full" />
+          <SectionTitle>Data Pengajuan Posyandu</SectionTitle>
+        </div>
+        <form className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 bg-card border border-border p-4 rounded-2xl shadow-xs">
         <div className="flex flex-col gap-1.5 flex-1 min-w-[180px]">
           <FormLabel>Pilih Desa</FormLabel>
           <select
@@ -175,40 +180,40 @@ export default async function KecamatanPage({
           <Filter className="size-3.5" />
           Terapkan Filter
         </Button>
-      </form>
+        </form>
 
-      {/* Main Content (Table) */}
-      {pengajuans.length === 0 ? (
-        <EmptyState title="Tidak ada data pengajuan" description="Gunakan filter lain atau ajukan berkas baru melalui kader." />
-      ) : (
-        <div className="space-y-4">
-          <DataTable
-            columns={["No. Tiket", "Pelapor", "OPD Tujuan", "Desa asal", "Status", "Tanggal"]}
-            dataLength={pengajuans.length}
-          >
-            {pengajuans.map((p) => (
-              <TableRow key={p.id} className="hover:bg-muted/40 transition-colors">
-                <TableCell className="font-mono text-xs md:text-sm font-bold text-foreground">
-                  {p.tiketNumber}
-                </TableCell>
-                <TableCell className="font-semibold text-foreground text-xs md:text-sm">
-                  {p.namaPelapor}
-                </TableCell>
-                <TableCell className="text-muted-foreground text-xs md:text-sm font-medium">
-                  {p.opd.name}
-                </TableCell>
-                <TableCell className="text-muted-foreground text-xs md:text-sm">
-                  {p.desa.name}
-                </TableCell>
-                <TableCell>
-                  <StatusBadge status={p.status as PengajuanStatus} />
-                </TableCell>
-                <TableCell className="text-muted-foreground text-xs md:text-sm font-medium">
-                  {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
-                </TableCell>
-              </TableRow>
-            ))}
-          </DataTable>
+        {/* Main Content (Table) */}
+        {pengajuans.length === 0 ? (
+          <EmptyState title="Tidak ada data pengajuan" description="Gunakan filter lain atau ajukan berkas baru melalui kader." />
+        ) : (
+          <div className="space-y-4">
+            <DataTable
+              columns={["No. Tiket", "Pelapor", "OPD Tujuan", "Desa asal", "Status", "Tanggal"]}
+              dataLength={pengajuans.length}
+            >
+              {pengajuans.map((p) => (
+                <TableRow key={p.id} className="hover:bg-muted/40 transition-colors">
+                  <TableCell className="px-4 py-3.5 font-mono text-xs md:text-sm font-bold text-foreground">
+                    {p.tiketNumber}
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5 font-semibold text-foreground text-xs md:text-sm">
+                    {p.namaPelapor}
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5 text-muted-foreground text-xs md:text-sm font-medium">
+                    {p.opd.name}
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5 text-muted-foreground text-xs md:text-sm">
+                    {p.desa.name}
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5">
+                    <StatusBadge status={p.status as PengajuanStatus} />
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5 text-muted-foreground text-xs md:text-sm font-medium">
+                    {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </DataTable>
 
           {/* Pagination Navigation */}
           {totalPages > 1 && (
@@ -242,8 +247,9 @@ export default async function KecamatanPage({
               </div>
             </div>
           )}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </PageContainer>
   )
 }

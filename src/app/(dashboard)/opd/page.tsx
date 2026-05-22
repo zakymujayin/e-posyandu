@@ -14,6 +14,7 @@ import { id as localeId } from "date-fns/locale"
 import { MESSAGES, type PengajuanStatus } from "@/lib/messages"
 import { FileSpreadsheet, Clock, CheckCircle2 } from "lucide-react"
 import { PageContainer } from "@/components/layout/page-container"
+import { SectionTitle } from "@/components/ui/typography"
 
 const TABS = [
   { value: "proses", label: "Perlu Ditindaklanjuti", status: "DALAM_PROSES_OPD", icon: FileSpreadsheet, variant: "primary" as const },
@@ -69,7 +70,7 @@ export default async function OpdPage({
       />
 
       {/* Stats Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {TABS.map((t, i) => (
           <StatCard
             key={t.value}
@@ -82,62 +83,70 @@ export default async function OpdPage({
         ))}
       </div>
 
-      {/* Tab Controls */}
-      <div className="flex bg-muted/60 border border-border p-1 rounded-2xl w-fit select-none shadow-xs overflow-x-auto">
-        {TABS.map((t, i) => (
-          <Button
-            key={t.value}
-            variant={tab.value === t.value ? "default" : "ghost"}
-            size="sm"
-            asChild
-            className="rounded-xl font-semibold text-xs md:text-sm whitespace-nowrap"
-          >
-            <Link href={`?tab=${t.value}`}>
-              {t.label} ({counts[i]})
-            </Link>
-          </Button>
-        ))}
-      </div>
+      {/* Tab Controls + Table Section */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-4 bg-primary rounded-full" />
+            <SectionTitle>{tab.label}</SectionTitle>
+          </div>
+          <div className="flex bg-muted/60 border border-border p-1 rounded-2xl w-fit select-none shadow-xs overflow-x-auto">
+            {TABS.map((t, i) => (
+              <Button
+                key={t.value}
+                variant={tab.value === t.value ? "default" : "ghost"}
+                size="sm"
+                asChild
+                className="rounded-xl font-semibold text-xs md:text-sm whitespace-nowrap"
+              >
+                <Link href={`?tab=${t.value}`}>
+                  {t.label} ({counts[i]})
+                </Link>
+              </Button>
+            ))}
+          </div>
+        </div>
 
-      {/* Main List */}
-      {pengajuans.length === 0 ? (
+        {/* Main List */}
+        {pengajuans.length === 0 ? (
         <EmptyState
           title={`Tidak ada berkas "${tab.label}"`}
           description="Berkas pengajuan akan otomatis muncul setelah kader mengirimkan usulan baru dan disetujui pihak desa."
         />
       ) : (
-        <DataTable
-          columns={["No. Tiket", "Nama Pelapor", "Jenis Layanan", "Status", "Tanggal", "Aksi"]}
-          dataLength={pengajuans.length}
-        >
-          {pengajuans.map((p) => (
-            <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
-              <TableCell className="px-4 py-3 font-mono text-xs md:text-sm font-semibold text-foreground">
-                {p.tiketNumber}
-              </TableCell>
-              <TableCell className="px-4 py-3 text-xs md:text-sm text-foreground font-semibold">
-                {p.namaPelapor}
-              </TableCell>
-              <TableCell className="px-4 py-3 text-xs md:text-sm text-muted-foreground font-medium">
-                {p.layananJenis.name}
-              </TableCell>
-              <TableCell className="px-4 py-3">
-                <StatusBadge status={p.status as PengajuanStatus} />
-              </TableCell>
-              <TableCell className="px-4 py-3 text-xs md:text-sm font-semibold text-muted-foreground">
-                {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
-              </TableCell>
-              <TableCell className="px-4 py-3">
-                <Button variant="outline" size="xs" asChild className="rounded-xl font-semibold text-xs md:text-sm">
-                  <Link href={`/opd/tindak-lanjut/${p.id}`}>
-                    {tab.value === "proses" ? "Tindak Lanjut" : "Lihat Detail"}
-                  </Link>
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </DataTable>
-      )}
+          <DataTable
+            columns={["No. Tiket", "Nama Pelapor", "Jenis Layanan", "Status", "Tanggal", "Aksi"]}
+            dataLength={pengajuans.length}
+          >
+            {pengajuans.map((p) => (
+              <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
+                <TableCell className="px-4 py-3.5 font-mono text-xs md:text-sm font-semibold text-foreground">
+                  {p.tiketNumber}
+                </TableCell>
+                <TableCell className="px-4 py-3.5 text-xs md:text-sm text-foreground font-semibold">
+                  {p.namaPelapor}
+                </TableCell>
+                <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
+                  {p.layananJenis.name}
+                </TableCell>
+                <TableCell className="px-4 py-3.5">
+                  <StatusBadge status={p.status as PengajuanStatus} />
+                </TableCell>
+                <TableCell className="px-4 py-3.5 text-xs md:text-sm font-semibold text-muted-foreground">
+                  {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
+                </TableCell>
+                <TableCell className="px-4 py-3.5">
+                  <Button variant="outline" size="xs" asChild className="rounded-xl font-semibold text-xs md:text-sm">
+                    <Link href={`/opd/tindak-lanjut/${p.id}`}>
+                      {tab.value === "proses" ? "Tindak Lanjut" : "Lihat Detail"}
+                    </Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </DataTable>
+        )}
+      </div>
     </PageContainer>
   )
 }

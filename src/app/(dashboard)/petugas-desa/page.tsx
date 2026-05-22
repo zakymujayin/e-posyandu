@@ -14,6 +14,7 @@ import { id as localeId } from "date-fns/locale"
 import { MESSAGES, type PengajuanStatus } from "@/lib/messages"
 import { ShieldAlert, CheckCircle2, XOctagon } from "lucide-react"
 import { PageContainer } from "@/components/layout/page-container"
+import { SectionTitle, MutedText } from "@/components/ui/typography"
 
 export default async function PetugasDesaPage({
   searchParams,
@@ -71,7 +72,7 @@ export default async function PetugasDesaPage({
       />
 
       {/* Stats Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <StatCard
           title="Perlu Verifikasi"
           value={menunggu}
@@ -95,73 +96,79 @@ export default async function PetugasDesaPage({
         />
       </div>
 
-      {/* Tab Controls */}
-      <div className="flex bg-muted/60 border border-border p-1 rounded-2xl w-fit select-none shadow-xs">
-        <Button
-          variant={tab === "perlu" ? "default" : "ghost"}
-          size="sm"
-          asChild
-          className="rounded-xl font-semibold text-xs md:text-sm"
-        >
-          <Link href="?tab=perlu">
-            Perlu Diverifikasi ({menunggu})
-          </Link>
-        </Button>
-        <Button
-          variant={tab === "sudah" ? "default" : "ghost"}
-          size="sm"
-          asChild
-          className="rounded-xl font-semibold text-xs md:text-sm"
-        >
-          <Link href="?tab=sudah">
-            Sudah Diproses
-          </Link>
-        </Button>
-      </div>
+      {/* Tab Controls + Section Title */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-4 bg-primary rounded-full" />
+            <SectionTitle>
+              {tab === "perlu" ? "Berkas Perlu Diverifikasi" : "Riwayat Berkas Diproses"}
+            </SectionTitle>
+          </div>
+          <div className="flex bg-muted/60 border border-border p-1 rounded-2xl w-fit select-none shadow-xs">
+            <Button
+              variant={tab === "perlu" ? "default" : "ghost"}
+              size="sm"
+              asChild
+              className="rounded-xl font-semibold text-xs md:text-sm"
+            >
+              <Link href="?tab=perlu">Perlu Diverifikasi ({menunggu})</Link>
+            </Button>
+            <Button
+              variant={tab === "sudah" ? "default" : "ghost"}
+              size="sm"
+              asChild
+              className="rounded-xl font-semibold text-xs md:text-sm"
+            >
+              <Link href="?tab=sudah">Sudah Diproses</Link>
+            </Button>
+          </div>
+        </div>
 
-      {/* Main List */}
-      {pengajuans.length === 0 ? (
-        <EmptyState
-          title={tab === "perlu" ? "Belum ada berkas baru" : "Tidak ada riwayat berkas"}
-          description={
-            tab === "perlu"
-              ? "Seluruh pengajuan dari kader posyandu di wilayah Anda telah selesai diverifikasi."
-              : "Belum ada pengajuan posyandu yang selesai Anda proses saat ini."
-          }
-        />
-      ) : (
-        <DataTable
-          columns={["No. Tiket", "Nama Pelapor", "OPD Tujuan", "Status", "Tanggal", "Aksi"]}
-          dataLength={pengajuans.length}
-        >
-          {pengajuans.map((p) => (
-            <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
-              <TableCell className="px-4 py-3 font-mono text-xs md:text-sm font-semibold text-foreground">
-                {p.tiketNumber}
-              </TableCell>
-              <TableCell className="px-4 py-3 text-xs md:text-sm text-foreground font-semibold">
-                {p.namaPelapor}
-              </TableCell>
-              <TableCell className="px-4 py-3 text-xs md:text-sm text-muted-foreground font-medium">
-                {p.opd.name}
-              </TableCell>
-              <TableCell className="px-4 py-3">
-                <StatusBadge status={p.status as PengajuanStatus} />
-              </TableCell>
-              <TableCell className="px-4 py-3 text-xs md:text-sm font-semibold text-muted-foreground">
-                {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
-              </TableCell>
-              <TableCell className="px-4 py-3">
-                <Button variant="outline" size="xs" asChild className="rounded-xl font-semibold text-xs md:text-sm">
-                  <Link href={`/petugas-desa/verifikasi/${p.id}`}>
-                    {tab === "perlu" ? "Verifikasi Berkas" : "Lihat Detail"}
-                  </Link>
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </DataTable>
-      )}
+        {/* Main List */}
+        {pengajuans.length === 0 ? (
+          <EmptyState
+            title={tab === "perlu" ? "Belum ada berkas baru" : "Tidak ada riwayat berkas"}
+            description={
+              tab === "perlu"
+                ? "Seluruh pengajuan dari kader posyandu di wilayah Anda telah selesai diverifikasi."
+                : "Belum ada pengajuan posyandu yang selesai Anda proses saat ini."
+            }
+          />
+        ) : (
+          <DataTable
+            columns={["No. Tiket", "Nama Pelapor", "OPD Tujuan", "Status", "Tanggal", "Aksi"]}
+            dataLength={pengajuans.length}
+          >
+            {pengajuans.map((p) => (
+              <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
+                <TableCell className="px-4 py-3.5 font-mono text-xs md:text-sm font-semibold text-foreground">
+                  {p.tiketNumber}
+                </TableCell>
+                <TableCell className="px-4 py-3.5 text-xs md:text-sm text-foreground font-semibold">
+                  {p.namaPelapor}
+                </TableCell>
+                <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
+                  {p.opd.name}
+                </TableCell>
+                <TableCell className="px-4 py-3.5">
+                  <StatusBadge status={p.status as PengajuanStatus} />
+                </TableCell>
+                <TableCell className="px-4 py-3.5 text-xs md:text-sm font-semibold text-muted-foreground">
+                  {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
+                </TableCell>
+                <TableCell className="px-4 py-3.5">
+                  <Button variant="outline" size="xs" asChild className="rounded-xl font-semibold text-xs md:text-sm">
+                    <Link href={`/petugas-desa/verifikasi/${p.id}`}>
+                      {tab === "perlu" ? "Verifikasi Berkas" : "Lihat Detail"}
+                    </Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </DataTable>
+        )}
+      </div>
     </PageContainer>
   )
 }

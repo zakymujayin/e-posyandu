@@ -56,23 +56,49 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex bg-background transition-all duration-300">
+    <div className="min-h-screen flex bg-slate-50 transition-all duration-300">
       {/* Left side: branding/illustration panel (desktop only) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-tr from-primary via-primary/95 to-accent/90 text-primary-foreground p-12 flex-col justify-between relative overflow-hidden select-none">
-        {/* Soft decorative background patterns */}
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent pointer-events-none" />
-        <div className="absolute -bottom-48 -left-48 w-96 h-96 bg-accent/20 rounded-full blur-3xl pointer-events-none" />
-        
+      <div className="hidden lg:flex lg:w-[52%] flex-col justify-between relative overflow-hidden select-none p-12"
+        style={{
+          background: "linear-gradient(135deg, oklch(0.28 0.14 265) 0%, oklch(0.36 0.17 255) 30%, oklch(0.44 0.18 245) 60%, oklch(0.38 0.16 270) 100%)"
+        }}
+      >
+        {/* Mesh gradient overlay */}
+        <div className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse 80% 60% at 80% 10%, oklch(0.60 0.18 220 / 0.18) 0%, transparent 60%), radial-gradient(ellipse 60% 70% at 10% 90%, oklch(0.30 0.20 280 / 0.22) 0%, transparent 60%)"
+          }}
+        />
+
+        {/* Subtle grid texture */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.04]"
+          style={{
+            backgroundImage: "linear-gradient(oklch(1 0 0) 1px, transparent 1px), linear-gradient(90deg, oklch(1 0 0) 1px, transparent 1px)",
+            backgroundSize: "40px 40px"
+          }}
+        />
+
+        {/* Decorative glowing orbs */}
+        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, oklch(0.60 0.20 215 / 0.20) 0%, transparent 70%)" }}
+        />
+        <div className="absolute bottom-0 -left-24 w-[380px] h-[380px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, oklch(0.42 0.22 275 / 0.25) 0%, transparent 70%)" }}
+        />
+        <div className="absolute top-1/2 left-1/3 w-[200px] h-[200px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, oklch(0.65 0.16 230 / 0.10) 0%, transparent 70%)" }}
+        />
+
         {/* Branding header */}
         <div className="flex items-center gap-3 relative z-10">
-          <div className="size-10 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-white font-bold border border-white/10 shadow-lg shadow-black/5">
+          <div className="size-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center font-black border border-white/20 shadow-lg text-white text-sm tracking-wide">
             EP
           </div>
           <div>
             <h1 className="text-base font-bold tracking-tight text-white leading-none">
               E-Posyandu
             </h1>
-            <p className="text-[10px] font-semibold text-white/70 uppercase tracking-wider mt-1 leading-none">
+            <p className="text-[10px] font-semibold text-blue-200/80 uppercase tracking-widest mt-1 leading-none">
               Kabupaten Lebak
             </p>
           </div>
@@ -80,22 +106,26 @@ export default function LoginPage() {
 
         {/* Informative center content */}
         <div className="max-w-md relative z-10">
-          <Landmark className="size-12 mb-6 text-accent" />
-          <h2 className="text-3xl font-extrabold tracking-tight text-white leading-tight mb-4">
-            Layanan Pengajuan & Verifikasi E-Posyandu
+          <div className="size-14 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center mb-6 shadow-lg backdrop-blur-sm">
+            <Landmark className="size-7 text-blue-200" />
+          </div>
+          <h2 className="text-[28px] font-extrabold tracking-tight text-white leading-tight mb-4">
+            Layanan Pengajuan &amp; Verifikasi E-Posyandu
           </h2>
-          <p className="text-sm text-white/80 leading-relaxed">
+          <p className="text-[14px] text-blue-100/75 leading-relaxed">
             Portal terintegrasi Dinas Pemberdayaan Masyarakat dan Desa (DPMD) Kabupaten Lebak untuk kader posyandu, perangkat desa, OPD, dan pimpinan daerah.
           </p>
-          
-          <div className="mt-8 flex flex-col gap-3">
+
+          <div className="mt-8 flex flex-col gap-3.5">
             {[
               "Persetujuan pengajuan data posyandu real-time",
               "Pemantauan status pengajuan transparan",
               "Pengarsipan master data wilayah terintegrasi",
             ].map((text, idx) => (
-              <div key={idx} className="flex items-center gap-3 text-xs text-white/90">
-                <CheckCircle className="size-4 text-accent shrink-0" />
+              <div key={idx} className="flex items-center gap-3 text-[13px] text-white/85">
+                <div className="size-5 rounded-full bg-white/15 border border-white/20 flex items-center justify-center shrink-0">
+                  <CheckCircle className="size-3 text-blue-200" />
+                </div>
                 <span>{text}</span>
               </div>
             ))}
@@ -103,22 +133,32 @@ export default function LoginPage() {
         </div>
 
         {/* Footer info */}
-        <div className="text-xs text-white/60 relative z-10">
-          &copy; {new Date().getFullYear()} DPMD Kab. Lebak. All rights reserved.
+        <div className="text-[11px] text-blue-200/50 relative z-10 font-medium">
+          &copy; {new Date().getFullYear()} DPMD Kab. Lebak. Hak cipta dilindungi.
         </div>
       </div>
 
-      {/* Right side: Login form card */}
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12">
-        <Card className="w-full max-w-md border border-border bg-card shadow-2xl relative">
-          {/* Accent top boundary bar for premium look */}
-          <div className="absolute top-0 left-0 right-0 h-[4px] bg-gradient-to-r from-primary to-accent" />
+      {/* Right side: Login form */}
+      <div className="flex-1 flex items-center justify-center p-6 md:p-12 bg-slate-50 relative">
+        {/* Subtle background blobs on the right panel */}
+        <div className="absolute top-0 right-0 w-80 h-80 rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, oklch(0.44 0.13 245 / 0.04) 0%, transparent 70%)" }}
+        />
+        <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, oklch(0.44 0.13 245 / 0.03) 0%, transparent 70%)" }}
+        />
+
+        <Card className="w-full max-w-md border border-slate-200/80 bg-white shadow-[0_8px_40px_rgba(0,0,0,0.08)] relative">
+          {/* Accent top bar */}
+          <div className="absolute top-0 left-0 right-0 h-[3px] rounded-t-[inherit]"
+            style={{ background: "linear-gradient(90deg, oklch(0.36 0.17 255), oklch(0.44 0.18 245), oklch(0.55 0.15 230))" }}
+          />
 
           <CardHeader className="space-y-2 text-center pt-8">
             <CardTitle className="text-2xl font-bold tracking-tight text-foreground select-none">
               Selamat Datang
             </CardTitle>
-            <CardDescription className="text-xs text-muted-foreground select-none">
+            <CardDescription className="text-[13px] text-muted-foreground select-none">
               Silakan masukkan email dan kata sandi Anda untuk mengakses layanan
             </CardDescription>
           </CardHeader>
@@ -132,7 +172,7 @@ export default function LoginPage() {
               )}
 
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-xs font-semibold text-muted-foreground">
+                <Label htmlFor="email" className="text-[13px] font-semibold text-slate-700">
                   Email Layanan
                 </Label>
                 <Input
@@ -140,7 +180,7 @@ export default function LoginPage() {
                   type="email"
                   placeholder="name@domain.com"
                   autoComplete="email"
-                  className="rounded-xl border-border bg-background focus:ring-primary focus:border-primary"
+                  className="rounded-xl border-slate-200 bg-white focus:ring-primary focus:border-primary"
                   {...register("email")}
                 />
                 {errors.email && (
@@ -151,7 +191,7 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-xs font-semibold text-muted-foreground">
+                <Label htmlFor="password" className="text-[13px] font-semibold text-slate-700">
                   Kata Sandi
                 </Label>
                 <div className="relative">
@@ -160,7 +200,7 @@ export default function LoginPage() {
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     autoComplete="current-password"
-                    className="rounded-xl border-border bg-background focus:ring-primary focus:border-primary pr-10"
+                    className="rounded-xl border-slate-200 bg-white focus:ring-primary focus:border-primary pr-10"
                     {...register("password")}
                   />
                   <button
