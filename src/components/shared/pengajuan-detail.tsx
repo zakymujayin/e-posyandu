@@ -78,7 +78,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
   return (
     <div className="space-y-4">
       {/* Header Info */}
-      <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-3">
+      <div className="bg-white dark:bg-card rounded-lg border border-border p-5 space-y-3">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <MutedText>No. Tiket</MutedText>
@@ -87,7 +87,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
           <StatusBadge status={pengajuan.status as PengajuanStatus} />
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm">
           <div>
             <MutedText>OPD Tujuan</MutedText>
             <p className="font-medium text-foreground mt-0.5">{pengajuan.opd.name}</p>
@@ -111,7 +111,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-3 text-sm border-t border-border pt-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm border-t border-border pt-3">
           <div>
             <MutedText>Posyandu</MutedText>
             <p className="text-foreground/90 mt-0.5">{pengajuan.posyandu.name}</p>
@@ -124,9 +124,9 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
       </div>
 
       {/* Data Pelapor */}
-      <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-3">
+      <div className="bg-white dark:bg-card rounded-lg border border-border p-5 space-y-3">
         <CardTitle>Data Pelapor</CardTitle>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
           <div>
             <MutedText>Nama Pelapor</MutedText>
             <p className="text-foreground font-medium mt-0.5">{pengajuan.namaPelapor}</p>
@@ -143,7 +143,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
               <p className="text-foreground/90 mt-0.5">{pengajuan.noHpPelapor}</p>
             </div>
           )}
-          <div className="md:col-span-2">
+          <div className="sm:col-span-2">
             <MutedText>Alamat</MutedText>
             <p className="text-foreground/90 mt-0.5">{pengajuan.alamatPelapor}</p>
           </div>
@@ -152,9 +152,9 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
 
       {/* Dynamic Fields */}
       {pengajuan.fieldValues.length > 0 && (
-        <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-3">
+        <div className="bg-white dark:bg-card rounded-lg border border-border p-5 space-y-3">
           <CardTitle>Detail Layanan</CardTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             {pengajuan.fieldValues.map((fv) => (
               <div key={fv.id}>
                 <MutedText>{fv.formField.fieldLabel}</MutedText>
@@ -173,7 +173,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
 
       {/* Lampiran Kader */}
       {pengajuanAttachments.length > 0 && (
-        <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-3">
+        <div className="bg-white dark:bg-card rounded-lg border border-border p-5 space-y-3">
           <CardTitle>Lampiran dari Kader</CardTitle>
           <div className="space-y-2">
             {pengajuanAttachments.map((att) => (
@@ -205,7 +205,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
 
       {/* Timeline */}
       {pengajuan.activityLogs.length > 0 && (
-        <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-3">
+        <div className="bg-white dark:bg-card rounded-lg border border-border p-5 space-y-3">
           <CardTitle>Timeline Aktivitas</CardTitle>
           <div className="space-y-3">
             {pengajuan.activityLogs.map((log, i) => (

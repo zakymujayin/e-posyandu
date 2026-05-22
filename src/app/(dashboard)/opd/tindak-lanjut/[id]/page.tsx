@@ -77,14 +77,14 @@ export default async function TindakLanjutDetailPage({
 
         {/* Riwayat tindak lanjut sebelumnya */}
         {pengajuan.tindakLanjuts.length > 0 && (
-          <div className="bg-card border border-border rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="bg-card border border-border rounded-lg p-6 shadow-xs space-y-4">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-4 bg-primary rounded-full"></span>
               <CardTitle>Riwayat Tindak Lanjut</CardTitle>
             </div>
             <div className="space-y-4">
               {pengajuan.tindakLanjuts.map((tl) => (
-                <div key={tl.id} className="border border-border/60 bg-muted/20 rounded-xl p-4 space-y-3 transition-colors hover:bg-muted/35">
+                <div key={tl.id} className="border border-border/60 bg-muted/20 rounded-lg p-4 space-y-3 transition-colors hover:bg-muted/35">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <MutedText>
                       {tl.petugasOpd.name} · {format(new Date(tl.submittedAt), "d MMM yyyy HH:mm", { locale: localeId })}
@@ -99,7 +99,7 @@ export default async function TindakLanjutDetailPage({
         )}
 
         {isWaitingApproval && (
-          <div className="bg-primary/5 border border-primary/15 rounded-2xl p-5 shadow-xs flex items-start gap-3">
+          <div className="bg-primary/5 border border-primary/15 rounded-lg p-5 shadow-xs flex items-start gap-3">
             <span className="w-2 h-2 rounded-full bg-primary mt-1.5 animate-pulse shrink-0"></span>
             <div>
               <p className="text-xs md:text-sm text-primary font-semibold">

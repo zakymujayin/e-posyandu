@@ -53,7 +53,7 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-lg border-t border-border px-2 py-1 shadow-[0_-2px_10px_rgba(0,0,0,0.03)] dark:bg-card/80 dark:border-border">
-      <nav className="flex justify-center items-center gap-6 sm:gap-12 px-4">
+      <nav className="flex justify-around items-center px-2">
         {items.map((item) => {
           const Icon = item.icon
           const isActive =
@@ -66,7 +66,7 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center min-w-[72px] py-1.5 px-2 rounded-xl text-[12px] font-medium transition-all duration-300 gap-1 select-none",
+                "flex flex-col items-center justify-center flex-1 max-w-[90px] py-1.5 px-2 rounded-xl text-[12px] font-medium transition-all duration-300 gap-1 select-none",
                 isActive
                   ? "text-primary dark:text-primary-foreground font-semibold scale-105"
                   : "text-muted-foreground hover:text-foreground"

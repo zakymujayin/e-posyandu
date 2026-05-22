@@ -157,8 +157,8 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
               {/* File Upload */}
               <div className="space-y-3">
                 <FormLabel>Upload Bukti Dokumen/Foto (Maksimal 5)</FormLabel>
-                <label className="group relative flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border/80 rounded-2xl p-6 cursor-pointer text-center transition-all hover:bg-muted/30 hover:border-primary/50 select-none">
-                  <div className="p-3 bg-muted group-hover:bg-primary/5 group-hover:text-primary rounded-2xl transition-colors">
+                <label className="group relative flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border/80 rounded-lg p-6 cursor-pointer text-center transition-all hover:bg-muted/30 hover:border-primary/50 select-none">
+                  <div className="p-3 bg-muted group-hover:bg-primary/5 group-hover:text-primary rounded-lg transition-colors">
                     <Upload className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
                   <div>
@@ -184,7 +184,7 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
                     {uploadedFiles.map((f, i) => (
                       <div
                         key={i}
-                        className="flex items-center justify-between text-xs bg-muted/40 border border-border/50 px-3 py-2.5 rounded-xl transition-all hover:bg-muted/65"
+                        className="flex items-center justify-between text-xs bg-muted/40 border border-border/50 px-3 py-2.5 rounded-lg transition-all hover:bg-muted/65"
                       >
                         <div className="flex items-center gap-2 min-w-0">
                           <FileText className="w-4 h-4 text-primary shrink-0" />
@@ -233,7 +233,7 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
                   variant="outline"
                   size="sm"
                   onClick={() => append({ url: "" })}
-                  className="rounded-xl text-xs font-bold gap-1 px-3 mt-1"
+                  className="text-xs font-bold gap-1 px-3 mt-1"
                 >
                   <Plus className="w-3.5 h-3.5" /> Tambah Tautan Video
                 </Button>
@@ -247,7 +247,7 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
           <Button
             type="button"
             variant="destructive"
-            className="flex-1 min-h-[44px] rounded-2xl font-bold order-2 sm:order-1"
+            className="flex-1 min-h-[44px] font-bold order-2 sm:order-1"
             onClick={() => setShowTolakModal(true)}
             disabled={loading}
           >
@@ -255,7 +255,7 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
           </Button>
           <Button
             type="submit"
-            className="flex-1 min-h-[44px] rounded-2xl font-bold bg-primary hover:bg-primary/95 text-primary-foreground order-1 sm:order-2"
+            className="flex-1 min-h-[44px] font-bold bg-primary hover:bg-primary/95 text-primary-foreground order-1 sm:order-2"
             disabled={isSubmitting || uploading || loading}
           >
             {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
@@ -266,7 +266,7 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
 
       {/* Submit Confirmation Dialog */}
       <Dialog open={showSubmitModal} onOpenChange={setShowSubmitModal}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg font-bold text-foreground">Kirim Tindak Lanjut?</DialogTitle>
             <DialogDescription className="text-xs md:text-sm text-muted-foreground leading-relaxed mt-1">
@@ -274,7 +274,7 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4">
-            <Button variant="outline" className="rounded-xl font-bold text-xs" onClick={() => setShowSubmitModal(false)}>
+            <Button variant="outline" className="font-bold text-xs" onClick={() => setShowSubmitModal(false)}>
               Kembali
             </Button>
             <Button
@@ -291,7 +291,7 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
 
       {/* Reject Confirmation Dialog */}
       <Dialog open={showTolakModal} onOpenChange={setShowTolakModal}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg font-bold text-foreground">Konfirmasi Penolakan Pengajuan</DialogTitle>
             <DialogDescription className="text-xs md:text-sm text-muted-foreground leading-relaxed mt-1">
@@ -309,14 +309,14 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
             />
           </div>
           <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-2">
-            <Button variant="outline" className="rounded-xl font-bold text-xs" onClick={() => setShowTolakModal(false)}>
+            <Button variant="outline" className="font-bold text-xs" onClick={() => setShowTolakModal(false)}>
               Batal
             </Button>
             <Button
               variant="destructive"
               onClick={doTolak}
               disabled={loading || !alasanTolak.trim()}
-              className="rounded-xl font-bold text-xs"
+              className="font-bold text-xs"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Tolak & Tutup Permanen

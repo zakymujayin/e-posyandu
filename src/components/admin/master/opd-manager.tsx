@@ -97,7 +97,7 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
         <Button
           onClick={openCreate}
           size="sm"
-          className="rounded-xl font-bold text-xs gap-1.5"
+          className="font-bold text-xs gap-1.5"
         >
           <Plus className="w-4 h-4" />
           Tambah OPD Dinas
@@ -168,7 +168,7 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
                 type="submit"
                 size="sm"
                 disabled={loading}
-                className="rounded-xl font-bold text-xs gap-1"
+                className="font-bold text-xs gap-1"
               >
                 <Check className="w-3.5 h-3.5" />
                 {loading ? "Menyimpan..." : "Simpan Data"}
@@ -178,7 +178,7 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowForm(false)}
-                className="rounded-xl font-bold text-xs gap-1"
+                className="font-bold text-xs gap-1"
               >
                 <X className="w-3.5 h-3.5" />
                 Batal
@@ -204,7 +204,7 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
             <TableRow key={opd.id} className="transition-colors hover:bg-muted/30">
               <TableCell className="px-4 py-3.5">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-xl shrink-0">
+                  <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-lg shrink-0">
                     <Building2 className="w-4 h-4" />
                   </div>
                   <div>

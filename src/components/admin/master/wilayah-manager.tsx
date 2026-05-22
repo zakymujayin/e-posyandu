@@ -88,14 +88,14 @@ export function WilayahManager({
   return (
     <div className="space-y-6">
       {/* Premium Tabs */}
-      <div className="flex bg-muted/65 border border-border p-1 rounded-2xl w-fit select-none shadow-xs">
+      <div className="flex bg-muted/65 border border-border p-1 rounded-lg w-fit select-none shadow-xs">
         {(["kecamatan", "desa"] as const).map((tab) => (
           <Button
             key={tab}
             variant={activeTab === tab ? "default" : "ghost"}
             size="sm"
             onClick={() => setActiveTab(tab)}
-            className="rounded-xl font-bold text-xs capitalize whitespace-nowrap px-4"
+            className="font-bold text-xs capitalize whitespace-nowrap px-4"
           >
             {tab === "kecamatan" ? `Kecamatan (${kecamatans.length})` : `Desa (${desas.length})`}
           </Button>
@@ -108,7 +108,7 @@ export function WilayahManager({
             <Button
               onClick={() => setShowKecForm(true)}
               size="sm"
-              className="rounded-xl font-bold text-xs gap-1.5"
+              className="font-bold text-xs gap-1.5"
             >
               <Plus className="w-4 h-4" /> Tambah Kecamatan
             </Button>
@@ -147,7 +147,7 @@ export function WilayahManager({
                     type="submit"
                     size="sm"
                     disabled={loading}
-                    className="rounded-xl font-bold text-xs gap-1"
+                    className="font-bold text-xs gap-1"
                   >
                     <Check className="w-3.5 h-3.5" />
                     Simpan
@@ -157,7 +157,7 @@ export function WilayahManager({
                     variant="outline"
                     size="sm"
                     onClick={() => setShowKecForm(false)}
-                    className="rounded-xl font-bold text-xs gap-1"
+                    className="font-bold text-xs gap-1"
                   >
                     <X className="w-3.5 h-3.5" />
                     Batal
@@ -183,7 +183,7 @@ export function WilayahManager({
                 <TableRow key={k.id} className="transition-colors hover:bg-muted/30">
                   <TableCell className="px-4 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-xl shrink-0">
+                      <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-lg shrink-0">
                         <MapPin className="w-4 h-4" />
                       </div>
                       <p className="font-bold text-xs text-foreground">{k.name}</p>
@@ -208,7 +208,7 @@ export function WilayahManager({
             <select
               value={filterKec}
               onChange={(e) => setFilterKec(e.target.value)}
-              className="border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-64"
+              className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-64"
             >
               <option value="">Semua Kecamatan</option>
               {kecamatans.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
@@ -216,7 +216,7 @@ export function WilayahManager({
             <Button
               onClick={() => setShowDesaForm(true)}
               size="sm"
-              className="rounded-xl font-bold text-xs gap-1.5 shrink-0 w-full sm:w-auto"
+              className="font-bold text-xs gap-1.5 shrink-0 w-full sm:w-auto"
             >
               <Plus className="w-4 h-4" /> Tambah Desa Baru
             </Button>
@@ -234,7 +234,7 @@ export function WilayahManager({
                     <select
                       value={desaForm.kecamatanId}
                       onChange={(e) => setDesaForm((f) => ({ ...f, kecamatanId: e.target.value }))}
-                      className="w-full border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                      className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
                       required
                     >
                       <option value="">Pilih Kecamatan</option>
@@ -267,7 +267,7 @@ export function WilayahManager({
                     type="submit"
                     size="sm"
                     disabled={loading}
-                    className="rounded-xl font-bold text-xs gap-1"
+                    className="font-bold text-xs gap-1"
                   >
                     <Check className="w-3.5 h-3.5" />
                     Simpan Desa
@@ -277,7 +277,7 @@ export function WilayahManager({
                     variant="outline"
                     size="sm"
                     onClick={() => setShowDesaForm(false)}
-                    className="rounded-xl font-bold text-xs gap-1"
+                    className="font-bold text-xs gap-1"
                   >
                     <X className="w-3.5 h-3.5" />
                     Batal
@@ -303,7 +303,7 @@ export function WilayahManager({
                 <TableRow key={d.id} className="transition-colors hover:bg-muted/30">
                   <TableCell className="px-4 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-xl shrink-0">
+                      <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-lg shrink-0">
                         <Building className="w-4 h-4" />
                       </div>
                       <p className="font-bold text-xs text-foreground">{d.name}</p>

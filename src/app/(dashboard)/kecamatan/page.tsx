@@ -50,7 +50,7 @@ export default async function KecamatanPage({
 
   if (!user?.kecamatanId) {
     return (
-      <div className="p-6 bg-destructive/10 text-destructive border border-destructive/20 rounded-2xl text-xs font-semibold max-w-lg mx-auto mt-12 text-center">
+      <div className="p-6 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-xs font-semibold max-w-lg mx-auto mt-12 text-center">
         Akun Anda belum terdaftar di kecamatan. Hubungi Administrator DPMD.
       </div>
     )
@@ -144,13 +144,13 @@ export default async function KecamatanPage({
           <span className="w-1.5 h-4 bg-primary rounded-full" />
           <SectionTitle>Data Pengajuan Posyandu</SectionTitle>
         </div>
-        <form className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 bg-card border border-border p-4 rounded-2xl shadow-xs">
+        <form className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 bg-card border border-border p-4 rounded-lg shadow-xs">
         <div className="flex flex-col gap-1.5 flex-1 min-w-[180px]">
           <FormLabel>Pilih Desa</FormLabel>
           <select
             name="desaId"
             defaultValue={filterDesa}
-            className="min-h-[42px] px-3 bg-background border border-border text-foreground rounded-xl text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/45 hover:bg-muted/40 transition-all cursor-pointer"
+            className="min-h-[42px] px-3 bg-background border border-border text-foreground rounded-lg text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/45 hover:bg-muted/40 transition-all cursor-pointer"
           >
             <option value="">Semua Desa</option>
             {user.kecamatan?.desas.map((d) => (
@@ -164,7 +164,7 @@ export default async function KecamatanPage({
           <select
             name="status"
             defaultValue={filterStatus}
-            className="min-h-[42px] px-3 bg-background border border-border text-foreground rounded-xl text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/45 hover:bg-muted/40 transition-all cursor-pointer"
+            className="min-h-[42px] px-3 bg-background border border-border text-foreground rounded-lg text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/45 hover:bg-muted/40 transition-all cursor-pointer"
           >
             <option value="">Semua Status</option>
             <option value="MENUNGGU_VERIFIKASI">Menunggu Verifikasi</option>
@@ -176,7 +176,7 @@ export default async function KecamatanPage({
           </select>
         </div>
 
-        <Button type="submit" className="min-h-[42px] px-5 rounded-xl font-bold text-xs md:text-sm gap-2 shrink-0">
+        <Button type="submit" className="min-h-[42px] px-5 font-bold text-xs md:text-sm gap-2 shrink-0">
           <Filter className="size-3.5" />
           Terapkan Filter
         </Button>
@@ -217,30 +217,30 @@ export default async function KecamatanPage({
 
           {/* Pagination Navigation */}
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-card border border-border rounded-2xl p-4 select-none">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-card border border-border rounded-lg p-4 select-none">
               <MutedText>
                 Menampilkan Halaman {page} dari {totalPages} ({totalFiltered} data)
               </MutedText>
               <div className="flex gap-2">
                 {page > 1 ? (
-                  <Button variant="outline" size="sm" asChild className="rounded-xl font-semibold text-xs md:text-sm">
+                  <Button variant="outline" size="sm" asChild className="font-semibold text-xs md:text-sm">
                     <Link href={`?desaId=${filterDesa}&status=${filterStatus}&page=${page - 1}`}>
                       &larr; Sebelumnya
                     </Link>
                   </Button>
                 ) : (
-                  <Button variant="outline" size="sm" disabled className="rounded-xl font-semibold text-xs md:text-sm">
+                  <Button variant="outline" size="sm" disabled className="font-semibold text-xs md:text-sm">
                     &larr; Sebelumnya
                   </Button>
                 )}
                 {page < totalPages ? (
-                  <Button variant="outline" size="sm" asChild className="rounded-xl font-semibold text-xs md:text-sm">
+                  <Button variant="outline" size="sm" asChild className="font-semibold text-xs md:text-sm">
                     <Link href={`?desaId=${filterDesa}&status=${filterStatus}&page=${page + 1}`}>
                       Selanjutnya &rarr;
                     </Link>
                   </Button>
                 ) : (
-                  <Button variant="outline" size="sm" disabled className="rounded-xl font-semibold text-xs md:text-sm">
+                  <Button variant="outline" size="sm" disabled className="font-semibold text-xs md:text-sm">
                     Selanjutnya &rarr;
                   </Button>
                 )}

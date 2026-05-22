@@ -333,8 +333,8 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
           {/* File upload */}
           <div className="space-y-3">
             <FormLabel>Berkas / Dokumen Lampiran</FormLabel>
-            <label className="group/drop flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border rounded-2xl p-6 cursor-pointer bg-muted/20 hover:bg-muted/40 hover:border-primary/40 transition-all duration-300">
-              <div className="p-2.5 rounded-xl bg-background border border-border text-muted-foreground group-hover/drop:scale-110 group-hover/drop:text-primary transition-all duration-300 shadow-xs">
+            <label className="group/drop flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border rounded-lg p-6 cursor-pointer bg-muted/20 hover:bg-muted/40 hover:border-primary/40 transition-all duration-300">
+              <div className="p-2.5 rounded-lg bg-background border border-border text-muted-foreground group-hover/drop:scale-110 group-hover/drop:text-primary transition-all duration-300 shadow-xs">
                 <Upload className="w-5 h-5" />
               </div>
               <span className="text-xs font-bold text-foreground mt-1">
@@ -359,7 +359,7 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
             {uploadedFiles.length > 0 && (
               <ul className="space-y-2 mt-3">
                 {uploadedFiles.map((f, i) => (
-                  <li key={i} className="flex items-center justify-between text-xs bg-muted/30 border border-border px-3.5 py-2.5 rounded-xl animate-fade-in">
+                  <li key={i} className="flex items-center justify-between text-xs bg-muted/30 border border-border px-3.5 py-2.5 rounded-lg animate-fade-in">
                     <span className="truncate text-foreground font-semibold max-w-[80%]">{f.name}</span>
                     <button
                       type="button"
@@ -391,7 +391,7 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
                 <button
                   type="button"
                   onClick={() => removeVideo(index)}
-                  className="text-destructive hover:bg-destructive/10 p-2 rounded-xl border border-transparent hover:border-destructive/10 transition-all duration-200"
+                  className="text-destructive hover:bg-destructive/10 p-2 rounded-lg border border-transparent hover:border-destructive/10 transition-all duration-200"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -444,7 +444,7 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
 
       {/* Confirm Modal */}
       <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
-        <DialogContent className="rounded-2xl border border-border bg-card max-w-sm select-none p-6">
+        <DialogContent className="rounded-lg border border-border bg-card max-w-sm select-none p-6">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-foreground tracking-tight">
               Kirim Pengajuan Sekarang?
@@ -457,14 +457,14 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
             <Button
               variant="outline"
               onClick={() => setShowConfirm(false)}
-              className="flex-1 rounded-xl text-xs font-semibold"
+              className="flex-1 text-xs font-semibold"
             >
               Ubah Kembali
             </Button>
             <Button
               onClick={confirmSubmit}
               disabled={isSubmitting}
-              className="flex-1 rounded-xl text-xs font-bold"
+              className="flex-1 text-xs font-bold"
             >
               {isSubmitting ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : null}
               Ya, Kirim
@@ -576,7 +576,7 @@ function DynamicFieldInput({
       placeholder={field.placeholder ?? "Ketik nilai..."}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="rounded-xl border-border bg-background"
+      className="rounded-lg border-border bg-background"
     />
   )
 }

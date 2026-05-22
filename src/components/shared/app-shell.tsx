@@ -21,7 +21,7 @@ export function AppShell({ user, children }: AppShellProps) {
       <Sidebar user={user} />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col md:ml-64 min-h-screen relative">
+      <div className="flex-1 flex flex-col md:ml-64 min-h-screen relative w-full max-w-full min-w-0">
         {/* Decorative Blurred Blobs for Visual Depth (isolated clip container to allow sticky header) */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
           <div className="absolute top-[-10%] right-[-10%] w-[35rem] h-[35rem] rounded-full bg-blue-500/4 blur-3xl" />
@@ -32,7 +32,7 @@ export function AppShell({ user, children }: AppShellProps) {
         <Header user={user} />
 
         {/* Content Body with extra padding bottom on mobile to clear bottom navigation */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto py-6 lg:py-8 px-0 pb-24 lg:pb-8 animate-fade-in relative z-10">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto py-6 lg:py-8 px-0 pb-24 md:pb-8 animate-fade-in relative z-10">
           {children}
         </main>
       </div>

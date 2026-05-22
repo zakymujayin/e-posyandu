@@ -107,7 +107,7 @@ export default async function AdminPage({
 
       {/* Alert — Perlu Approval */}
       {alertItems.length > 0 && (
-        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 shadow-xs space-y-3">
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-5 shadow-xs space-y-3">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-amber-600 animate-pulse" />
             <h2 className="font-bold text-amber-800 text-sm md:text-base">
@@ -119,7 +119,7 @@ export default async function AdminPage({
               <Link
                 key={p.id}
                 href={`/admin/pengajuan/${p.id}`}
-                className="flex items-center justify-between text-xs md:text-sm bg-card border border-border/60 rounded-xl px-4 py-3 hover:bg-muted/40 hover:border-primary/40 transition-all select-none font-semibold text-foreground"
+                className="flex items-center justify-between text-xs md:text-sm bg-card border border-border/60 rounded-lg px-4 py-3 hover:bg-muted/40 hover:border-primary/40 transition-all select-none font-semibold text-foreground"
               >
                 <span className="font-mono text-muted-foreground">{p.tiketNumber}</span>
                 <span className="truncate max-w-[150px]">{p.opd.name}</span>
@@ -143,7 +143,7 @@ export default async function AdminPage({
             <select
               name="status"
               defaultValue={filterStatus}
-              className="border border-border/80 rounded-xl px-3 py-2 text-xs md:text-sm bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
+              className="border border-border/80 rounded-lg px-3 py-2 text-xs md:text-sm bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
             >
               {STATUS_OPTIONS.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -151,7 +151,7 @@ export default async function AdminPage({
                 </option>
               ))}
             </select>
-            <Button type="submit" size="sm" className="rounded-xl font-bold text-xs md:text-sm">
+            <Button type="submit" size="sm" className="font-bold text-xs md:text-sm">
               Saring
             </Button>
           </form>
@@ -189,7 +189,7 @@ export default async function AdminPage({
                     {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
                   </TableCell>
                   <TableCell className="px-4 py-3.5">
-                    <Button variant="outline" size="xs" asChild className="rounded-xl font-semibold text-xs md:text-sm">
+                    <Button variant="outline" size="xs" asChild className="font-semibold text-xs md:text-sm">
                       <Link href={`/admin/pengajuan/${p.id}`}>Detail</Link>
                     </Button>
                   </TableCell>
@@ -198,16 +198,16 @@ export default async function AdminPage({
             </DataTable>
 
             {totalPages > 1 && (
-              <div className="flex items-center justify-between bg-card border border-border rounded-2xl p-4 select-none">
+              <div className="flex items-center justify-between bg-card border border-border rounded-lg p-4 select-none">
                 <MutedText>Halaman {page} dari {totalPages}</MutedText>
                 <div className="flex gap-2">
                   {page > 1 && (
-                    <Button variant="outline" size="sm" asChild className="rounded-xl font-semibold text-xs md:text-sm px-3">
+                    <Button variant="outline" size="sm" asChild className="font-semibold text-xs md:text-sm px-3">
                       <Link href={`?status=${filterStatus}&page=${page - 1}`}>&larr; Prev</Link>
                     </Button>
                   )}
                   {page < totalPages && (
-                    <Button variant="outline" size="sm" asChild className="rounded-xl font-semibold text-xs md:text-sm px-3">
+                    <Button variant="outline" size="sm" asChild className="font-semibold text-xs md:text-sm px-3">
                       <Link href={`?status=${filterStatus}&page=${page + 1}`}>Next &rarr;</Link>
                     </Button>
                   )}

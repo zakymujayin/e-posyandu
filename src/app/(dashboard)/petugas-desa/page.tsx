@@ -34,7 +34,7 @@ export default async function PetugasDesaPage({
 
   if (!user?.desaId) {
     return (
-      <div className="p-5 bg-destructive/10 text-destructive border border-destructive/20 rounded-2xl text-xs font-semibold max-w-lg mx-auto mt-12 text-center">
+      <div className="p-5 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-xs font-semibold max-w-lg mx-auto mt-12 text-center">
         Akun Anda belum terasosiasi dengan data desa manapun. Silakan hubungi Administrator DPMD.
       </div>
     )
@@ -105,12 +105,12 @@ export default async function PetugasDesaPage({
               {tab === "perlu" ? "Berkas Perlu Diverifikasi" : "Riwayat Berkas Diproses"}
             </SectionTitle>
           </div>
-          <div className="flex bg-muted/60 border border-border p-1 rounded-2xl w-fit select-none shadow-xs">
+          <div className="flex bg-muted/60 border border-border p-1 rounded-lg w-fit select-none shadow-xs">
             <Button
               variant={tab === "perlu" ? "default" : "ghost"}
               size="sm"
               asChild
-              className="rounded-xl font-semibold text-xs md:text-sm"
+              className="font-semibold text-xs md:text-sm"
             >
               <Link href="?tab=perlu">Perlu Diverifikasi ({menunggu})</Link>
             </Button>
@@ -118,7 +118,7 @@ export default async function PetugasDesaPage({
               variant={tab === "sudah" ? "default" : "ghost"}
               size="sm"
               asChild
-              className="rounded-xl font-semibold text-xs md:text-sm"
+              className="font-semibold text-xs md:text-sm"
             >
               <Link href="?tab=sudah">Sudah Diproses</Link>
             </Button>
@@ -158,7 +158,7 @@ export default async function PetugasDesaPage({
                   {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
                 </TableCell>
                 <TableCell className="px-4 py-3.5">
-                  <Button variant="outline" size="xs" asChild className="rounded-xl font-semibold text-xs md:text-sm">
+                  <Button variant="outline" size="xs" asChild className="font-semibold text-xs md:text-sm">
                     <Link href={`/petugas-desa/verifikasi/${p.id}`}>
                       {tab === "perlu" ? "Verifikasi Berkas" : "Lihat Detail"}
                     </Link>

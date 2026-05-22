@@ -139,7 +139,7 @@ export function FieldsManager({
           <select
             value={filterOpd}
             onChange={(e) => { setFilterOpd(e.target.value); setFilterLayanan("") }}
-            className="border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
+            className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
           >
             <option value="">Semua OPD</option>
             {opds.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
@@ -147,7 +147,7 @@ export function FieldsManager({
           <select
             value={filterLayanan}
             onChange={(e) => setFilterLayanan(e.target.value)}
-            className="border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
+            className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
           >
             <option value="">Semua Layanan</option>
             {filteredLayanans.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
@@ -156,7 +156,7 @@ export function FieldsManager({
         <Button
           onClick={openCreate}
           size="sm"
-          className="rounded-xl font-bold text-xs gap-1.5 shrink-0 w-full sm:w-auto"
+          className="font-bold text-xs gap-1.5 shrink-0 w-full sm:w-auto"
         >
           <Plus className="w-4 h-4" /> Tambah Field Baru
         </Button>
@@ -175,7 +175,7 @@ export function FieldsManager({
                   value={form.layananJenisId}
                   onChange={(e) => setForm((f) => ({ ...f, layananJenisId: e.target.value }))}
                   disabled={!!editing}
-                  className="w-full border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
+                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
                   required
                 >
                   <option value="">Pilih Layanan</option>
@@ -210,7 +210,7 @@ export function FieldsManager({
                   value={form.fieldType}
                   onChange={(e) => setForm((f) => ({ ...f, fieldType: e.target.value }))}
                   disabled={!!editing}
-                  className="w-full border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
+                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
                 >
                   {FIELD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
@@ -274,7 +274,7 @@ export function FieldsManager({
                 type="submit"
                 size="sm"
                 disabled={loading}
-                className="rounded-xl font-bold text-xs gap-1"
+                className="font-bold text-xs gap-1"
               >
                 <Check className="w-3.5 h-3.5" />
                 {loading ? "Menyimpan..." : "Simpan Field"}
@@ -284,7 +284,7 @@ export function FieldsManager({
                 variant="outline"
                 size="sm"
                 onClick={() => setShowForm(false)}
-                className="rounded-xl font-bold text-xs gap-1"
+                className="font-bold text-xs gap-1"
               >
                 <X className="w-3.5 h-3.5" />
                 Batal
@@ -310,7 +310,7 @@ export function FieldsManager({
             <TableRow key={f.id} className="transition-colors hover:bg-muted/30">
               <TableCell className="px-4 py-3.5">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-xl shrink-0">
+                  <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-lg shrink-0">
                     <FileQuestion className="w-4 h-4" />
                   </div>
                   <div>

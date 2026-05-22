@@ -51,7 +51,7 @@ export function VerifikasiActions({ pengajuanId }: Props) {
 
   return (
     <>
-      <Card className="border border-border rounded-2xl shadow-sm overflow-hidden select-none relative">
+      <Card className="border border-border rounded-lg shadow-sm overflow-hidden select-none relative">
         {/* Amber top line */}
         <div className="absolute top-0 left-0 right-0 h-[4px] bg-amber-500" />
         
@@ -63,10 +63,10 @@ export function VerifikasiActions({ pengajuanId }: Props) {
             </MutedText>
           </div>
           
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button
               onClick={() => setShowApproveModal(true)}
-              className="flex-1 min-h-[44px] rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-md flex items-center justify-center gap-2 text-xs md:text-sm"
+              className="flex-1 min-h-[44px] font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-md flex items-center justify-center gap-2 text-xs md:text-sm"
               disabled={loading}
             >
               <CheckCircle2 className="size-4" />
@@ -75,7 +75,7 @@ export function VerifikasiActions({ pengajuanId }: Props) {
             <Button
               variant="destructive"
               onClick={() => setShowRejectModal(true)}
-              className="flex-1 min-h-[44px] rounded-xl font-bold flex items-center justify-center gap-2 text-xs md:text-sm"
+              className="flex-1 min-h-[44px] font-bold flex items-center justify-center gap-2 text-xs md:text-sm"
               disabled={loading}
             >
               <XCircle className="size-4" />
@@ -87,7 +87,7 @@ export function VerifikasiActions({ pengajuanId }: Props) {
 
       {/* Approve Modal */}
       <Dialog open={showApproveModal} onOpenChange={setShowApproveModal}>
-        <DialogContent className="rounded-2xl border border-border bg-card max-w-sm select-none p-6">
+        <DialogContent className="rounded-lg border border-border bg-card max-w-sm select-none p-6">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg font-bold text-foreground flex items-center gap-2">
               <CheckCircle2 className="size-5 text-emerald-500" />
@@ -98,10 +98,10 @@ export function VerifikasiActions({ pengajuanId }: Props) {
             Apakah Anda yakin ingin memverifikasi berkas pengajuan ini? Data akan langsung diteruskan ke Organisasi Perangkat Daerah (OPD) untuk ditindaklanjuti.
           </MutedText>
           <DialogFooter className="flex gap-2 pt-2">
-            <Button variant="outline" onClick={() => setShowApproveModal(false)} disabled={loading} className="flex-1 rounded-xl text-xs md:text-sm font-semibold">
+            <Button variant="outline" onClick={() => setShowApproveModal(false)} disabled={loading} className="flex-1 text-xs md:text-sm font-semibold">
               Batal
             </Button>
-            <Button onClick={() => doVerifikasi("APPROVE")} className="flex-1 rounded-xl text-xs md:text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-700" disabled={loading}>
+            <Button onClick={() => doVerifikasi("APPROVE")} className="flex-1 text-xs md:text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-700" disabled={loading}>
               {loading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : null}
               Ya, Setujui
             </Button>
@@ -111,7 +111,7 @@ export function VerifikasiActions({ pengajuanId }: Props) {
 
       {/* Reject Modal */}
       <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
-        <DialogContent className="rounded-2xl border border-border bg-card max-w-md select-none p-6">
+        <DialogContent className="rounded-lg border border-border bg-card max-w-md select-none p-6">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg font-bold text-foreground flex items-center gap-2">
               <AlertTriangle className="size-5 text-destructive" />
@@ -131,15 +131,15 @@ export function VerifikasiActions({ pengajuanId }: Props) {
                 onChange={(e) => setAlasan(e.target.value)}
                 placeholder="Tuliskan kekurangan berkas/alasan di sini secara detail..."
                 rows={4}
-                className="rounded-xl border-border bg-background text-sm"
+                className="rounded-lg border-border bg-background text-sm"
               />
             </div>
           </div>
           <DialogFooter className="flex gap-2 pt-2">
-            <Button variant="outline" onClick={() => setShowRejectModal(false)} disabled={loading} className="flex-1 rounded-xl text-xs md:text-sm font-semibold">
+            <Button variant="outline" onClick={() => setShowRejectModal(false)} disabled={loading} className="flex-1 text-xs md:text-sm font-semibold">
               Batal
             </Button>
-            <Button variant="destructive" onClick={() => doVerifikasi("REJECT")} disabled={loading || !alasan.trim()} className="flex-1 rounded-xl text-xs md:text-sm font-bold">
+            <Button variant="destructive" onClick={() => doVerifikasi("REJECT")} disabled={loading || !alasan.trim()} className="flex-1 text-xs md:text-sm font-bold">
               {loading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : null}
               Tolak Berkas
             </Button>

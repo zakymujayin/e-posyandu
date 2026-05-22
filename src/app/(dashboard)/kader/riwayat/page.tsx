@@ -68,7 +68,7 @@ export default async function KaderRiwayatPage({
       />
 
       {/* Toolbar Filter */}
-      <div className="bg-card border border-border rounded-2xl p-4 shadow-xs select-none">
+      <div className="bg-card border border-border rounded-lg p-4 shadow-xs select-none">
         <form className="flex items-center gap-3 flex-wrap">
           <div className="flex flex-col gap-1.5 min-w-[200px]">
             <FormLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -77,7 +77,7 @@ export default async function KaderRiwayatPage({
             <select
               name="status"
               defaultValue={status}
-              className="w-full h-9 rounded-xl border border-border bg-background px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+              className="w-full h-9 rounded-lg border border-border bg-background px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200"
             >
               {STATUS_OPTIONS.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -87,7 +87,7 @@ export default async function KaderRiwayatPage({
             </select>
           </div>
           <div className="self-end">
-            <Button type="submit" size="sm" className="rounded-xl font-semibold tracking-tight">
+            <Button type="submit" size="sm" className="font-semibold tracking-tight">
               Terapkan Filter
             </Button>
           </div>
@@ -131,30 +131,30 @@ export default async function KaderRiwayatPage({
 
           {/* Pagination Navigation */}
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs font-medium text-muted-foreground bg-card border border-border rounded-2xl p-4 select-none">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs font-medium text-muted-foreground bg-card border border-border rounded-lg p-4 select-none">
               <span>
                 Menampilkan Halaman {page} dari {totalPages} ({total} data)
               </span>
               <div className="flex gap-2">
                 {page > 1 ? (
-                  <Button variant="outline" size="sm" asChild className="rounded-xl font-semibold">
+                  <Button variant="outline" size="sm" asChild className="font-semibold">
                     <Link href={`?status=${status}&page=${page - 1}`}>
                       &larr; Sebelumnya
                     </Link>
                   </Button>
                 ) : (
-                  <Button variant="outline" size="sm" disabled className="rounded-xl font-semibold">
+                  <Button variant="outline" size="sm" disabled className="font-semibold">
                     &larr; Sebelumnya
                   </Button>
                 )}
                 {page < totalPages ? (
-                  <Button variant="outline" size="sm" asChild className="rounded-xl font-semibold">
+                  <Button variant="outline" size="sm" asChild className="font-semibold">
                     <Link href={`?status=${status}&page=${page + 1}`}>
                       Selanjutnya &rarr;
                     </Link>
                   </Button>
                 ) : (
-                  <Button variant="outline" size="sm" disabled className="rounded-xl font-semibold">
+                  <Button variant="outline" size="sm" disabled className="font-semibold">
                     Selanjutnya &rarr;
                   </Button>
                 )}

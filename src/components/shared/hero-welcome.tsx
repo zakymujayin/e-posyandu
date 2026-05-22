@@ -15,7 +15,7 @@ export function HeroWelcome({ userName, roleLabel, description }: HeroWelcomePro
   const monthYear = format(now, "MMMM yyyy", { locale: localeId })
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground p-6 md:p-8 shadow-[0_8px_30px_rgba(37,99,235,0.12)] border border-primary/20 select-none mb-6">
+    <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground p-6 md:p-8 shadow-[0_8px_30px_rgba(37,99,235,0.12)] border border-primary/20 select-none mb-6">
       {/* Decorative Vectors/Blobs inside the Hero card */}
       <div className="absolute right-[-20px] top-[-20px] w-64 h-64 rounded-full bg-white/[0.03] blur-2xl pointer-events-none" />
       <div className="absolute left-[30%] bottom-[-50px] w-48 h-48 rounded-full bg-indigo-500/[0.1] blur-2xl pointer-events-none" />
@@ -51,7 +51,7 @@ export function HeroWelcome({ userName, roleLabel, description }: HeroWelcomePro
         </div>
 
         {/* Right Side Date Widget */}
-        <div className="shrink-0 flex items-center gap-4 bg-white/10 border border-white/12 backdrop-blur-md rounded-2xl p-4 md:p-5 text-center min-w-[150px] shadow-inner">
+        <div className="shrink-0 flex items-center gap-4 bg-white/10 border border-white/12 backdrop-blur-md rounded-lg p-4 md:p-5 text-center min-w-[150px] shadow-inner">
           <Calendar className="size-8 text-blue-200 stroke-[1.5] hidden sm:block" />
           <div className="text-left">
             <p className="text-[12px] font-bold text-blue-200 uppercase tracking-wider leading-none">

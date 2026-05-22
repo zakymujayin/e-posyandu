@@ -27,7 +27,7 @@ export default async function AjukanPage({
   if (!userWithKader?.posyanduId) {
     return (
       <PageContainer className="py-6">
-        <div className="p-4 bg-destructive/10 text-destructive border border-destructive/20 rounded-xl text-xs font-semibold">
+        <div className="p-4 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-xs font-semibold">
           Profil Anda belum dihubungkan ke Posyandu. Silakan hubungi Admin.
         </div>
       </PageContainer>

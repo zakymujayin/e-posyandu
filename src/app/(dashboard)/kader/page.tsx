@@ -114,7 +114,7 @@ export default async function KaderPage() {
               <Link
                 key={opd.id}
                 href={`/kader/ajukan/${opd.id}`}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-card p-5 border border-border transition-all duration-300 hover:shadow-md hover:border-primary/20"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-lg bg-card p-5 border border-border transition-all duration-300 hover:shadow-md hover:border-primary/20"
               >
                 {/* Colored left bar for category identifier */}
                 <div
@@ -125,7 +125,7 @@ export default async function KaderPage() {
                 <div className="space-y-3">
                   {/* Soft tinted backdrop background with solid icon */}
                   <div
-                    className="size-9 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
+                    className="size-9 rounded-lg flex items-center justify-center shrink-0 shadow-xs"
                     style={{
                       backgroundColor: opd.color ? `${opd.color}15` : "rgba(var(--primary), 0.08)",
                       color: opd.color || "var(--primary)"

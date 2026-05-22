@@ -106,7 +106,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
         <select
           value={filterOpd}
           onChange={(e) => setFilterOpd(e.target.value)}
-          className="border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-64"
+          className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-64"
         >
           <option value="">Semua Dinas/OPD</option>
           {opds.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
@@ -114,7 +114,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
         <Button
           onClick={openCreate}
           size="sm"
-          className="rounded-xl font-bold text-xs gap-1.5 shrink-0 w-full sm:w-auto"
+          className="font-bold text-xs gap-1.5 shrink-0 w-full sm:w-auto"
         >
           <Plus className="w-4 h-4" />
           Tambah Layanan Baru
@@ -134,7 +134,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
                   value={form.opdId}
                   onChange={(e) => setForm((f) => ({ ...f, opdId: e.target.value }))}
                   disabled={!!editing}
-                  className="w-full border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
+                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
                   required
                 >
                   <option value="">Pilih OPD</option>
@@ -175,7 +175,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
                 type="submit"
                 size="sm"
                 disabled={loading}
-                className="rounded-xl font-bold text-xs gap-1"
+                className="font-bold text-xs gap-1"
               >
                 <Check className="w-3.5 h-3.5" />
                 {loading ? "Menyimpan..." : "Simpan Data"}
@@ -185,7 +185,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
                 variant="outline"
                 size="sm"
                 onClick={() => setShowForm(false)}
-                className="rounded-xl font-bold text-xs gap-1"
+                className="font-bold text-xs gap-1"
               >
                 <X className="w-3.5 h-3.5" />
                 Batal
@@ -211,7 +211,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
             <TableRow key={l.id} className="transition-colors hover:bg-muted/30">
               <TableCell className="px-4 py-3.5">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-xl shrink-0">
+                  <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-lg shrink-0">
                     <List className="w-4 h-4" />
                   </div>
                   <div>

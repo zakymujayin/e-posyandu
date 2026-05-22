@@ -69,14 +69,14 @@ export default async function AdminPengajuanDetailPage({
 
           {/* Tindak Lanjut OPD */}
           {pengajuan.tindakLanjuts.length > 0 && (
-            <div className="bg-card border border-border rounded-2xl p-6 shadow-xs space-y-4">
+            <div className="bg-card border border-border rounded-lg p-6 shadow-xs space-y-4">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-4 bg-primary rounded-full"></span>
                 <CardTitle>Tindak Lanjut dari OPD</CardTitle>
               </div>
               <div className="space-y-4">
                 {pengajuan.tindakLanjuts.map((tl) => (
-                  <div key={tl.id} className="border border-border/60 bg-muted/20 rounded-xl p-4 space-y-3 transition-colors hover:bg-muted/35">
+                  <div key={tl.id} className="border border-border/60 bg-muted/20 rounded-lg p-4 space-y-3 transition-colors hover:bg-muted/35">
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <MutedText>
                         {tl.petugasOpd.name} · {format(new Date(tl.submittedAt), "d MMM yyyy HH:mm", { locale: localeId })}
@@ -114,7 +114,7 @@ export default async function AdminPengajuanDetailPage({
 
           {/* Admin Actions History */}
           {pengajuan.adminActions.length > 0 && (
-            <div className="bg-card border border-border rounded-2xl p-6 shadow-xs space-y-4">
+            <div className="bg-card border border-border rounded-lg p-6 shadow-xs space-y-4">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-4 bg-primary rounded-full"></span>
                 <CardTitle>Riwayat Aksi Admin</CardTitle>

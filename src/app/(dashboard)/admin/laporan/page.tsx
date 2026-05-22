@@ -91,7 +91,7 @@ export default async function LaporanPage() {
           { label: "Sedang Berjalan", value: totalBerjalan, color: "text-blue-600" },
           { label: "Ditolak", value: totalDitolak, color: "text-red-500" },
         ].map((s) => (
-          <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-4">
+          <div key={s.label} className="bg-white rounded-lg border border-gray-200 p-4">
             <p className="text-xs text-gray-500">{s.label}</p>
             <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
             {s.sub && <p className="text-xs text-gray-400 mt-0.5">{s.sub} dari total</p>}
@@ -100,7 +100,7 @@ export default async function LaporanPage() {
       </div>
 
       {/* Monthly Comparison */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5">
+      <div className="bg-white rounded-lg border border-gray-200 p-5">
         <h2 className="text-sm font-semibold text-gray-700 mb-3">Perbandingan Bulanan</h2>
         <div className="flex gap-8">
           <div>
@@ -124,7 +124,7 @@ export default async function LaporanPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* By Status */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-lg border border-gray-200 p-5">
           <h2 className="text-sm font-semibold text-gray-700 mb-3">Distribusi Status</h2>
           <div className="space-y-2">
             {byStatus.map((row) => {
@@ -145,7 +145,7 @@ export default async function LaporanPage() {
         </div>
 
         {/* By OPD */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-lg border border-gray-200 p-5">
           <h2 className="text-sm font-semibold text-gray-700 mb-3">Pengajuan per OPD</h2>
           <div className="space-y-2">
             {byOpd.map((row) => {
@@ -167,7 +167,7 @@ export default async function LaporanPage() {
       </div>
 
       {/* By Layanan */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5">
+      <div className="bg-white rounded-lg border border-gray-200 p-5">
         <h2 className="text-sm font-semibold text-gray-700 mb-3">Layanan Paling Banyak Diajukan</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">

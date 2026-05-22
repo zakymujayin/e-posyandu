@@ -145,7 +145,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
           <select
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value)}
-            className="border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
+            className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
           >
             <option value="">Semua Peran/Role</option>
             {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
@@ -154,7 +154,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
         <Button
           onClick={openCreate}
           size="sm"
-          className="rounded-xl font-bold text-xs gap-1.5 shrink-0 w-full sm:w-auto"
+          className="font-bold text-xs gap-1.5 shrink-0 w-full sm:w-auto"
         >
           <Plus className="w-4 h-4" />
           Registrasi Pengguna
@@ -207,7 +207,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                   <select
                     value={form.role}
                     onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-                    className="w-full border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
                     required
                   >
                     {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
@@ -220,7 +220,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                   <select
                     value={form.desaId}
                     onChange={(e) => setForm((f) => ({ ...f, desaId: e.target.value }))}
-                    className="w-full border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
                   >
                     <option value="">Pilih Desa</option>
                     {desas.map((d) => <option key={d.id} value={d.id}>{d.name} ({d.kecamatan.name})</option>)}
@@ -233,7 +233,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                   <select
                     value={form.kecamatanId}
                     onChange={(e) => setForm((f) => ({ ...f, kecamatanId: e.target.value }))}
-                    className="w-full border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
                   >
                     <option value="">Pilih Kecamatan</option>
                     {kecamatans.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
@@ -246,7 +246,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                   <select
                     value={form.opdId}
                     onChange={(e) => setForm((f) => ({ ...f, opdId: e.target.value }))}
-                    className="w-full border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
                   >
                     <option value="">Pilih OPD</option>
                     {opds.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
@@ -259,7 +259,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                   <select
                     value={form.posyanduId}
                     onChange={(e) => setForm((f) => ({ ...f, posyanduId: e.target.value }))}
-                    className="w-full border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
                   >
                     <option value="">Pilih Posyandu</option>
                     {posyandus.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -272,7 +272,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                 type="submit"
                 size="sm"
                 disabled={loading}
-                className="rounded-xl font-bold text-xs gap-1"
+                className="font-bold text-xs gap-1"
               >
                 <Check className="w-3.5 h-3.5" />
                 {loading ? "Menyimpan..." : "Simpan Pengguna"}
@@ -282,7 +282,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                 variant="outline"
                 size="sm"
                 onClick={() => setShowForm(false)}
-                className="rounded-xl font-bold text-xs gap-1"
+                className="font-bold text-xs gap-1"
               >
                 <X className="w-3.5 h-3.5" />
                 Batal
@@ -310,7 +310,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               <TableRow key={u.id} className="transition-colors hover:bg-muted/30">
                 <TableCell className="px-4 py-3.5">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-xl shrink-0">
+                    <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-lg shrink-0">
                       <UserCheck className="w-4 h-4" />
                     </div>
                     <div>

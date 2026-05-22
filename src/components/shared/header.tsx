@@ -55,7 +55,7 @@ export function Header({ user }: HeaderProps) {
           </button>
           
           {/* Global Search */}
-          <div className="relative group w-full md:w-auto max-w-[200px] md:max-w-none">
+          <div className="hidden md:block relative group">
             <Search className="absolute left-3 md:left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground group-focus-within:text-blue-600 transition-colors" />
             <input 
               type="text" 

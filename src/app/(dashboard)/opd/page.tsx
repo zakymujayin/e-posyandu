@@ -40,7 +40,7 @@ export default async function OpdPage({
 
   if (!user?.opdId) {
     return (
-      <div className="p-5 bg-destructive/10 text-destructive border border-destructive/20 rounded-2xl text-xs font-semibold max-w-lg mx-auto mt-12 text-center">
+      <div className="p-5 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-xs font-semibold max-w-lg mx-auto mt-12 text-center">
         Akun Anda belum terasosiasi dengan data OPD manapun. Silakan hubungi Administrator DPMD.
       </div>
     )
@@ -90,14 +90,14 @@ export default async function OpdPage({
             <span className="w-1.5 h-4 bg-primary rounded-full" />
             <SectionTitle>{tab.label}</SectionTitle>
           </div>
-          <div className="flex bg-muted/60 border border-border p-1 rounded-2xl w-fit select-none shadow-xs overflow-x-auto">
+          <div className="flex bg-muted/60 border border-border p-1 rounded-lg w-fit select-none shadow-xs overflow-x-auto">
             {TABS.map((t, i) => (
               <Button
                 key={t.value}
                 variant={tab.value === t.value ? "default" : "ghost"}
                 size="sm"
                 asChild
-                className="rounded-xl font-semibold text-xs md:text-sm whitespace-nowrap"
+                className="font-semibold text-xs md:text-sm whitespace-nowrap"
               >
                 <Link href={`?tab=${t.value}`}>
                   {t.label} ({counts[i]})
@@ -136,7 +136,7 @@ export default async function OpdPage({
                   {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
                 </TableCell>
                 <TableCell className="px-4 py-3.5">
-                  <Button variant="outline" size="xs" asChild className="rounded-xl font-semibold text-xs md:text-sm">
+                  <Button variant="outline" size="xs" asChild className="font-semibold text-xs md:text-sm">
                     <Link href={`/opd/tindak-lanjut/${p.id}`}>
                       {tab.value === "proses" ? "Tindak Lanjut" : "Lihat Detail"}
                     </Link>

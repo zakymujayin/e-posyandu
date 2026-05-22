@@ -55,7 +55,7 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
 
   return (
     <>
-      <div className="bg-card border border-border rounded-2xl p-5 shadow-xs space-y-4 select-none">
+      <div className="bg-card border border-border rounded-lg p-5 shadow-xs space-y-4 select-none">
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-4 bg-primary rounded-full"></span>
           <CardTitle>Panel Aksi Verifikator</CardTitle>
@@ -65,7 +65,7 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
           <div className="space-y-2">
             <Button
               onClick={() => openModal("approve")}
-              className="w-full min-h-[44px] rounded-xl font-bold text-xs md:text-sm bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+              className="w-full min-h-[44px] rounded-lg font-bold text-xs md:text-sm bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
               disabled={loading}
             >
               <CheckCircle2 className="w-4 h-4" />
@@ -74,7 +74,7 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
             <Button
               variant="outline"
               onClick={() => openModal("revisi")}
-              className="w-full min-h-[44px] rounded-xl font-semibold text-xs md:text-sm gap-2"
+              className="w-full min-h-[44px] rounded-lg font-semibold text-xs md:text-sm gap-2"
               disabled={loading}
             >
               <RotateCcw className="w-4 h-4 text-muted-foreground" />
@@ -87,7 +87,7 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
           <Button
             variant="outline"
             onClick={() => openModal("warning")}
-            className="w-full min-h-[44px] rounded-xl font-semibold text-xs md:text-sm gap-2"
+            className="w-full min-h-[44px] rounded-lg font-semibold text-xs md:text-sm gap-2"
             disabled={loading}
           >
             <AlertTriangle className="w-4 h-4 text-amber-500" />
@@ -98,7 +98,7 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
             <Button
               variant="outline"
               onClick={() => openModal("bypass")}
-              className="w-full min-h-[44px] rounded-xl font-semibold text-xs md:text-sm border-amber-500/30 text-amber-700 bg-amber-500/5 hover:bg-amber-500/10 gap-2"
+              className="w-full min-h-[44px] rounded-lg font-semibold text-xs md:text-sm border-amber-500/30 text-amber-700 bg-amber-500/5 hover:bg-amber-500/10 gap-2"
               disabled={loading}
             >
               <ShieldAlert className="w-4 h-4" />
@@ -110,7 +110,7 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
 
       {/* Approve Modal */}
       <Dialog open={modal === "approve"} onOpenChange={() => setModal(null)}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
+        <DialogContent className="sm:max-w-md rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg font-bold text-foreground">Setujui & Selesaikan Berkas?</DialogTitle>
             <DialogDescription className="text-xs md:text-sm text-muted-foreground leading-relaxed mt-1">
@@ -118,12 +118,12 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4">
-            <Button variant="outline" className="rounded-xl font-semibold text-xs md:text-sm" onClick={() => setModal(null)}>
+            <Button variant="outline" className="font-semibold text-xs md:text-sm" onClick={() => setModal(null)}>
               Kembali
             </Button>
             <Button
               onClick={() => doAction("approve", {})}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs md:text-sm"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs md:text-sm"
               disabled={loading}
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
@@ -135,7 +135,7 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
 
       {/* Revisi Modal */}
       <Dialog open={modal === "revisi"} onOpenChange={() => setModal(null)}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
+        <DialogContent className="sm:max-w-md rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg font-bold text-foreground">Ajukan Permintaan Revisi</DialogTitle>
             <DialogDescription className="text-xs md:text-sm text-muted-foreground leading-relaxed mt-1">
@@ -153,13 +153,13 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
             />
           </div>
           <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-2">
-            <Button variant="outline" className="rounded-xl font-semibold text-xs md:text-sm" onClick={() => setModal(null)}>
+            <Button variant="outline" className="font-semibold text-xs md:text-sm" onClick={() => setModal(null)}>
               Batal
             </Button>
             <Button
               onClick={() => doAction("revisi", { catatan })}
               disabled={loading || !catatan.trim()}
-              className="rounded-xl font-bold text-xs md:text-sm"
+              className="font-bold text-xs md:text-sm"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Kirim Revisi
@@ -170,7 +170,7 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
 
       {/* Warning Modal */}
       <Dialog open={modal === "warning"} onOpenChange={() => setModal(null)}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
+        <DialogContent className="sm:max-w-md rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg font-bold text-foreground">Kirim Teguran Keterlambatan</DialogTitle>
             <DialogDescription className="text-xs md:text-sm text-muted-foreground leading-relaxed mt-1">
@@ -181,8 +181,8 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
             <div className="space-y-1.5">
               <FormLabel>Sasaran Instansi Penerima</FormLabel>
               <Select value={targetRole} onValueChange={(v) => setTargetRole(v as "PETUGAS_DESA" | "PETUGAS_OPD")}>
-                <SelectTrigger className="rounded-xl font-semibold text-xs md:text-sm text-foreground bg-card border-border/80"><SelectValue /></SelectTrigger>
-                <SelectContent className="rounded-xl">
+                <SelectTrigger className="font-semibold text-xs md:text-sm text-foreground bg-card border-border/80"><SelectValue /></SelectTrigger>
+                <SelectContent className="rounded-lg">
                   <SelectItem value="PETUGAS_DESA" className="text-xs md:text-sm font-semibold">Aparatur Pemerintahan Desa</SelectItem>
                   <SelectItem value="PETUGAS_OPD" className="text-xs md:text-sm font-semibold">Organisasi Perangkat Daerah (OPD)</SelectItem>
                 </SelectContent>
@@ -200,13 +200,13 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
             </div>
           </div>
           <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-2">
-            <Button variant="outline" className="rounded-xl font-semibold text-xs md:text-sm" onClick={() => setModal(null)}>
+            <Button variant="outline" className="font-semibold text-xs md:text-sm" onClick={() => setModal(null)}>
               Batal
             </Button>
             <Button
               onClick={() => doAction("warning", { catatan, targetRole })}
               disabled={loading || !catatan.trim()}
-              className="rounded-xl font-bold text-xs md:text-sm bg-amber-600 hover:bg-amber-700 text-white"
+              className="rounded-lg font-bold text-xs md:text-sm bg-amber-600 hover:bg-amber-700 text-white"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Kirim Teguran
@@ -217,7 +217,7 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
 
       {/* Bypass Modal */}
       <Dialog open={modal === "bypass"} onOpenChange={() => setModal(null)}>
-        <DialogContent className="sm:max-w-md rounded-2xl">
+        <DialogContent className="sm:max-w-md rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg font-bold text-foreground">Bypass Verifikasi Manual</DialogTitle>
             <DialogDescription className="text-xs md:text-sm text-muted-foreground leading-relaxed mt-1">
@@ -235,12 +235,12 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
             />
           </div>
           <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-2">
-            <Button variant="outline" className="rounded-xl font-semibold text-xs md:text-sm" onClick={() => setModal(null)}>
+            <Button variant="outline" className="font-semibold text-xs md:text-sm" onClick={() => setModal(null)}>
               Batal
             </Button>
             <Button
               onClick={() => doAction("bypass", { catatan })}
-              className="rounded-xl font-bold text-xs md:text-sm border-amber-500/40 text-amber-700 bg-amber-500/5 hover:bg-amber-500/10"
+              className="rounded-lg font-bold text-xs md:text-sm border-amber-500/40 text-amber-700 bg-amber-500/5 hover:bg-amber-500/10"
               variant="outline"
               disabled={loading || !catatan.trim()}
             >
