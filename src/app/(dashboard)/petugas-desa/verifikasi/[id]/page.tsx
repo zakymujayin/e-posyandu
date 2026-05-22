@@ -1,11 +1,11 @@
 import { auth } from "@/auth"
 import { redirect, notFound } from "next/navigation"
-import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { PengajuanDetail } from "@/components/shared/pengajuan-detail"
 import { VerifikasiActions } from "@/components/petugas-desa/verifikasi-actions"
 import { getSopInfo } from "@/lib/sop"
-import { ArrowLeft } from "lucide-react"
+import { PageHeader } from "@/components/shared/page-header"
+import { PageContainer } from "@/components/layout/page-container"
 
 export default async function VerifikasiDetailPage({
   params,
@@ -55,13 +55,13 @@ export default async function VerifikasiDetailPage({
   const canVerify = pengajuan.status === "MENUNGGU_VERIFIKASI"
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
-      <div className="flex items-center gap-3">
-        <Link href="/petugas-desa" className="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <h1 className="text-xl font-bold text-gray-900">Detail Pengajuan</h1>
-      </div>
+    <PageContainer className="space-y-6">
+      {/* Page Header */}
+      <PageHeader
+        title="Detail Pengajuan Berkas"
+        description={`Nomor Tiket: ${pengajuan.tiketNumber}`}
+        backHref="/petugas-desa"
+      />
 
       <PengajuanDetail
         pengajuan={pengajuan}
@@ -69,6 +69,6 @@ export default async function VerifikasiDetailPage({
       />
 
       {canVerify && <VerifikasiActions pengajuanId={id} />}
-    </div>
+    </PageContainer>
   )
 }

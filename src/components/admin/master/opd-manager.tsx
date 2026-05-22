@@ -2,7 +2,13 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
-import { Plus, Pencil, Trash2, X, Check } from "lucide-react"
+import { Plus, Pencil, Trash2, X, Check, Building2, HelpCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { DataTable } from "@/components/shared/data-table"
+import { TableRow, TableCell } from "@/components/ui/table"
+import { FormSection } from "@/components/shared/form-section"
 
 interface Opd {
   id: string
@@ -46,7 +52,7 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
         const data = await res.json()
         if (!res.ok) { toast.error(data.message); return }
         setOpds((prev) => prev.map((o) => (o.id === editing.id ? data.data : o)))
-        toast.success("OPD diperbarui")
+        toast.success("OPD berhasil diperbarui")
       } else {
         const res = await fetch("/api/admin/master/opd", {
           method: "POST",
@@ -56,7 +62,7 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
         const data = await res.json()
         if (!res.ok) { toast.error(data.message); return }
         setOpds((prev) => [...prev, data.data])
-        toast.success("OPD ditambahkan")
+        toast.success("OPD berhasil ditambahkan")
       }
       setShowForm(false)
     } finally {
@@ -73,6 +79,7 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
     const data = await res.json()
     if (!res.ok) { toast.error(data.message); return }
     setOpds((prev) => prev.map((o) => (o.id === opd.id ? data.data : o)))
+    toast.success(`OPD ${opd.name} ${!opd.isActive ? 'diaktifkan' : 'dinonaktifkan'}`)
   }
 
   async function handleDelete(opd: Opd) {
@@ -81,157 +88,173 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
     const data = await res.json()
     if (!res.ok) { toast.error(data.message); return }
     setOpds((prev) => prev.filter((o) => o.id !== opd.id))
-    toast.success("OPD dihapus")
+    toast.success("OPD berhasil dihapus")
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-end">
-        <button
+    <div className="space-y-6">
+      <div className="flex justify-end select-none">
+        <Button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+          size="sm"
+          className="rounded-xl font-bold text-xs gap-1.5"
         >
           <Plus className="w-4 h-4" />
-          Tambah OPD
-        </button>
+          Tambah OPD Dinas
+        </Button>
       </div>
 
       {showForm && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
-          <h3 className="font-semibold text-gray-900 mb-4">{editing ? "Edit OPD" : "Tambah OPD Baru"}</h3>
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Nama OPD</label>
-                <input
+        <form onSubmit={handleSubmit} className="transition-all duration-300">
+          <FormSection
+            title={editing ? "Ubah Data OPD" : "Registrasi OPD Baru"}
+            description="Lengkapi detail organisasi perangkat daerah yang akan dihubungkan ke sistem layanan."
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-foreground">Nama Instansi/OPD <span className="text-destructive">*</span></Label>
+                <Input
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  placeholder="Contoh: Dinas Kesehatan"
                   required
                 />
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Kode OPD</label>
-                <input
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-foreground">Kode OPD <span className="text-destructive">*</span></Label>
+                <Input
                   type="text"
                   value={form.code}
                   onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))}
+                  placeholder="Contoh: DINKES"
                   disabled={!!editing}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:bg-gray-100"
                   required
                 />
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Prefix Tiket (maks 5 karakter)</label>
-                <input
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-foreground">Prefix Tiket <span className="text-destructive">*</span></Label>
+                <Input
                   type="text"
                   value={form.tiketPrefix}
                   onChange={(e) => setForm((f) => ({ ...f, tiketPrefix: e.target.value.toUpperCase() }))}
+                  placeholder="Contoh: DKS (Maks 5 Karakter)"
                   disabled={!!editing}
                   maxLength={5}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:bg-gray-100"
                   required
                 />
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Urutan Tampil</label>
-                <input
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-foreground">Urutan Sortir</Label>
+                <Input
                   type="number"
                   value={form.sortOrder}
                   onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  placeholder="0"
                 />
               </div>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Deskripsi (opsional)</label>
-              <input
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-foreground">Deskripsi Tugas/Fungsi (Opsional)</Label>
+              <Input
                 type="text"
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                placeholder="Penjelasan ringkas bidang kerja instansi..."
               />
             </div>
-            <div className="flex gap-2">
-              <button
+            <div className="flex gap-2 pt-2">
+              <Button
                 type="submit"
+                size="sm"
                 disabled={loading}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                className="rounded-xl font-bold text-xs gap-1"
               >
-                <Check className="w-4 h-4" />
-                {loading ? "Menyimpan..." : "Simpan"}
-              </button>
-              <button
+                <Check className="w-3.5 h-3.5" />
+                {loading ? "Menyimpan..." : "Simpan Data"}
+              </Button>
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => setShowForm(false)}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
+                className="rounded-xl font-bold text-xs gap-1"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
                 Batal
-              </button>
+              </Button>
             </div>
-          </form>
-        </div>
+          </FormSection>
+        </form>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium">Nama OPD</th>
-              <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Kode</th>
-              <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Prefix Tiket</th>
-              <th className="px-4 py-3 text-left font-medium">Status</th>
-              <th className="px-4 py-3 text-left font-medium">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {opds.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-gray-400">Belum ada data OPD</td>
-              </tr>
-            ) : (
-              opds.map((opd) => (
-                <tr key={opd.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900">{opd.name}</p>
-                    {opd.description && <p className="text-xs text-gray-400 mt-0.5">{opd.description}</p>}
-                  </td>
-                  <td className="px-4 py-3 font-mono text-gray-600 hidden md:table-cell">{opd.code}</td>
-                  <td className="px-4 py-3 font-mono text-gray-600 hidden md:table-cell">{opd.tiketPrefix}</td>
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => handleToggleActive(opd)}
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        opd.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
-                      }`}
-                    >
-                      {opd.isActive ? "Aktif" : "Nonaktif"}
-                    </button>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => openEdit(opd)}
-                        className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"
-                      >
-                        <Pencil className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(opd)}
-                        className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        columns={["Nama Instansi", "Kode", "Prefix Tiket", "Status", "Aksi"]}
+        dataLength={opds.length}
+      >
+        {opds.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={5} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
+              <HelpCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-55" />
+              Belum ada data OPD yang terdaftar.
+            </TableCell>
+          </TableRow>
+        ) : (
+          opds.map((opd) => (
+            <TableRow key={opd.id} className="transition-colors hover:bg-muted/30">
+              <TableCell className="px-4 py-3.5">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-xl shrink-0">
+                    <Building2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-xs text-foreground">{opd.name}</p>
+                    {opd.description && <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed font-semibold">{opd.description}</p>}
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell className="px-4 py-3.5 font-mono text-xs text-foreground font-semibold">
+                {opd.code}
+              </TableCell>
+              <TableCell className="px-4 py-3.5 font-mono text-xs text-muted-foreground font-semibold">
+                {opd.tiketPrefix}
+              </TableCell>
+              <TableCell className="px-4 py-3.5">
+                <button
+                  onClick={() => handleToggleActive(opd)}
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all active:scale-95 cursor-pointer ${
+                    opd.isActive
+                      ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/20"
+                      : "bg-muted/60 text-muted-foreground border-border/80"
+                  }`}
+                >
+                  {opd.isActive ? "Aktif" : "Nonaktif"}
+                </button>
+              </TableCell>
+              <TableCell className="px-4 py-3.5">
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() => openEdit(opd)}
+                    className="text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() => handleDelete(opd)}
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))
+        )}
+      </DataTable>
     </div>
   )
 }

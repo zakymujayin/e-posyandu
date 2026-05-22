@@ -1,11 +1,20 @@
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
+import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { EmptyState } from "@/components/shared/empty-state"
+import { HeroWelcome } from "@/components/shared/hero-welcome"
+import { StatCard } from "@/components/shared/stat-card"
+import { DataTable } from "@/components/shared/data-table"
+import { TableRow, TableCell } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
-import type { PengajuanStatus } from "@/lib/messages"
+import { MESSAGES, type PengajuanStatus } from "@/lib/messages"
+import { ClipboardList, Hourglass, CheckCircle2, XCircle, Filter } from "lucide-react"
+import { PageContainer } from "@/components/layout/page-container"
+import { FormLabel, MutedText } from "@/components/ui/typography"
 
 export default async function KecamatanPage({
   searchParams,
@@ -23,13 +32,26 @@ export default async function KecamatanPage({
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { kecamatanId: true, kecamatan: { select: { name: true, desas: { select: { id: true, name: true } } } } },
+    select: {
+      kecamatanId: true,
+      kecamatan: {
+        select: {
+          name: true,
+          desas: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
   })
 
   if (!user?.kecamatanId) {
     return (
-      <div className="p-6 bg-red-50 rounded-xl text-red-700">
-        Akun Anda belum terdaftar di kecamatan. Hubungi admin.
+      <div className="p-6 bg-destructive/10 text-destructive border border-destructive/20 rounded-2xl text-xs font-semibold max-w-lg mx-auto mt-12 text-center">
+        Akun Anda belum terdaftar di kecamatan. Hubungi Administrator DPMD.
       </div>
     )
   }
@@ -43,9 +65,19 @@ export default async function KecamatanPage({
 
   const [total, dalamProses, selesai, ditolak] = await Promise.all([
     prisma.pengajuan.count({ where: { desaId: { in: desaIds } } }),
-    prisma.pengajuan.count({ where: { desaId: { in: desaIds }, status: { in: ["MENUNGGU_VERIFIKASI", "DALAM_PROSES_OPD", "MENUNGGU_APPROVAL_DPMD"] } } }),
+    prisma.pengajuan.count({
+      where: {
+        desaId: { in: desaIds },
+        status: { in: ["MENUNGGU_VERIFIKASI", "DALAM_PROSES_OPD", "MENUNGGU_APPROVAL_DPMD"] },
+      },
+    }),
     prisma.pengajuan.count({ where: { desaId: { in: desaIds }, status: "SELESAI" } }),
-    prisma.pengajuan.count({ where: { desaId: { in: desaIds }, status: { in: ["DITOLAK_DESA", "DITOLAK_OPD"] } } }),
+    prisma.pengajuan.count({
+      where: {
+        desaId: { in: desaIds },
+        status: { in: ["DITOLAK_DESA", "DITOLAK_OPD"] },
+      },
+    }),
   ])
 
   const [pengajuans, totalFiltered] = await Promise.all([
@@ -66,79 +98,152 @@ export default async function KecamatanPage({
   const totalPages = Math.ceil(totalFiltered / limit)
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Monitoring Kecamatan</h1>
-        <p className="text-sm text-gray-500">{user.kecamatan?.name}</p>
+    <PageContainer className="space-y-6">
+      {/* Page Header */}
+      <HeroWelcome
+        userName={session.user.name || "Petugas"}
+        roleLabel={MESSAGES.roles[session.user.role]}
+        description={`Panel pemantauan berkas dan pelayanan posyandu — Kecamatan: ${user.kecamatan?.name}`}
+      />
+
+      {/* Summary Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="Total Pengajuan"
+          value={total}
+          icon={ClipboardList}
+          colorVariant="primary"
+          description="Total pengajuan seluruh desa"
+        />
+        <StatCard
+          title="Dalam Proses"
+          value={dalamProses}
+          icon={Hourglass}
+          colorVariant="secondary"
+          description="Berkas yang sedang diproses"
+        />
+        <StatCard
+          title="Selesai"
+          value={selesai}
+          icon={CheckCircle2}
+          colorVariant="accent"
+          description="Berkas yang sudah disetujui"
+        />
+        <StatCard
+          title="Ditolak"
+          value={ditolak}
+          icon={XCircle}
+          colorVariant="destructive"
+          description="Berkas ditolak desa/dinas"
+        />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Total Pengajuan", value: total, color: "text-gray-900" },
-          { label: "Dalam Proses", value: dalamProses, color: "text-blue-600" },
-          { label: "Selesai", value: selesai, color: "text-green-600" },
-          { label: "Ditolak", value: ditolak, color: "text-red-600" },
-        ].map((s) => (
-          <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-xs text-gray-500">{s.label}</p>
-            <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
-          </div>
-        ))}
-      </div>
+      {/* Filters Form */}
+      <form className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 bg-card border border-border p-4 rounded-2xl shadow-xs">
+        <div className="flex flex-col gap-1.5 flex-1 min-w-[180px]">
+          <FormLabel>Pilih Desa</FormLabel>
+          <select
+            name="desaId"
+            defaultValue={filterDesa}
+            className="min-h-[42px] px-3 bg-background border border-border text-foreground rounded-xl text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/45 hover:bg-muted/40 transition-all cursor-pointer"
+          >
+            <option value="">Semua Desa</option>
+            {user.kecamatan?.desas.map((d) => (
+              <option key={d.id} value={d.id}>{d.name}</option>
+            ))}
+          </select>
+        </div>
 
-      {/* Filter */}
-      <form className="flex gap-2 flex-wrap">
-        <select name="desaId" defaultValue={filterDesa} className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
-          <option value="">Semua Desa</option>
-          {user.kecamatan?.desas.map((d) => (
-            <option key={d.id} value={d.id}>{d.name}</option>
-          ))}
-        </select>
-        <select name="status" defaultValue={filterStatus} className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
-          <option value="">Semua Status</option>
-          <option value="MENUNGGU_VERIFIKASI">Menunggu Verifikasi</option>
-          <option value="DALAM_PROSES_OPD">Dalam Proses OPD</option>
-          <option value="MENUNGGU_APPROVAL_DPMD">Menunggu Approval</option>
-          <option value="SELESAI">Selesai</option>
-          <option value="DITOLAK_DESA">Ditolak</option>
-        </select>
-        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 min-h-[40px]">
-          Filter
-        </button>
+        <div className="flex flex-col gap-1.5 flex-1 min-w-[180px]">
+          <FormLabel>Pilih Status</FormLabel>
+          <select
+            name="status"
+            defaultValue={filterStatus}
+            className="min-h-[42px] px-3 bg-background border border-border text-foreground rounded-xl text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/45 hover:bg-muted/40 transition-all cursor-pointer"
+          >
+            <option value="">Semua Status</option>
+            <option value="MENUNGGU_VERIFIKASI">Menunggu Verifikasi</option>
+            <option value="DALAM_PROSES_OPD">Dalam Proses OPD</option>
+            <option value="MENUNGGU_APPROVAL_DPMD">Menunggu Approval DPMD</option>
+            <option value="SELESAI">Selesai</option>
+            <option value="DITOLAK_DESA">Ditolak Desa</option>
+            <option value="DITOLAK_OPD">Ditolak OPD</option>
+          </select>
+        </div>
+
+        <Button type="submit" className="min-h-[42px] px-5 rounded-xl font-bold text-xs md:text-sm gap-2 shrink-0">
+          <Filter className="size-3.5" />
+          Terapkan Filter
+        </Button>
       </form>
 
+      {/* Main Content (Table) */}
       {pengajuans.length === 0 ? (
-        <EmptyState title="Tidak ada pengajuan" />
+        <EmptyState title="Tidak ada data pengajuan" description="Gunakan filter lain atau ajukan berkas baru melalui kader." />
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-600">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium">No. Tiket</th>
-                <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Pelapor</th>
-                <th className="px-4 py-3 text-left font-medium hidden md:table-cell">OPD</th>
-                <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">Desa</th>
-                <th className="px-4 py-3 text-left font-medium">Status</th>
-                <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Tanggal</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {pengajuans.map((p) => (
-                <tr key={p.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-xs font-medium text-gray-900">{p.tiketNumber}</td>
-                  <td className="px-4 py-3 text-gray-700 hidden md:table-cell">{p.namaPelapor}</td>
-                  <td className="px-4 py-3 text-gray-600 hidden md:table-cell">{p.opd.name}</td>
-                  <td className="px-4 py-3 text-gray-500 text-xs hidden lg:table-cell">{p.desa.name}</td>
-                  <td className="px-4 py-3"><StatusBadge status={p.status as PengajuanStatus} /></td>
-                  <td className="px-4 py-3 text-gray-400 text-xs hidden md:table-cell">
-                    {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="space-y-4">
+          <DataTable
+            columns={["No. Tiket", "Pelapor", "OPD Tujuan", "Desa asal", "Status", "Tanggal"]}
+            dataLength={pengajuans.length}
+          >
+            {pengajuans.map((p) => (
+              <TableRow key={p.id} className="hover:bg-muted/40 transition-colors">
+                <TableCell className="font-mono text-xs md:text-sm font-bold text-foreground">
+                  {p.tiketNumber}
+                </TableCell>
+                <TableCell className="font-semibold text-foreground text-xs md:text-sm">
+                  {p.namaPelapor}
+                </TableCell>
+                <TableCell className="text-muted-foreground text-xs md:text-sm font-medium">
+                  {p.opd.name}
+                </TableCell>
+                <TableCell className="text-muted-foreground text-xs md:text-sm">
+                  {p.desa.name}
+                </TableCell>
+                <TableCell>
+                  <StatusBadge status={p.status as PengajuanStatus} />
+                </TableCell>
+                <TableCell className="text-muted-foreground text-xs md:text-sm font-medium">
+                  {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
+                </TableCell>
+              </TableRow>
+            ))}
+          </DataTable>
+
+          {/* Pagination Navigation */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-card border border-border rounded-2xl p-4 select-none">
+              <MutedText>
+                Menampilkan Halaman {page} dari {totalPages} ({totalFiltered} data)
+              </MutedText>
+              <div className="flex gap-2">
+                {page > 1 ? (
+                  <Button variant="outline" size="sm" asChild className="rounded-xl font-semibold text-xs md:text-sm">
+                    <Link href={`?desaId=${filterDesa}&status=${filterStatus}&page=${page - 1}`}>
+                      &larr; Sebelumnya
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" disabled className="rounded-xl font-semibold text-xs md:text-sm">
+                    &larr; Sebelumnya
+                  </Button>
+                )}
+                {page < totalPages ? (
+                  <Button variant="outline" size="sm" asChild className="rounded-xl font-semibold text-xs md:text-sm">
+                    <Link href={`?desaId=${filterDesa}&status=${filterStatus}&page=${page + 1}`}>
+                      Selanjutnya &rarr;
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" disabled className="rounded-xl font-semibold text-xs md:text-sm">
+                    Selanjutnya &rarr;
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

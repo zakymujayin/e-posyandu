@@ -4,9 +4,39 @@ import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { EmptyState } from "@/components/shared/empty-state"
+import { HeroWelcome } from "@/components/shared/hero-welcome"
+import { StatCard } from "@/components/shared/stat-card"
+import { DataTable } from "@/components/shared/data-table"
+import { TableRow, TableCell } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 import { formatDistanceToNow } from "date-fns"
 import { id as localeId } from "date-fns/locale"
-import type { PengajuanStatus } from "@/lib/messages"
+import { MESSAGES, type PengajuanStatus } from "@/lib/messages"
+import { 
+  FileText, 
+  Clock, 
+  CheckCircle2, 
+  XCircle, 
+  ArrowRight,
+  HeartPulse,
+  BookOpen,
+  Building,
+  Home as HomeIcon,
+  Shield,
+  HandHeart,
+  HelpCircle
+} from "lucide-react"
+import { PageContainer } from "@/components/layout/page-container"
+import { SectionTitle, CardTitle, MutedText } from "@/components/ui/typography"
+
+const OPD_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  "heart-pulse": HeartPulse,
+  "book-open": BookOpen,
+  "building": Building,
+  "home": HomeIcon,
+  "shield": Shield,
+  "hand-heart": HandHeart,
+}
 
 export default async function KaderPage() {
   const session = await auth()
@@ -37,98 +67,134 @@ export default async function KaderPage() {
   })
 
   const stats = [
-    { label: "Total Pengajuan", value: total, color: "text-gray-900" },
-    { label: "Dalam Proses", value: dalamProses, color: "text-blue-600" },
-    { label: "Selesai", value: selesai, color: "text-green-600" },
-    { label: "Ditolak", value: ditolak, color: "text-red-600" },
+    { label: "Total Pengajuan", value: total, icon: FileText, variant: "primary" as const },
+    { label: "Dalam Proses", value: dalamProses, icon: Clock, variant: "accent" as const },
+    { label: "Selesai", value: selesai, icon: CheckCircle2, variant: "secondary" as const },
+    { label: "Ditolak", value: ditolak, icon: XCircle, variant: "destructive" as const },
   ]
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Selamat datang, {session.user.name}</h1>
-        {kader?.posyandu && (
-          <p className="text-sm text-gray-500 mt-1">
-            Posyandu: {kader.posyandu.name} — {kader.posyandu.desa?.name}
-          </p>
-        )}
-      </div>
+  const description = kader?.posyandu
+    ? `Posyandu: ${kader.posyandu.name} — ${kader.posyandu.desa?.name}`
+    : "Kader Posyandu Desa"
 
-      {/* Stats */}
+  return (
+    <PageContainer className="space-y-6">
+      {/* Page Header */}
+      <HeroWelcome
+        userName={session.user.name || "Kader"}
+        roleLabel={MESSAGES.roles[session.user.role]}
+        description={description}
+      />
+
+      {/* Stats Section */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((s) => (
-          <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-4">
-            <p className="text-sm text-gray-500">{s.label}</p>
-            <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
-          </div>
+          <StatCard
+            key={s.label}
+            title={s.label}
+            value={s.value}
+            icon={s.icon}
+            colorVariant={s.variant}
+          />
         ))}
       </div>
 
-      {/* OPD Grid */}
-      <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-1">Buat Pengajuan Baru</h2>
-        <p className="text-sm text-gray-500 mb-4">
-          Pilih OPD yang sesuai dengan jenis layanan atau pengaduan masyarakat:
-        </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {opds.map((opd) => (
-            <Link
-              key={opd.id}
-              href={`/kader/ajukan/${opd.id}`}
-              className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow group"
-              style={{ borderLeftColor: opd.color ?? "#3B82F6", borderLeftWidth: 4 }}
-            >
-              <p className="font-semibold text-gray-900 text-sm group-hover:text-blue-600 transition-colors">
-                {opd.name}
-              </p>
-              {opd.description && (
-                <p className="text-xs text-gray-500 mt-1 line-clamp-2">{opd.description}</p>
-              )}
+      {/* OPD Services Grid */}
+      <div className="space-y-4">
+        <div className="select-none">
+          <SectionTitle>Buat Pengajuan Baru</SectionTitle>
+          <MutedText className="mt-1">
+            Pilih OPD yang sesuai dengan jenis layanan atau pengaduan masyarakat:
+          </MutedText>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {opds.map((opd) => {
+            const OpdIcon = OPD_ICONS[opd.icon || ""] || HelpCircle
+            return (
+              <Link
+                key={opd.id}
+                href={`/kader/ajukan/${opd.id}`}
+                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-card p-5 border border-border transition-all duration-300 hover:shadow-md hover:border-primary/20"
+              >
+                {/* Colored left bar for category identifier */}
+                <div
+                  className="absolute left-0 top-0 bottom-0 w-[4px] transition-all duration-300 group-hover:w-[6px]"
+                  style={{ backgroundColor: opd.color || "var(--primary)" }}
+                />
+                
+                <div className="space-y-3">
+                  {/* Soft tinted backdrop background with solid icon */}
+                  <div
+                    className="size-9 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
+                    style={{
+                      backgroundColor: opd.color ? `${opd.color}15` : "rgba(var(--primary), 0.08)",
+                      color: opd.color || "var(--primary)"
+                    }}
+                  >
+                    <OpdIcon className="size-4.5" />
+                  </div>
+
+                  <div className="space-y-1">
+                    <CardTitle className="group-hover:text-primary transition-colors duration-200">
+                      {opd.name}
+                    </CardTitle>
+                    {opd.description && (
+                      <MutedText className="line-clamp-2 leading-relaxed mt-1">
+                        {opd.description}
+                      </MutedText>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-1.5 text-[12px] font-bold text-primary dark:text-primary-foreground mt-4 group-hover:translate-x-1 transition-transform duration-200">
+                  <span>Pilih Layanan</span>
+                  <ArrowRight className="size-3" />
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Recent Submissions Section */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between select-none">
+          <SectionTitle>Pengajuan Terbaru</SectionTitle>
+          <Button variant="link" size="sm" asChild className="text-primary hover:text-primary/80 font-semibold px-0">
+            <Link href="/kader/riwayat">
+              Lihat Semua
             </Link>
+          </Button>
+        </div>
+
+        <DataTable
+          columns={["No. Tiket", "OPD", "Status", "Waktu"]}
+          dataLength={recentPengajuan.length}
+          emptyState={
+            <EmptyState
+              title="Belum ada pengajuan"
+              description="Pilih salah satu OPD di atas untuk mengirimkan usulan pertama Anda."
+            />
+          }
+        >
+          {recentPengajuan.map((p) => (
+            <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
+              <TableCell className="px-4 py-3 font-mono text-xs font-semibold text-foreground">
+                {p.tiketNumber}
+              </TableCell>
+              <TableCell className="px-4 py-3 text-xs text-muted-foreground font-medium">
+                {p.opd.name}
+              </TableCell>
+              <TableCell className="px-4 py-3">
+                <StatusBadge status={p.status as PengajuanStatus} />
+              </TableCell>
+              <TableCell className="px-4 py-3 text-xs font-semibold text-muted-foreground">
+                {formatDistanceToNow(new Date(p.submittedAt), { addSuffix: true, locale: localeId })}
+              </TableCell>
+            </TableRow>
           ))}
-        </div>
+        </DataTable>
       </div>
-
-      {/* Recent */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-gray-900">Pengajuan Terbaru</h2>
-          <Link href="/kader/riwayat" className="text-sm text-blue-600 hover:underline">
-            Lihat Semua
-          </Link>
-        </div>
-
-        {recentPengajuan.length === 0 ? (
-          <EmptyState title="Belum ada pengajuan" description="Pilih OPD di atas untuk membuat pengajuan pertama." />
-        ) : (
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600">
-                <tr>
-                  <th className="px-4 py-3 text-left font-medium">No. Tiket</th>
-                  <th className="px-4 py-3 text-left font-medium hidden md:table-cell">OPD</th>
-                  <th className="px-4 py-3 text-left font-medium">Status</th>
-                  <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Waktu</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {recentPengajuan.map((p) => (
-                  <tr key={p.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-mono text-xs font-medium text-gray-900">{p.tiketNumber}</td>
-                    <td className="px-4 py-3 text-gray-600 hidden md:table-cell">{p.opd.name}</td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={p.status as PengajuanStatus} />
-                    </td>
-                    <td className="px-4 py-3 text-gray-400 text-xs hidden md:table-cell">
-                      {formatDistanceToNow(new Date(p.submittedAt), { addSuffix: true, locale: localeId })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
+    </PageContainer>
   )
 }

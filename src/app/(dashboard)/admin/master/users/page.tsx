@@ -2,6 +2,8 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { UsersManager } from "@/components/admin/master/users-manager"
+import { PageHeader } from "@/components/shared/page-header"
+import { PageContainer } from "@/components/layout/page-container"
 
 export default async function MasterUsersPage() {
   const session = await auth()
@@ -24,20 +26,26 @@ export default async function MasterUsersPage() {
     prisma.opd.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" }, select: { id: true, name: true } }),
     prisma.posyandu.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ])
+  const serializedUsers = JSON.parse(JSON.stringify(users))
+  const serializedDesas = JSON.parse(JSON.stringify(desas))
+  const serializedKecamatans = JSON.parse(JSON.stringify(kecamatans))
+  const serializedOpds = JSON.parse(JSON.stringify(opds))
+  const serializedPosyandus = JSON.parse(JSON.stringify(posyandus))
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Manajemen Pengguna</h1>
-        <p className="text-sm text-gray-500">Kelola akun pengguna sistem</p>
-      </div>
-      <UsersManager
-        initialUsers={users}
-        desas={desas}
-        kecamatans={kecamatans}
-        opds={opds}
-        posyandus={posyandus}
+    <PageContainer className="space-y-6">
+      <PageHeader
+        title="Manajemen Pengguna"
+        description="Kelola hak akses dan akun seluruh pengguna sistem meliputi Kader, Petugas Desa, Petugas OPD, dan Admin."
+        backHref="/admin/master"
       />
-    </div>
+      <UsersManager
+        initialUsers={serializedUsers}
+        desas={serializedDesas}
+        kecamatans={serializedKecamatans}
+        opds={serializedOpds}
+        posyandus={serializedPosyandus}
+      />
+    </PageContainer>
   )
 }

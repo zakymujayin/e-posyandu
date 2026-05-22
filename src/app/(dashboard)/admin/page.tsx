@@ -4,9 +4,17 @@ import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { EmptyState } from "@/components/shared/empty-state"
+import { HeroWelcome } from "@/components/shared/hero-welcome"
+import { StatCard } from "@/components/shared/stat-card"
+import { DataTable } from "@/components/shared/data-table"
+import { TableRow, TableCell } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
-import type { PengajuanStatus } from "@/lib/messages"
+import { MESSAGES, type PengajuanStatus } from "@/lib/messages"
+import { ClipboardList, AlertTriangle, FileSpreadsheet, Hourglass, CheckCircle2, XCircle } from "lucide-react"
+import { PageContainer } from "@/components/layout/page-container"
+import { SectionTitle, MutedText } from "@/components/ui/typography"
 
 export default async function AdminPage({
   searchParams,
@@ -56,58 +64,67 @@ export default async function AdminPage({
   const totalPages = Math.ceil(totalFiltered / limit)
 
   const summaryCards = [
-    { label: "Total Pengajuan", value: total, color: "text-gray-900" },
-    { label: "Menunggu Verifikasi", value: menungguVerifikasi, color: "text-yellow-600" },
-    { label: "Dalam Proses OPD", value: dalamProses, color: "text-blue-600" },
-    { label: "Menunggu Approval", value: menungguApproval, color: "text-orange-600", urgent: menungguApproval > 0 },
-    { label: "Selesai", value: selesai, color: "text-green-600" },
-    { label: "Ditolak", value: ditolak, color: "text-red-600" },
+    { label: "Total Pengajuan", value: total, icon: ClipboardList, color: "primary" as const, desc: "Seluruh berkas masuk" },
+    { label: "Menunggu Verifikasi", value: menungguVerifikasi, icon: Hourglass, color: "accent" as const, desc: "Menunggu tinjauan desa" },
+    { label: "Dalam Proses OPD", value: dalamProses, icon: FileSpreadsheet, color: "secondary" as const, desc: "Sedang diproses dinas" },
+    { label: "Menunggu Approval", value: menungguApproval, icon: AlertTriangle, color: "accent" as const, desc: "Perlu persetujuan DPMD", urgent: menungguApproval > 0 },
+    { label: "Selesai", value: selesai, icon: CheckCircle2, color: "accent" as const, desc: "Berkas selesai diproses" },
+    { label: "Ditolak", value: ditolak, icon: XCircle, color: "destructive" as const, desc: "Berkas ditolak sistem" },
   ]
 
   const STATUS_OPTIONS = [
     { value: "", label: "Semua Status" },
     { value: "MENUNGGU_VERIFIKASI", label: "Menunggu Verifikasi" },
     { value: "DALAM_PROSES_OPD", label: "Dalam Proses OPD" },
-    { value: "MENUNGGU_APPROVAL_DPMD", label: "Menunggu Approval" },
+    { value: "MENUNGGU_APPROVAL_DPMD", label: "Menunggu Approval DPMD" },
     { value: "SELESAI", label: "Selesai" },
     { value: "DITOLAK_DESA", label: "Ditolak Desa" },
     { value: "DITOLAK_OPD", label: "Ditolak OPD" },
   ]
 
   return (
-    <div className="space-y-5">
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard Admin DPMD</h1>
+    <PageContainer className="space-y-6">
+      <HeroWelcome
+        userName={session.user.name || "Administrator"}
+        roleLabel={MESSAGES.roles[session.user.role]}
+        description="Pantau, verifikasi, dan lakukan pengawasan terhadap seluruh pengajuan posyandu tingkat kabupaten."
+      />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {summaryCards.map((s) => (
-          <div
+          <StatCard
             key={s.label}
-            className={`bg-white rounded-xl border p-4 ${s.urgent ? "border-orange-300 bg-orange-50" : "border-gray-200"}`}
-          >
-            <p className="text-xs text-gray-500">{s.label}</p>
-            <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
-          </div>
+            title={s.label}
+            value={s.value}
+            icon={s.icon}
+            colorVariant={s.color}
+            description={s.desc}
+            className={s.urgent ? "border-amber-500/30 bg-amber-500/5 shadow-sm" : ""}
+          />
         ))}
       </div>
 
       {/* Alert — Perlu Approval */}
       {alertItems.length > 0 && (
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 space-y-2">
-          <h2 className="font-semibold text-orange-800 text-sm">
-            ⚠️ {menungguApproval} pengajuan menunggu approval Anda
-          </h2>
-          <div className="space-y-1">
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 shadow-xs space-y-3">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-amber-600 animate-pulse" />
+            <h2 className="font-bold text-amber-800 text-sm md:text-base">
+              Terdapat {menungguApproval} pengajuan menunggu approval Anda
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {alertItems.map((p) => (
               <Link
                 key={p.id}
                 href={`/admin/pengajuan/${p.id}`}
-                className="flex items-center justify-between text-sm bg-white rounded-lg px-3 py-2 hover:bg-orange-50 transition-colors"
+                className="flex items-center justify-between text-xs md:text-sm bg-card border border-border/60 rounded-xl px-4 py-3 hover:bg-muted/40 hover:border-primary/40 transition-all select-none font-semibold text-foreground"
               >
-                <span className="font-mono font-medium text-gray-900">{p.tiketNumber}</span>
-                <span className="text-gray-500">{p.opd.name}</span>
-                <span className="text-gray-400 text-xs">
-                  {format(new Date(p.submittedAt), "d MMM", { locale: localeId })}
+                <span className="font-mono text-muted-foreground">{p.tiketNumber}</span>
+                <span className="truncate max-w-[150px]">{p.opd.name}</span>
+                <span className="text-xs font-semibold text-muted-foreground">
+                  {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
                 </span>
               </Link>
             ))}
@@ -115,71 +132,91 @@ export default async function AdminPage({
         </div>
       )}
 
-      {/* Filter + Table */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <h2 className="font-semibold text-gray-900">Semua Pengajuan</h2>
-          <form className="flex gap-2">
-            <select name="status" defaultValue={filterStatus} className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
-              {STATUS_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+      {/* Filter + Table Section */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-4 bg-primary rounded-full"></span>
+            <SectionTitle>Semua Berkas Pengajuan</SectionTitle>
+          </div>
+          <form className="flex gap-2 w-full sm:w-auto">
+            <select
+              name="status"
+              defaultValue={filterStatus}
+              className="border border-border/80 rounded-xl px-3 py-2 text-xs md:text-sm bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
+            >
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
+              ))}
             </select>
-            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 min-h-[40px]">
-              Filter
-            </button>
+            <Button type="submit" size="sm" className="rounded-xl font-bold text-xs md:text-sm">
+              Saring
+            </Button>
           </form>
         </div>
 
         {pengajuans.length === 0 ? (
-          <EmptyState title="Tidak ada pengajuan" />
+          <EmptyState
+            title="Tidak ada berkas pengajuan"
+            description="Belum ada berkas pengajuan yang sesuai dengan status filter saat ini."
+          />
         ) : (
           <>
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-gray-600">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-medium">No. Tiket</th>
-                    <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Pelapor</th>
-                    <th className="px-4 py-3 text-left font-medium hidden md:table-cell">OPD</th>
-                    <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">Desa</th>
-                    <th className="px-4 py-3 text-left font-medium">Status</th>
-                    <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Tanggal</th>
-                    <th className="px-4 py-3 text-left font-medium">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {pengajuans.map((p) => (
-                    <tr key={p.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-mono text-xs font-medium text-gray-900">{p.tiketNumber}</td>
-                      <td className="px-4 py-3 text-gray-700 hidden md:table-cell">{p.namaPelapor}</td>
-                      <td className="px-4 py-3 text-gray-600 hidden md:table-cell">{p.opd.name}</td>
-                      <td className="px-4 py-3 text-gray-500 text-xs hidden lg:table-cell">{p.desa.name}</td>
-                      <td className="px-4 py-3"><StatusBadge status={p.status as PengajuanStatus} /></td>
-                      <td className="px-4 py-3 text-gray-400 text-xs hidden md:table-cell">
-                        {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Link href={`/admin/pengajuan/${p.id}`} className="text-blue-600 hover:underline text-xs font-medium">
-                          Detail →
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataTable
+              columns={["No. Tiket", "Pelapor", "OPD Tujuan", "Desa", "Status", "Tanggal", "Aksi"]}
+              dataLength={pengajuans.length}
+            >
+              {pengajuans.map((p) => (
+                <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
+                  <TableCell className="px-4 py-3.5 font-mono text-xs md:text-sm font-semibold text-foreground">
+                    {p.tiketNumber}
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5 text-xs md:text-sm text-foreground font-semibold">
+                    {p.namaPelapor}
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
+                    {p.opd.name}
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
+                    {p.desa.name}
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5">
+                    <StatusBadge status={p.status as PengajuanStatus} />
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5 text-xs md:text-sm font-semibold text-muted-foreground">
+                    {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5">
+                    <Button variant="outline" size="xs" asChild className="rounded-xl font-semibold text-xs md:text-sm">
+                      <Link href={`/admin/pengajuan/${p.id}`}>Detail</Link>
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </DataTable>
 
             {totalPages > 1 && (
-              <div className="flex items-center justify-between text-sm text-gray-600">
-                <span>Halaman {page} dari {totalPages}</span>
+              <div className="flex items-center justify-between bg-card border border-border rounded-2xl p-4 select-none">
+                <MutedText>Halaman {page} dari {totalPages}</MutedText>
                 <div className="flex gap-2">
-                  {page > 1 && <Link href={`?status=${filterStatus}&page=${page - 1}`} className="px-3 py-1.5 border rounded-lg hover:bg-gray-50">&larr;</Link>}
-                  {page < totalPages && <Link href={`?status=${filterStatus}&page=${page + 1}`} className="px-3 py-1.5 border rounded-lg hover:bg-gray-50">&rarr;</Link>}
+                  {page > 1 && (
+                    <Button variant="outline" size="sm" asChild className="rounded-xl font-semibold text-xs md:text-sm px-3">
+                      <Link href={`?status=${filterStatus}&page=${page - 1}`}>&larr; Prev</Link>
+                    </Button>
+                  )}
+                  {page < totalPages && (
+                    <Button variant="outline" size="sm" asChild className="rounded-xl font-semibold text-xs md:text-sm px-3">
+                      <Link href={`?status=${filterStatus}&page=${page + 1}`}>Next &rarr;</Link>
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
           </>
         )}
       </div>
-    </div>
+    </PageContainer>
   )
 }

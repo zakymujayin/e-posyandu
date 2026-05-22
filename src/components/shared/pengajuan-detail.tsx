@@ -2,6 +2,7 @@ import { StatusBadge } from "@/components/shared/status-badge"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import type { PengajuanStatus } from "@/lib/messages"
+import { CardTitle, MutedText } from "@/components/ui/typography"
 
 interface FormField {
   fieldLabel: string
@@ -77,87 +78,87 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
   return (
     <div className="space-y-4">
       {/* Header Info */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+      <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-3">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <p className="text-xs text-gray-500">No. Tiket</p>
-            <p className="font-mono font-bold text-lg text-gray-900">{pengajuan.tiketNumber}</p>
+            <MutedText>No. Tiket</MutedText>
+            <p className="font-mono font-bold text-lg text-foreground mt-0.5">{pengajuan.tiketNumber}</p>
           </div>
           <StatusBadge status={pengajuan.status as PengajuanStatus} />
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
           <div>
-            <p className="text-xs text-gray-500">OPD Tujuan</p>
-            <p className="font-medium text-gray-900">{pengajuan.opd.name}</p>
+            <MutedText>OPD Tujuan</MutedText>
+            <p className="font-medium text-foreground mt-0.5">{pengajuan.opd.name}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Jenis Layanan</p>
-            <p className="font-medium text-gray-900">{pengajuan.layananJenis.name}</p>
+            <MutedText>Jenis Layanan</MutedText>
+            <p className="font-medium text-foreground mt-0.5">{pengajuan.layananJenis.name}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Tanggal Submit</p>
-            <p className="font-medium text-gray-900">
+            <MutedText>Tanggal Submit</MutedText>
+            <p className="font-medium text-foreground mt-0.5">
               {format(new Date(pengajuan.submittedAt), "d MMM yyyy", { locale: localeId })}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Deadline SOP</p>
-            <p className={`font-medium ${sopInfo?.sopStatus === "EXPIRED" ? "text-red-600" : sopInfo?.sopStatus === "WARNING" ? "text-orange-600" : "text-gray-900"}`}>
+            <MutedText>Deadline SOP</MutedText>
+            <p className={`font-medium mt-0.5 ${sopInfo?.sopStatus === "EXPIRED" ? "text-destructive" : sopInfo?.sopStatus === "WARNING" ? "text-amber-600 dark:text-amber-500" : "text-foreground"}`}>
               {format(new Date(pengajuan.deadlineAt), "d MMM yyyy", { locale: localeId })}
               {sopInfo && ` (${sopInfo.remainingDays} hari)`}
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-3 text-sm border-t border-gray-100 pt-3">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-3 text-sm border-t border-border pt-3">
           <div>
-            <p className="text-xs text-gray-500">Posyandu</p>
-            <p className="text-gray-700">{pengajuan.posyandu.name}</p>
+            <MutedText>Posyandu</MutedText>
+            <p className="text-foreground/90 mt-0.5">{pengajuan.posyandu.name}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Kader</p>
-            <p className="text-gray-700">{pengajuan.kader.name}</p>
+            <MutedText>Kader</MutedText>
+            <p className="text-foreground/90 mt-0.5">{pengajuan.kader.name}</p>
           </div>
         </div>
       </div>
 
       {/* Data Pelapor */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
-        <h3 className="font-semibold text-gray-900">Data Pelapor</h3>
+      <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-3">
+        <CardTitle>Data Pelapor</CardTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
           <div>
-            <p className="text-xs text-gray-500">Nama Pelapor</p>
-            <p className="text-gray-900 font-medium">{pengajuan.namaPelapor}</p>
+            <MutedText>Nama Pelapor</MutedText>
+            <p className="text-foreground font-medium mt-0.5">{pengajuan.namaPelapor}</p>
           </div>
           {pengajuan.nikPelapor && (
             <div>
-              <p className="text-xs text-gray-500">NIK</p>
-              <p className="text-gray-700">{pengajuan.nikPelapor}</p>
+              <MutedText>NIK</MutedText>
+              <p className="text-foreground/90 mt-0.5">{pengajuan.nikPelapor}</p>
             </div>
           )}
           {pengajuan.noHpPelapor && (
             <div>
-              <p className="text-xs text-gray-500">No. HP</p>
-              <p className="text-gray-700">{pengajuan.noHpPelapor}</p>
+              <MutedText>No. HP</MutedText>
+              <p className="text-foreground/90 mt-0.5">{pengajuan.noHpPelapor}</p>
             </div>
           )}
           <div className="md:col-span-2">
-            <p className="text-xs text-gray-500">Alamat</p>
-            <p className="text-gray-700">{pengajuan.alamatPelapor}</p>
+            <MutedText>Alamat</MutedText>
+            <p className="text-foreground/90 mt-0.5">{pengajuan.alamatPelapor}</p>
           </div>
         </div>
       </div>
 
       {/* Dynamic Fields */}
       {pengajuan.fieldValues.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
-          <h3 className="font-semibold text-gray-900">Detail Layanan</h3>
+        <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-3">
+          <CardTitle>Detail Layanan</CardTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
             {pengajuan.fieldValues.map((fv) => (
               <div key={fv.id}>
-                <p className="text-xs text-gray-500">{fv.formField.fieldLabel}</p>
-                <p className="text-gray-700">{parseFieldValue(fv.fieldValue, fv.formField.fieldType)}</p>
+                <MutedText>{fv.formField.fieldLabel}</MutedText>
+                <p className="text-foreground/90 mt-0.5">{parseFieldValue(fv.fieldValue, fv.formField.fieldType)}</p>
               </div>
             ))}
           </div>
@@ -165,15 +166,15 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
       )}
 
       {/* Deskripsi */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-2">
-        <h3 className="font-semibold text-gray-900">Deskripsi Pengaduan</h3>
-        <p className="text-sm text-gray-700 whitespace-pre-wrap">{pengajuan.deskripsi}</p>
+      <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-2">
+        <CardTitle>Deskripsi Pengaduan</CardTitle>
+        <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">{pengajuan.deskripsi}</p>
       </div>
 
       {/* Lampiran Kader */}
       {pengajuanAttachments.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
-          <h3 className="font-semibold text-gray-900">Lampiran dari Kader</h3>
+        <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-3">
+          <CardTitle>Lampiran dari Kader</CardTitle>
           <div className="space-y-2">
             {pengajuanAttachments.map((att) => (
               <div key={att.id} className="flex items-center gap-2 text-sm">
@@ -182,7 +183,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
                     href={att.filePath ?? "#"}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-blue-600 hover:underline"
+                    className="text-primary hover:underline font-medium flex items-center gap-1"
                   >
                     📎 {att.fileName}
                   </a>
@@ -191,7 +192,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
                     href={att.videoUrl ?? "#"}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-blue-600 hover:underline"
+                    className="text-primary hover:underline font-medium flex items-center gap-1"
                   >
                     🎥 {att.videoUrl}
                   </a>
@@ -204,23 +205,23 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
 
       {/* Timeline */}
       {pengajuan.activityLogs.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
-          <h3 className="font-semibold text-gray-900">Timeline Aktivitas</h3>
+        <div className="bg-white dark:bg-card rounded-xl border border-border p-5 space-y-3">
+          <CardTitle>Timeline Aktivitas</CardTitle>
           <div className="space-y-3">
             {pengajuan.activityLogs.map((log, i) => (
               <div key={i} className="flex gap-3 text-sm">
                 <div className="flex flex-col items-center">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
+                  <div className="w-2 h-2 rounded-full bg-primary mt-1.5 flex-shrink-0" />
                   {i < pengajuan.activityLogs.length - 1 && (
-                    <div className="w-px flex-1 bg-gray-200 mt-1" />
+                    <div className="w-px flex-1 bg-border mt-1" />
                   )}
                 </div>
                 <div className="pb-3">
-                  <p className="font-medium text-gray-900">{log.action}</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="font-medium text-foreground">{log.action}</p>
+                  <MutedText className="mt-0.5">
                     {format(new Date(log.createdAt), "d MMM yyyy HH:mm", { locale: localeId })}
                     {log.userRole ? ` · ${log.userRole}` : ""}
-                  </p>
+                  </MutedText>
                 </div>
               </div>
             ))}

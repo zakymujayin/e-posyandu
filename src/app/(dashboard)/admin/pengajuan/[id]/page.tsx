@@ -1,13 +1,16 @@
 import { auth } from "@/auth"
 import { redirect, notFound } from "next/navigation"
-import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { PengajuanDetail } from "@/components/shared/pengajuan-detail"
 import { AdminActions } from "@/components/admin/admin-actions"
 import { getSopInfo } from "@/lib/sop"
-import { ArrowLeft } from "lucide-react"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
+import { PageHeader } from "@/components/shared/page-header"
+import { StatusBadge } from "@/components/shared/status-badge"
+import { FileText, PlayCircle } from "lucide-react"
+import { PageContainer } from "@/components/layout/page-container"
+import { CardTitle, MutedText, BodyText } from "@/components/ui/typography"
 
 export default async function AdminPengajuanDetailPage({
   params,
@@ -50,16 +53,15 @@ export default async function AdminPengajuanDetailPage({
   const sopExpired = sopInfo ? sopInfo.sopStatus === "EXPIRED" || sopInfo.isAutoBypassEligible : false
 
   return (
-    <div className="max-w-3xl mx-auto space-y-4">
-      <div className="flex items-center gap-3">
-        <Link href="/admin" className="p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <h1 className="text-xl font-bold text-gray-900">Detail Pengajuan</h1>
-      </div>
+    <PageContainer className="space-y-6">
+      <PageHeader
+        title="Detail Pengajuan Berkas"
+        description={`Verifikasi dan persetujuan berkas posyandu untuk tiket #${pengajuan.tiketNumber}`}
+        backHref="/admin"
+      />
 
-      <div className="lg:grid lg:grid-cols-3 lg:gap-4">
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
           <PengajuanDetail
             pengajuan={pengajuan}
             sopInfo={sopInfo ? { remainingDays: sopInfo.remainingDays, sopStatus: sopInfo.sopStatus } : null}
@@ -67,57 +69,74 @@ export default async function AdminPengajuanDetailPage({
 
           {/* Tindak Lanjut OPD */}
           {pengajuan.tindakLanjuts.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
-              <h3 className="font-semibold text-gray-900">Tindak Lanjut OPD</h3>
-              {pengajuan.tindakLanjuts.map((tl) => (
-                <div key={tl.id} className="border border-gray-100 rounded-lg p-3 space-y-2">
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>{tl.petugasOpd.name}</span>
-                    <span>{format(new Date(tl.submittedAt), "d MMM yyyy HH:mm", { locale: localeId })}</span>
-                  </div>
-                  <p className="text-sm text-gray-700">{tl.deskripsi}</p>
-                  {tl.attachments.length > 0 && (
-                    <div className="space-y-1">
-                      {tl.attachments.map((att) => (
-                        <div key={att.id} className="text-xs">
-                          {att.attachmentType === "FILE" ? (
-                            <a href={att.filePath ?? "#"} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
-                              📎 {att.fileName}
-                            </a>
-                          ) : (
-                            <a href={att.videoUrl ?? "#"} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
-                              🎥 {att.videoUrl}
-                            </a>
-                          )}
-                        </div>
-                      ))}
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-xs space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-4 bg-primary rounded-full"></span>
+                <CardTitle>Tindak Lanjut dari OPD</CardTitle>
+              </div>
+              <div className="space-y-4">
+                {pengajuan.tindakLanjuts.map((tl) => (
+                  <div key={tl.id} className="border border-border/60 bg-muted/20 rounded-xl p-4 space-y-3 transition-colors hover:bg-muted/35">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <MutedText>
+                        {tl.petugasOpd.name} · {format(new Date(tl.submittedAt), "d MMM yyyy HH:mm", { locale: localeId })}
+                      </MutedText>
                     </div>
-                  )}
-                </div>
-              ))}
+                    <BodyText className="text-xs md:text-sm">{tl.deskripsi}</BodyText>
+                    {tl.attachments.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-border/40 mt-1">
+                        {tl.attachments.map((att) => (
+                          <div key={att.id} className="flex items-center gap-2 text-xs md:text-sm bg-card border border-border/50 px-3 py-2 rounded-lg font-semibold hover:border-primary/30 transition-all select-none">
+                            {att.attachmentType === "FILE" ? (
+                              <>
+                                <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
+                                <a href={att.filePath ?? "#"} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">
+                                  {att.fileName}
+                                </a>
+                              </>
+                            ) : (
+                              <>
+                                <PlayCircle className="w-3.5 h-3.5 text-primary shrink-0" />
+                                <a href={att.videoUrl ?? "#"} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">
+                                  Lihat Video Bukti
+                                </a>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {/* Admin Actions History */}
           {pengajuan.adminActions.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
-              <h3 className="font-semibold text-gray-900">Riwayat Aksi Admin</h3>
-              {pengajuan.adminActions.map((action) => (
-                <div key={action.id} className="border-l-4 border-blue-200 pl-3 text-sm">
-                  <div className="flex items-center justify-between text-xs text-gray-400">
-                    <span>{action.actionType} · {action.admin.name}</span>
-                    <span>{format(new Date(action.createdAt), "d MMM yyyy HH:mm", { locale: localeId })}</span>
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-xs space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-4 bg-primary rounded-full"></span>
+                <CardTitle>Riwayat Aksi Admin</CardTitle>
+              </div>
+              <div className="space-y-3">
+                {pengajuan.adminActions.map((action) => (
+                  <div key={action.id} className="border-l-2 border-primary/40 pl-4 py-1 space-y-1">
+                    <div className="flex items-center justify-between text-xs md:text-sm text-muted-foreground font-semibold flex-wrap gap-2">
+                      <span className="uppercase tracking-wider font-semibold text-primary">{action.actionType.replace("_", " ")}</span>
+                      <span>Oleh {action.admin.name} · {format(new Date(action.createdAt), "d MMM yyyy HH:mm", { locale: localeId })}</span>
+                    </div>
+                    <BodyText className="text-xs md:text-sm text-foreground/80 mt-0.5">{action.catatan}</BodyText>
                   </div>
-                  <p className="text-gray-700 mt-0.5">{action.catatan}</p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>
 
         {/* Sticky Action Panel */}
-        <div className="mt-4 lg:mt-0">
-          <div className="lg:sticky lg:top-4">
+        <div className="lg:col-span-1">
+          <div className="lg:sticky lg:top-6">
             <AdminActions
               pengajuanId={id}
               status={pengajuan.status}
@@ -126,6 +145,6 @@ export default async function AdminPengajuanDetailPage({
           </div>
         </div>
       </div>
-    </div>
+    </PageContainer>
   )
 }

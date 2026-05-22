@@ -3,10 +3,12 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { Loader2 } from "lucide-react"
+import { Loader2, CheckCircle2, AlertTriangle, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Card, CardContent } from "@/components/ui/card"
+import { CardTitle, MutedText, FormLabel } from "@/components/ui/typography"
 
 interface Props {
   pengajuanId: string
@@ -49,43 +51,59 @@ export function VerifikasiActions({ pengajuanId }: Props) {
 
   return (
     <>
-      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
-        <h3 className="font-semibold text-gray-900">Aksi Verifikasi</h3>
-        <p className="text-sm text-gray-500">
-          Periksa detail pengajuan di atas sebelum mengambil keputusan.
-        </p>
-        <div className="flex gap-3">
-          <Button
-            onClick={() => setShowApproveModal(true)}
-            className="flex-1 min-h-[44px] bg-green-600 hover:bg-green-700"
-            disabled={loading}
-          >
-            ✅ Verifikasi & Teruskan ke OPD
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={() => setShowRejectModal(true)}
-            className="flex-1 min-h-[44px]"
-            disabled={loading}
-          >
-            ❌ Tolak Pengajuan
-          </Button>
-        </div>
-      </div>
+      <Card className="border border-border rounded-2xl shadow-sm overflow-hidden select-none relative">
+        {/* Amber top line */}
+        <div className="absolute top-0 left-0 right-0 h-[4px] bg-amber-500" />
+        
+        <CardContent className="p-5 space-y-4">
+          <div className="space-y-1">
+            <CardTitle>Keputusan Verifikasi</CardTitle>
+            <MutedText className="leading-relaxed">
+              Periksa lampiran berkas dan isian data secara seksama sebelum melakukan persetujuan.
+            </MutedText>
+          </div>
+          
+          <div className="flex gap-4">
+            <Button
+              onClick={() => setShowApproveModal(true)}
+              className="flex-1 min-h-[44px] rounded-xl font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-md flex items-center justify-center gap-2 text-xs md:text-sm"
+              disabled={loading}
+            >
+              <CheckCircle2 className="size-4" />
+              <span>Verifikasi & Setujui</span>
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => setShowRejectModal(true)}
+              className="flex-1 min-h-[44px] rounded-xl font-bold flex items-center justify-center gap-2 text-xs md:text-sm"
+              disabled={loading}
+            >
+              <XCircle className="size-4" />
+              <span>Tolak Berkas</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Approve Modal */}
       <Dialog open={showApproveModal} onOpenChange={setShowApproveModal}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl border border-border bg-card max-w-sm select-none p-6">
           <DialogHeader>
-            <DialogTitle>Konfirmasi Verifikasi</DialogTitle>
+            <DialogTitle className="text-base md:text-lg font-bold text-foreground flex items-center gap-2">
+              <CheckCircle2 className="size-5 text-emerald-500" />
+              <span>Konfirmasi Persetujuan</span>
+            </DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600">
-            Apakah Anda yakin ingin memverifikasi dan meneruskan pengajuan ini ke OPD?
-          </p>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowApproveModal(false)} disabled={loading}>Batal</Button>
-            <Button onClick={() => doVerifikasi("APPROVE")} className="bg-green-600 hover:bg-green-700" disabled={loading}>
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ya, Verifikasi"}
+          <MutedText className="leading-relaxed py-2">
+            Apakah Anda yakin ingin memverifikasi berkas pengajuan ini? Data akan langsung diteruskan ke Organisasi Perangkat Daerah (OPD) untuk ditindaklanjuti.
+          </MutedText>
+          <DialogFooter className="flex gap-2 pt-2">
+            <Button variant="outline" onClick={() => setShowApproveModal(false)} disabled={loading} className="flex-1 rounded-xl text-xs md:text-sm font-semibold">
+              Batal
+            </Button>
+            <Button onClick={() => doVerifikasi("APPROVE")} className="flex-1 rounded-xl text-xs md:text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-700" disabled={loading}>
+              {loading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : null}
+              Ya, Setujui
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -93,30 +111,37 @@ export function VerifikasiActions({ pengajuanId }: Props) {
 
       {/* Reject Modal */}
       <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl border border-border bg-card max-w-md select-none p-6">
           <DialogHeader>
-            <DialogTitle>Tolak Pengajuan</DialogTitle>
+            <DialogTitle className="text-base md:text-lg font-bold text-foreground flex items-center gap-2">
+              <AlertTriangle className="size-5 text-destructive" />
+              <span>Alasan Penolakan Berkas</span>
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
-            <p className="text-sm text-gray-600">
-              Pengajuan yang ditolak akan ditutup permanen. Masyarakat harus mengajukan ulang.
-            </p>
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
-                Alasan Penolakan <span className="text-red-500">*</span>
-              </label>
+          <div className="space-y-3 py-2">
+            <MutedText className="leading-relaxed">
+              Berkas yang ditolak akan ditutup secara permanen dan kader harus melakukan input ulang. Pastikan Anda menuliskan catatan koreksi secara rinci.
+            </MutedText>
+            <div className="space-y-1.5">
+              <FormLabel className="text-muted-foreground">
+                Uraian Catatan Penolakan <span className="text-destructive">*</span>
+              </FormLabel>
               <Textarea
                 value={alasan}
                 onChange={(e) => setAlasan(e.target.value)}
-                placeholder="Tuliskan alasan penolakan..."
+                placeholder="Tuliskan kekurangan berkas/alasan di sini secara detail..."
                 rows={4}
+                className="rounded-xl border-border bg-background text-sm"
               />
             </div>
           </div>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowRejectModal(false)} disabled={loading}>Batal</Button>
-            <Button variant="destructive" onClick={() => doVerifikasi("REJECT")} disabled={loading || !alasan.trim()}>
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Tolak Pengajuan"}
+          <DialogFooter className="flex gap-2 pt-2">
+            <Button variant="outline" onClick={() => setShowRejectModal(false)} disabled={loading} className="flex-1 rounded-xl text-xs md:text-sm font-semibold">
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={() => doVerifikasi("REJECT")} disabled={loading || !alasan.trim()} className="flex-1 rounded-xl text-xs md:text-sm font-bold">
+              {loading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : null}
+              Tolak Berkas
             </Button>
           </DialogFooter>
         </DialogContent>

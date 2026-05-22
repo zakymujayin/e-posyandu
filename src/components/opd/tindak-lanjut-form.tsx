@@ -6,12 +6,13 @@ import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
-import { Loader2, Plus, X, Upload } from "lucide-react"
+import { Loader2, Plus, X, Upload, FileText, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { FormSection } from "@/components/shared/form-section"
+import { FormLabel, MutedText } from "@/components/ui/typography"
 
 const schema = z.object({
   deskripsi: z.string().min(1, "Deskripsi tindak lanjut wajib diisi"),
@@ -55,6 +56,7 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
         if (!json.success) throw new Error(json.error)
         setUploadedFiles((prev) => [...prev, { path: json.data.url, name: json.data.fileName, size: json.data.size, mime: json.data.mimeType }])
       }
+      toast.success("File berhasil diunggah")
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal upload")
     } finally {
@@ -119,102 +121,205 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
   return (
     <>
       {hasRevisionNote && (
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-          <p className="text-sm font-medium text-orange-800">Catatan Revisi dari Admin DPMD:</p>
-          <p className="text-sm text-orange-700 mt-1">{hasRevisionNote}</p>
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 shadow-xs flex gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+          <div className="space-y-1">
+            <p className="text-xs md:text-sm font-bold text-amber-800">Catatan Revisi dari Admin DPMD:</p>
+            <MutedText className="text-amber-700 leading-relaxed font-medium">{hasRevisionNote}</MutedText>
+          </div>
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-          <h3 className="font-semibold text-gray-900">Form Tindak Lanjut</h3>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <FormSection
+          title="Formulir Tindak Lanjut"
+          description="Lengkapi deskripsi tindak lanjut beserta file dan video pendukung sebagai bukti penyelesaian berkas."
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column: Deskripsi */}
+            <div className="space-y-2">
+              <FormLabel>
+                Deskripsi Tindak Lanjut <span className="text-destructive">*</span>
+              </FormLabel>
+              <Textarea
+                placeholder="Jelaskan langkah-langkah konkret yang telah dilakukan oleh dinas/OPD terkait..."
+                rows={9}
+                className="resize-none h-[calc(100%-2rem)] min-h-[220px]"
+                {...register("deskripsi")}
+              />
+              {errors.deskripsi && (
+                <p className="text-xs font-semibold text-destructive">{errors.deskripsi.message}</p>
+              )}
+            </div>
 
-          <div className="space-y-1">
-            <Label>Deskripsi Tindak Lanjut <span className="text-red-500">*</span></Label>
-            <Textarea
-              placeholder="Jelaskan langkah-langkah yang telah dilakukan..."
-              rows={5}
-              {...register("deskripsi")}
-            />
-            {errors.deskripsi && <p className="text-sm text-red-600">{errors.deskripsi.message}</p>}
-          </div>
+            {/* Right Column: Upload & Video Links */}
+            <div className="space-y-4">
+              {/* File Upload */}
+              <div className="space-y-3">
+                <FormLabel>Upload Bukti Dokumen/Foto (Maksimal 5)</FormLabel>
+                <label className="group relative flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border/80 rounded-2xl p-6 cursor-pointer text-center transition-all hover:bg-muted/30 hover:border-primary/50 select-none">
+                  <div className="p-3 bg-muted group-hover:bg-primary/5 group-hover:text-primary rounded-2xl transition-colors">
+                    <Upload className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-bold text-foreground block">
+                      {uploading ? "Sedang Mengupload..." : "Klik untuk Pilih File"}
+                    </span>
+                    <MutedText className="mt-0.5 text-xs font-medium">
+                      Mendukung format JPG, PNG, atau PDF (Maksimal 10MB)
+                    </MutedText>
+                  </div>
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    multiple
+                    onChange={handleFileChange}
+                    disabled={uploading || uploadedFiles.length >= 5}
+                  />
+                </label>
 
-          {/* File upload */}
-          <div className="space-y-2">
-            <Label>Upload Bukti (Opsional)</Label>
-            <label className="flex items-center gap-2 border-2 border-dashed border-gray-300 rounded-lg p-3 cursor-pointer hover:bg-gray-50">
-              <Upload className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-600">{uploading ? "Mengupload..." : "Klik untuk pilih file"}</span>
-              <input type="file" className="hidden" accept=".jpg,.jpeg,.png,.pdf" multiple onChange={handleFileChange} disabled={uploading || uploadedFiles.length >= 5} />
-            </label>
-            {uploadedFiles.map((f, i) => (
-              <div key={i} className="flex items-center justify-between text-sm bg-gray-50 px-3 py-2 rounded-lg">
-                <span className="truncate">{f.name}</span>
-                <button type="button" onClick={() => setUploadedFiles((p) => p.filter((_, idx) => idx !== i))}><X className="w-4 h-4 text-red-500" /></button>
+                {uploadedFiles.length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                    {uploadedFiles.map((f, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between text-xs bg-muted/40 border border-border/50 px-3 py-2.5 rounded-xl transition-all hover:bg-muted/65"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <FileText className="w-4 h-4 text-primary shrink-0" />
+                          <span className="truncate font-semibold text-foreground text-xs">{f.name}</span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => setUploadedFiles((p) => p.filter((_, idx) => idx !== i))}
+                          className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
 
-          {/* Video links */}
-          <div className="space-y-2">
-            <Label>Link Video Bukti (Opsional)</Label>
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex gap-2">
-                <Input placeholder="https://..." {...register(`videoLinks.${index}.url`)} />
-                <button type="button" onClick={() => remove(index)}><X className="w-4 h-4 text-red-500" /></button>
+              {/* Video Links */}
+              <div className="space-y-3 pt-2">
+                <FormLabel>Tautan Link Video Bukti (Opsional)</FormLabel>
+                <div className="space-y-2">
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="flex gap-2 items-center">
+                      <Input
+                        placeholder="https://youtube.com/... atau tautan video lainnya"
+                        {...register(`videoLinks.${index}.url`)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => remove(index)}
+                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 shrink-0"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => append({ url: "" })}
+                  className="rounded-xl text-xs font-bold gap-1 px-3 mt-1"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Tambah Tautan Video
+                </Button>
               </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={() => append({ url: "" })}>
-              <Plus className="w-4 h-4 mr-1" /> Tambah Link Video
-            </Button>
+            </div>
           </div>
-        </div>
+        </FormSection>
 
-        <div className="flex gap-3">
+        {/* Buttons Action Group */}
+        <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <Button
             type="button"
             variant="destructive"
-            className="flex-1 min-h-[44px]"
+            className="flex-1 min-h-[44px] rounded-2xl font-bold order-2 sm:order-1"
             onClick={() => setShowTolakModal(true)}
             disabled={loading}
           >
-            Tolak Pengajuan
+            Tolak & Tutup Pengajuan
           </Button>
-          <Button type="submit" className="flex-1 min-h-[44px] bg-green-600 hover:bg-green-700" disabled={isSubmitting || uploading || loading}>
+          <Button
+            type="submit"
+            className="flex-1 min-h-[44px] rounded-2xl font-bold bg-primary hover:bg-primary/95 text-primary-foreground order-1 sm:order-2"
+            disabled={isSubmitting || uploading || loading}
+          >
             {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
             Kirim Tindak Lanjut
           </Button>
         </div>
       </form>
 
-      {/* Submit Modal */}
+      {/* Submit Confirmation Dialog */}
       <Dialog open={showSubmitModal} onOpenChange={setShowSubmitModal}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Konfirmasi Tindak Lanjut</DialogTitle></DialogHeader>
-          <p className="text-sm text-gray-600">Apakah Anda yakin ingin mengirimkan tindak lanjut ini untuk direview oleh Admin DPMD?</p>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowSubmitModal(false)}>Batal</Button>
-            <Button onClick={handleSubmit(confirmSubmit)} className="bg-green-600 hover:bg-green-700" disabled={loading}>
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ya, Kirim"}
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-base md:text-lg font-bold text-foreground">Kirim Tindak Lanjut?</DialogTitle>
+            <DialogDescription className="text-xs md:text-sm text-muted-foreground leading-relaxed mt-1">
+              Pastikan seluruh informasi dan dokumen bukti sudah lengkap dan benar. Berkas ini akan diteruskan ke Admin DPMD untuk verifikasi akhir.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4">
+            <Button variant="outline" className="rounded-xl font-bold text-xs" onClick={() => setShowSubmitModal(false)}>
+              Kembali
+            </Button>
+            <Button
+              onClick={handleSubmit(confirmSubmit)}
+              className="bg-primary hover:bg-primary/95 text-primary-foreground rounded-xl font-bold text-xs"
+              disabled={loading}
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Ya, Kirim Sekarang
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Tolak Modal */}
+      {/* Reject Confirmation Dialog */}
       <Dialog open={showTolakModal} onOpenChange={setShowTolakModal}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Tolak Pengajuan</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <p className="text-sm text-gray-600">
-              Tolak jika pengajuan ini tidak sesuai dengan tupoksi OPD Anda. Pengajuan akan ditutup permanen.
-            </p>
-            <Textarea value={alasanTolak} onChange={(e) => setAlasanTolak(e.target.value)} placeholder="Alasan penolakan..." rows={3} />
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-base md:text-lg font-bold text-foreground">Konfirmasi Penolakan Pengajuan</DialogTitle>
+            <DialogDescription className="text-xs md:text-sm text-muted-foreground leading-relaxed mt-1">
+              Tindakan ini hanya boleh dilakukan jika topik atau berkas tidak sesuai dengan bidang kerja OPD Anda. Pengajuan akan ditutup secara permanen.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <FormLabel>Alasan Penolakan <span className="text-destructive">*</span></FormLabel>
+            <Textarea
+              value={alasanTolak}
+              onChange={(e) => setAlasanTolak(e.target.value)}
+              placeholder="Berikan alasan logis mengapa pengajuan ini tidak dapat ditindaklanjuti..."
+              rows={3}
+              className="resize-none"
+            />
           </div>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowTolakModal(false)}>Batal</Button>
-            <Button variant="destructive" onClick={doTolak} disabled={loading || !alasanTolak.trim()}>
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Tolak"}
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-2">
+            <Button variant="outline" className="rounded-xl font-bold text-xs" onClick={() => setShowTolakModal(false)}>
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={doTolak}
+              disabled={loading || !alasanTolak.trim()}
+              className="rounded-xl font-bold text-xs"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Tolak & Tutup Permanen
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,7 +1,7 @@
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
-import { Sidebar } from "@/components/shared/sidebar"
-import { Header } from "@/components/shared/header"
+import { AppShell } from "@/components/shared/app-shell"
+import type { UserRole } from "@/types/next-auth"
 
 export default async function DashboardLayout({
   children,
@@ -13,13 +13,16 @@ export default async function DashboardLayout({
     redirect("/login")
   }
 
+  // Ensure type alignment for UserRole
+  const formattedUser = {
+    name: session.user.name || "Pengguna",
+    email: session.user.email || "",
+    role: session.user.role as UserRole,
+  }
+
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar user={session.user} />
-      <div className="flex-1 flex flex-col md:ml-64">
-        <Header user={session.user} />
-        <main className="flex-1 p-4 md:p-6">{children}</main>
-      </div>
-    </div>
+    <AppShell user={formattedUser}>
+      {children}
+    </AppShell>
   )
 }

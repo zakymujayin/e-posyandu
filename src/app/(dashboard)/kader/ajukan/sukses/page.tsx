@@ -7,6 +7,8 @@ import { CheckCircle, Copy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 
+import { PageContainer } from "@/components/layout/page-container"
+
 function SuksesContent() {
   const searchParams = useSearchParams()
   const tiket = searchParams.get("tiket") ?? ""
@@ -17,7 +19,7 @@ function SuksesContent() {
   }
 
   return (
-    <div className="max-w-md mx-auto text-center space-y-6 py-12">
+    <PageContainer className="max-w-md mx-auto text-center space-y-6 py-12">
       <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Pengajuan Berhasil Dikirim!</h1>
@@ -38,10 +40,10 @@ function SuksesContent() {
         </Link>.
       </p>
 
-      <Link href="/kader">
-        <Button className="w-full min-h-[44px]">Kembali ke Beranda</Button>
-      </Link>
-    </div>
+      <Button asChild className="w-full min-h-[44px]">
+        <Link href="/kader">Kembali ke Beranda</Link>
+      </Button>
+    </PageContainer>
   )
 }
 

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns"
 import { id as localeId } from "date-fns/locale"
+import { PageContainer } from "@/components/layout/page-container"
 
 export default async function LaporanPage() {
   const session = await auth()
@@ -74,7 +75,7 @@ export default async function LaporanPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <PageContainer className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Laporan & Statistik</h1>
         <p className="text-sm text-gray-500">
@@ -191,6 +192,6 @@ export default async function LaporanPage() {
           </table>
         </div>
       </div>
-    </div>
+    </PageContainer>
   )
 }

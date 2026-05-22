@@ -2,7 +2,13 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
-import { Plus, Pencil, Trash2, X, Check } from "lucide-react"
+import { Plus, Pencil, Trash2, X, Check, HelpCircle, FileQuestion } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { DataTable } from "@/components/shared/data-table"
+import { TableRow, TableCell } from "@/components/ui/table"
+import { FormSection } from "@/components/shared/form-section"
 
 const FIELD_TYPES = ["text", "textarea", "number", "date", "select", "radio", "checkbox"] as const
 const HAS_OPTIONS = ["select", "radio", "checkbox"]
@@ -97,7 +103,7 @@ export function FieldsManager({
         const data = await res.json()
         if (!res.ok) { toast.error(data.message); return }
         setFields((prev) => prev.map((f) => f.id === editing.id ? { ...data.data, layananJenis: editing.layananJenis } : f))
-        toast.success("Field diperbarui")
+        toast.success("Field berhasil diperbarui")
       } else {
         const res = await fetch("/api/admin/master/fields", {
           method: "POST",
@@ -109,7 +115,7 @@ export function FieldsManager({
         const layanan = layanans.find((l) => l.id === body.layananJenisId)
         const opd = opds.find((o) => o.id === layanan?.opdId)
         setFields((prev) => [...prev, { ...data.data, layananJenis: { name: layanan?.name ?? "", opd: { name: opd?.name ?? "" } } }])
-        toast.success("Field ditambahkan")
+        toast.success("Field berhasil ditambahkan")
       }
       setShowForm(false)
     } finally {
@@ -123,129 +129,236 @@ export function FieldsManager({
     const data = await res.json()
     if (!res.ok) { toast.error(data.message); return }
     setFields((prev) => prev.filter((x) => x.id !== f.id))
-    toast.success("Field dihapus")
+    toast.success("Field berhasil dihapus")
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3 justify-between">
-        <div className="flex gap-2 flex-wrap">
-          <select value={filterOpd} onChange={(e) => { setFilterOpd(e.target.value); setFilterLayanan("") }} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center select-none">
+        <div className="flex gap-2 flex-wrap w-full sm:w-auto">
+          <select
+            value={filterOpd}
+            onChange={(e) => { setFilterOpd(e.target.value); setFilterLayanan("") }}
+            className="border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
+          >
             <option value="">Semua OPD</option>
             {opds.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
           </select>
-          <select value={filterLayanan} onChange={(e) => setFilterLayanan(e.target.value)} className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <select
+            value={filterLayanan}
+            onChange={(e) => setFilterLayanan(e.target.value)}
+            className="border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
+          >
             <option value="">Semua Layanan</option>
             {filteredLayanans.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
           </select>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
-          <Plus className="w-4 h-4" /> Tambah Field
-        </button>
+        <Button
+          onClick={openCreate}
+          size="sm"
+          className="rounded-xl font-bold text-xs gap-1.5 shrink-0 w-full sm:w-auto"
+        >
+          <Plus className="w-4 h-4" /> Tambah Field Baru
+        </Button>
       </div>
 
       {showForm && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
-          <h3 className="font-semibold text-gray-900 mb-4">{editing ? "Edit Field" : "Tambah Field"}</h3>
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Layanan</label>
-                <select value={form.layananJenisId} onChange={(e) => setForm((f) => ({ ...f, layananJenisId: e.target.value }))} disabled={!!editing} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-gray-100" required>
+        <form onSubmit={handleSubmit} className="transition-all duration-300">
+          <FormSection
+            title={editing ? "Ubah Konfigurasi Field" : "Tambah Field Dinamis Baru"}
+            description="Isian formulir ini akan muncul otomatis di halaman pendaftaran berkas kader berdasarkan jenis layanan."
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-foreground">Jenis Layanan Posyandu <span className="text-destructive">*</span></Label>
+                <select
+                  value={form.layananJenisId}
+                  onChange={(e) => setForm((f) => ({ ...f, layananJenisId: e.target.value }))}
+                  disabled={!!editing}
+                  className="w-full border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
+                  required
+                >
                   <option value="">Pilih Layanan</option>
                   {layanans.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
                 </select>
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Label Field</label>
-                <input type="text" value={form.fieldLabel} onChange={(e) => setForm((f) => ({ ...f, fieldLabel: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" required />
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-foreground">Label Input <span className="text-destructive">*</span></Label>
+                <Input
+                  type="text"
+                  value={form.fieldLabel}
+                  onChange={(e) => setForm((f) => ({ ...f, fieldLabel: e.target.value }))}
+                  placeholder="Contoh: Berat Badan Balita (Kg)"
+                  required
+                />
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Nama Field (snake_case)</label>
-                <input type="text" value={form.fieldName} onChange={(e) => setForm((f) => ({ ...f, fieldName: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "_") }))} disabled={!!editing} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-gray-100" required />
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-foreground">Key Database (snake_case) <span className="text-destructive">*</span></Label>
+                <Input
+                  type="text"
+                  value={form.fieldName}
+                  onChange={(e) => setForm((f) => ({ ...f, fieldName: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "_") }))}
+                  placeholder="Contoh: berat_badan_balita"
+                  disabled={!!editing}
+                  className="font-mono"
+                  required
+                />
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Tipe Field</label>
-                <select value={form.fieldType} onChange={(e) => setForm((f) => ({ ...f, fieldType: e.target.value }))} disabled={!!editing} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-gray-100">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-foreground font-semibold">Tipe Komponen Input</Label>
+                <select
+                  value={form.fieldType}
+                  onChange={(e) => setForm((f) => ({ ...f, fieldType: e.target.value }))}
+                  disabled={!!editing}
+                  className="w-full border border-border/80 rounded-xl px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
+                >
                   {FIELD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
+
               {HAS_OPTIONS.includes(form.fieldType) && (
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Opsi (pisahkan dengan koma)</label>
-                  <input type="text" value={form.fieldOptions} onChange={(e) => setForm((f) => ({ ...f, fieldOptions: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Contoh: Opsi 1,Opsi 2,Opsi 3" />
+                <div className="md:col-span-2 space-y-1.5">
+                  <Label className="text-xs font-bold text-foreground">Daftar Pilihan / Opsi (Pisahkan dengan koma)</Label>
+                  <Input
+                    type="text"
+                    value={form.fieldOptions}
+                    onChange={(e) => setForm((f) => ({ ...f, fieldOptions: e.target.value }))}
+                    placeholder="Contoh: Sangat Baik,Baik,Kurang Baik"
+                  />
                 </div>
               )}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Placeholder</label>
-                <input type="text" value={form.placeholder} onChange={(e) => setForm((f) => ({ ...f, placeholder: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-foreground">Placeholder Text (Opsional)</Label>
+                <Input
+                  type="text"
+                  value={form.placeholder}
+                  onChange={(e) => setForm((f) => ({ ...f, placeholder: e.target.value }))}
+                  placeholder="Petunjuk bayangan dalam input..."
+                />
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Helper Text</label>
-                <input type="text" value={form.helperText} onChange={(e) => setForm((f) => ({ ...f, helperText: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-foreground">Helper Text (Keterangan kecil)</Label>
+                <Input
+                  type="text"
+                  value={form.helperText}
+                  onChange={(e) => setForm((f) => ({ ...f, helperText: e.target.value }))}
+                  placeholder="Teks bantuan kecil di bawah input..."
+                />
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Urutan</label>
-                <input type="number" value={form.sortOrder} onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-foreground">Urutan Sortir</Label>
+                <Input
+                  type="number"
+                  value={form.sortOrder}
+                  onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))}
+                  placeholder="0"
+                />
               </div>
-              <div className="flex items-center gap-2 pt-5">
-                <input type="checkbox" id="isRequired" checked={form.isRequired} onChange={(e) => setForm((f) => ({ ...f, isRequired: e.target.checked }))} className="w-4 h-4" />
-                <label htmlFor="isRequired" className="text-sm text-gray-700">Wajib diisi</label>
+              <div className="flex items-center gap-2 pt-6 select-none">
+                <input
+                  type="checkbox"
+                  id="isRequired"
+                  checked={form.isRequired}
+                  onChange={(e) => setForm((f) => ({ ...f, isRequired: e.target.checked }))}
+                  className="w-4 h-4 rounded-sm border-border accent-primary focus:ring-transparent cursor-pointer"
+                />
+                <label htmlFor="isRequired" className="text-xs font-bold text-foreground cursor-pointer">
+                  Wajib Diisi (Required Field)
+                </label>
               </div>
             </div>
-            <div className="flex gap-2">
-              <button type="submit" disabled={loading} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"><Check className="w-4 h-4" />{loading ? "Menyimpan..." : "Simpan"}</button>
-              <button type="button" onClick={() => setShowForm(false)} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"><X className="w-4 h-4" />Batal</button>
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                type="submit"
+                size="sm"
+                disabled={loading}
+                className="rounded-xl font-bold text-xs gap-1"
+              >
+                <Check className="w-3.5 h-3.5" />
+                {loading ? "Menyimpan..." : "Simpan Field"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowForm(false)}
+                className="rounded-xl font-bold text-xs gap-1"
+              >
+                <X className="w-3.5 h-3.5" />
+                Batal
+              </Button>
             </div>
-          </form>
-        </div>
+          </FormSection>
+        </form>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
-            <tr>
-              <th className="px-4 py-3 text-left font-medium">Label</th>
-              <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Layanan</th>
-              <th className="px-4 py-3 text-left font-medium">Tipe</th>
-              <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Wajib</th>
-              <th className="px-4 py-3 text-left font-medium">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {filteredFields.length === 0 ? (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">Belum ada field</td></tr>
-            ) : (
-              filteredFields.map((f) => (
-                <tr key={f.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900">{f.fieldLabel}</p>
-                    <p className="text-xs font-mono text-gray-400">{f.fieldName}</p>
-                  </td>
-                  <td className="px-4 py-3 hidden md:table-cell">
-                    <p className="text-gray-700">{f.layananJenis.name}</p>
-                    <p className="text-xs text-gray-400">{f.layananJenis.opd.name}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-0.5 bg-gray-100 rounded text-xs font-mono">{f.fieldType}</span>
-                  </td>
-                  <td className="px-4 py-3 hidden md:table-cell">
-                    <span className={`text-xs ${f.isRequired ? "text-red-600 font-medium" : "text-gray-400"}`}>
-                      {f.isRequired ? "Ya" : "Tidak"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1">
-                      <button onClick={() => openEdit(f)} className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded"><Pencil className="w-3.5 h-3.5" /></button>
-                      <button onClick={() => handleDelete(f)} className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded"><Trash2 className="w-3.5 h-3.5" /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        columns={["Nama/Label Input", "Jenis Layanan", "Tipe", "Required", "Aksi"]}
+        dataLength={filteredFields.length}
+      >
+        {filteredFields.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={5} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
+              <HelpCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-55" />
+              Belum ada field dinamis terdaftar.
+            </TableCell>
+          </TableRow>
+        ) : (
+          filteredFields.map((f) => (
+            <TableRow key={f.id} className="transition-colors hover:bg-muted/30">
+              <TableCell className="px-4 py-3.5">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 text-primary border border-primary/20 rounded-xl shrink-0">
+                    <FileQuestion className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-xs text-foreground">{f.fieldLabel}</p>
+                    <p className="text-[9px] font-mono text-muted-foreground font-semibold mt-0.5">{f.fieldName}</p>
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell className="px-4 py-3.5">
+                <p className="text-xs text-foreground font-semibold">{f.layananJenis.name}</p>
+                <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">{f.layananJenis.opd.name}</p>
+              </TableCell>
+              <TableCell className="px-4 py-3.5 font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
+                {f.fieldType}
+              </TableCell>
+              <TableCell className="px-4 py-3.5">
+                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+                  f.isRequired
+                    ? "bg-rose-500/10 text-rose-700 border-rose-500/20"
+                    : "bg-muted text-muted-foreground border-border/80"
+                }`}>
+                  {f.isRequired ? "Wajib" : "Opsional"}
+                </span>
+              </TableCell>
+              <TableCell className="px-4 py-3.5">
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() => openEdit(f)}
+                    className="text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() => handleDelete(f)}
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))
+        )}
+      </DataTable>
     </div>
   )
 }

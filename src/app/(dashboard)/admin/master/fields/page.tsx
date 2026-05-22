@@ -2,6 +2,8 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { FieldsManager } from "@/components/admin/master/fields-manager"
+import { PageHeader } from "@/components/shared/page-header"
+import { PageContainer } from "@/components/layout/page-container"
 
 export default async function MasterFieldsPage() {
   const session = await auth()
@@ -19,14 +21,19 @@ export default async function MasterFieldsPage() {
       include: { layananJenis: { select: { name: true, opd: { select: { name: true } } } } },
     }),
   ])
+  const serializedOpds = JSON.parse(JSON.stringify(opds))
+  const serializedLayanans = JSON.parse(JSON.stringify(layanans))
+  const serializedFields = JSON.parse(JSON.stringify(fields))
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Master Form Fields</h1>
-        <p className="text-sm text-gray-500">Kelola field dinamis formulir per layanan</p>
-      </div>
-      <FieldsManager initialFields={fields} opds={opds} layanans={layanans} />
-    </div>
+    <PageContainer className="space-y-6">
+      <PageHeader
+        title="Master Formulir Kuesioner"
+        description="Kelola isian/field kuesioner dinamis yang wajib diinput kader ketika mengajukan berkas usulan layanan."
+        backHref="/admin/master"
+      />
+      <FieldsManager initialFields={serializedFields} opds={serializedOpds} layanans={serializedLayanans} />
+    </PageContainer>
   )
 }
+

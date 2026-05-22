@@ -2,6 +2,8 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { WilayahManager } from "@/components/admin/master/wilayah-manager"
+import { PageHeader } from "@/components/shared/page-header"
+import { PageContainer } from "@/components/layout/page-container"
 
 export default async function MasterWilayahPage() {
   const session = await auth()
@@ -17,14 +19,18 @@ export default async function MasterWilayahPage() {
       include: { kecamatan: { select: { name: true } } },
     }),
   ])
+  const serializedKecamatans = JSON.parse(JSON.stringify(kecamatans))
+  const serializedDesas = JSON.parse(JSON.stringify(desas))
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Master Wilayah</h1>
-        <p className="text-sm text-gray-500">Kelola data kecamatan dan desa</p>
-      </div>
-      <WilayahManager initialKecamatans={kecamatans} initialDesas={desas} />
-    </div>
+    <PageContainer className="space-y-6">
+      <PageHeader
+        title="Master Wilayah Wilayah"
+        description="Kelola data pembagian administratif kecamatan dan desa untuk klasterisasi pelaporan posyandu."
+        backHref="/admin/master"
+      />
+      <WilayahManager initialKecamatans={serializedKecamatans} initialDesas={serializedDesas} />
+    </PageContainer>
   )
 }
+

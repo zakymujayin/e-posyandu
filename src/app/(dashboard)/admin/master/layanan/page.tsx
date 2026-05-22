@@ -2,6 +2,8 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { LayananManager } from "@/components/admin/master/layanan-manager"
+import { PageHeader } from "@/components/shared/page-header"
+import { PageContainer } from "@/components/layout/page-container"
 
 export default async function MasterLayananPage() {
   const session = await auth()
@@ -14,14 +16,18 @@ export default async function MasterLayananPage() {
       include: { opd: { select: { name: true } } },
     }),
   ])
+  const serializedOpds = JSON.parse(JSON.stringify(opds))
+  const serializedLayanans = JSON.parse(JSON.stringify(layanans))
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Master Layanan</h1>
-        <p className="text-sm text-gray-500">Kelola jenis layanan per OPD</p>
-      </div>
-      <LayananManager initialLayanans={layanans} opds={opds} />
-    </div>
+    <PageContainer className="space-y-6">
+      <PageHeader
+        title="Master Jenis Layanan"
+        description="Kelola kategori layanan kesehatan dan urusan kependudukan posyandu yang diampu oleh masing-masing OPD dinas."
+        backHref="/admin/master"
+      />
+      <LayananManager initialLayanans={serializedLayanans} opds={serializedOpds} />
+    </PageContainer>
   )
 }
+
