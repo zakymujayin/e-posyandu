@@ -8,7 +8,7 @@ export const PageTitle = React.forwardRef<
   <h1
     ref={ref}
     className={cn(
-      "text-[18px] md:text-[28px] font-extrabold tracking-tight text-slate-800 leading-tight",
+      "text-[18px] md:text-[26px] xl:text-[30px] font-extrabold tracking-tight text-slate-800 leading-tight",
       className
     )}
     {...props}
@@ -23,7 +23,7 @@ export const SectionTitle = React.forwardRef<
   <h2
     ref={ref}
     className={cn(
-      "text-[18px] font-semibold tracking-tight text-slate-900",
+      "text-[17px] xl:text-[19px] font-semibold tracking-tight text-slate-900",
       className
     )}
     {...props}
@@ -38,7 +38,7 @@ export const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-[16px] font-bold tracking-tight text-slate-800",
+      "text-[15px] xl:text-[16px] font-bold tracking-tight text-slate-800",
       className
     )}
     {...props}
@@ -53,7 +53,7 @@ export const BodyText = React.forwardRef<
   <p
     ref={ref}
     className={cn(
-      "text-[14px] text-slate-700 font-normal leading-relaxed",
+      "text-[14px] xl:text-[15px] text-slate-700 font-normal leading-relaxed",
       className
     )}
     {...props}
@@ -68,7 +68,7 @@ export const MutedText = React.forwardRef<
   <p
     ref={ref}
     className={cn(
-      "text-[13px] text-slate-500 font-normal",
+      "text-[13px] xl:text-[14px] text-slate-500 font-normal",
       className
     )}
     {...props}
@@ -98,7 +98,7 @@ export const FormLabel = React.forwardRef<
   <label
     ref={ref}
     className={cn(
-      "text-[14px] font-semibold text-slate-800 select-none",
+      "text-[14px] xl:text-[15px] font-semibold text-slate-800 select-none",
       className
     )}
     {...props}

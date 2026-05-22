@@ -91,7 +91,7 @@ export default async function AdminPage({
       />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4">
         {summaryCards.map((s) => (
           <StatCard
             key={s.label}
@@ -114,7 +114,7 @@ export default async function AdminPage({
               Terdapat {menungguApproval} pengajuan menunggu approval Anda
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
             {alertItems.map((p) => (
               <Link
                 key={p.id}
