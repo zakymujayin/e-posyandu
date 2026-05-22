@@ -189,6 +189,8 @@ model Pengajuan {
   noHpPelapor     String?  @map("no_hp_pelapor")
   alamatPelapor   String   @map("alamat_pelapor")
   deskripsi       String
+  lokasiLat       Float?   @map("lokasi_lat")
+  lokasiLng       Float?   @map("lokasi_lng")
 
   status          String   @default("MENUNGGU_VERIFIKASI")
   submittedAt     DateTime @default(now()) @map("submitted_at")

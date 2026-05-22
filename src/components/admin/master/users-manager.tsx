@@ -337,12 +337,12 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
       )}
 
       <DataTable
-        columns={["Nama & Email", "Hak Akses/Role", "Unit/Wilayah Kerja", "Login Terakhir", "Status", "Aksi"]}
+        columns={["Nama & Email", "Username Login", "Hak Akses/Role", "Unit/Wilayah Kerja", "Login Terakhir", "Status", "Aksi"]}
         dataLength={filtered.length}
       >
         {filtered.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={6} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
+            <TableCell colSpan={7} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
               <HelpCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-55" />
               Tidak ada pengguna terdaftar yang cocok.
             </TableCell>
@@ -360,9 +360,14 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                     <div>
                       <p className="font-bold text-xs text-foreground">{u.name}</p>
                       <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">{u.email}</p>
-                      {u.username && <p className="text-[10px] text-blue-500 font-mono mt-0.5">@{u.username}</p>}
                     </div>
                   </div>
+                </TableCell>
+                <TableCell className="px-4 py-3.5">
+                  {u.username
+                    ? <span className="font-mono text-[11px] text-blue-600 font-semibold">{u.username}</span>
+                    : <span className="text-[10px] text-muted-foreground/50 italic">Belum diset</span>
+                  }
                 </TableCell>
                 <TableCell className="px-4 py-3.5 font-semibold text-xs text-foreground">
                   <span className="px-2 py-0.5 bg-muted rounded-md text-[10px] font-bold border border-border/60">

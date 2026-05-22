@@ -3,7 +3,7 @@ import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import type { PengajuanStatus } from "@/lib/messages"
 import { CardTitle, MutedText } from "@/components/ui/typography"
-import { Paperclip, Video, AlertTriangle } from "lucide-react"
+import { Paperclip, Video, AlertTriangle, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const ROLE_LABELS: Record<string, string> = {
@@ -58,6 +58,8 @@ interface PengajuanDetailProps {
     opd: { name: string }
     layananJenis: { name: string } | null
     kategori?: string | null
+    lokasiLat?: number | null
+    lokasiLng?: number | null
     desa: { name: string; kecamatan?: { name: string } | null }
     posyandu: { name: string }
     kader: { name: string }
@@ -194,6 +196,20 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
             <MutedText>Alamat</MutedText>
             <p className="text-foreground/90 mt-0.5">{pengajuan.alamatPelapor}</p>
           </div>
+          {pengajuan.lokasiLat && pengajuan.lokasiLng && (
+            <div>
+              <MutedText>Lokasi</MutedText>
+              <a
+                href={`https://www.google.com/maps?q=${pengajuan.lokasiLat},${pengajuan.lokasiLng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-primary hover:underline font-medium mt-0.5"
+              >
+                <MapPin className="size-3.5" />
+                Lihat di Google Maps
+              </a>
+            </div>
+          )}
         </div>
       </div>
 

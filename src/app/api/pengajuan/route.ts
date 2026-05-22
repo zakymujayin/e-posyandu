@@ -16,6 +16,8 @@ const createSchema = z.object({
   noHpPelapor: z.string().optional(),
   alamatPelapor: z.string().min(1, "Alamat wajib diisi"),
   deskripsi: z.string().min(20, "Deskripsi minimal 20 karakter"),
+  lokasiLat: z.number().optional(),
+  lokasiLng: z.number().optional(),
   fieldValues: z.array(z.object({
     formFieldId: z.string(),
     fieldValue: z.string(),
@@ -75,6 +77,8 @@ export async function POST(req: NextRequest) {
         noHpPelapor: data.noHpPelapor,
         alamatPelapor: data.alamatPelapor,
         deskripsi: data.deskripsi,
+        lokasiLat: data.lokasiLat ?? null,
+        lokasiLng: data.lokasiLng ?? null,
         deadlineAt,
         fieldValues: {
           create: data.fieldValues.map((fv) => ({

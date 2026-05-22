@@ -16,10 +16,11 @@ async function main() {
   const adminPassword = await bcrypt.hash("admin123", 12)
   const admin = await prisma.user.upsert({
     where: { email: "admin@dpmd.go.id" },
-    update: {},
+    update: { username: "admin_dpmd" },
     create: {
       name: "Admin DPMD",
       email: "admin@dpmd.go.id",
+      username: "admin_dpmd",
       password: adminPassword,
       role: "ADMIN_DPMD",
     },
@@ -166,10 +167,11 @@ async function main() {
   const kaderPassword = await bcrypt.hash("kader123", 12)
   const kader = await prisma.user.upsert({
     where: { email: "kader@example.com" },
-    update: {},
+    update: { username: "kader" },
     create: {
       name: "Siti Aminah",
       email: "kader@example.com",
+      username: "kader",
       password: kaderPassword,
       role: "KADER",
       posyanduId: posyandu1.id,
@@ -179,10 +181,11 @@ async function main() {
   const petugasDesaPassword = await bcrypt.hash("petugas123", 12)
   const petugasDesa = await prisma.user.upsert({
     where: { email: "petugas@example.com" },
-    update: {},
+    update: { username: "petugas_desa" },
     create: {
       name: "Ahmad Fauzi",
       email: "petugas@example.com",
+      username: "petugas_desa",
       password: petugasDesaPassword,
       role: "PETUGAS_DESA",
       desaId: desa1.id,
@@ -192,10 +195,11 @@ async function main() {
   const petugasKecPassword = await bcrypt.hash("kecamatan123", 12)
   const petugasKec = await prisma.user.upsert({
     where: { email: "kecamatan@example.com" },
-    update: {},
+    update: { username: "petugas_kec" },
     create: {
       name: "Budi Santoso",
       email: "kecamatan@example.com",
+      username: "petugas_kec",
       password: petugasKecPassword,
       role: "PETUGAS_KECAMATAN",
       kecamatanId: kecamatan.id,
@@ -206,10 +210,11 @@ async function main() {
   const petugasOpdPassword = await bcrypt.hash("opd123", 12)
   const petugasOpd = await prisma.user.upsert({
     where: { email: "opd@example.com" },
-    update: {},
+    update: { username: "petugas_opd" },
     create: {
       name: "Dewi Kusuma",
       email: "opd@example.com",
+      username: "petugas_opd",
       password: petugasOpdPassword,
       role: "PETUGAS_OPD",
       opdId: opdKesehatan.id,

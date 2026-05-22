@@ -13,7 +13,7 @@ export default async function MasterUsersPage() {
     prisma.user.findMany({
       orderBy: { createdAt: "desc" },
       select: {
-        id: true, name: true, email: true, role: true,
+        id: true, name: true, email: true, username: true, role: true,
         isActive: true, createdAt: true, lastLoginAt: true,
         desa: { select: { name: true } },
         kecamatan: { select: { name: true } },

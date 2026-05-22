@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { FormSection } from "@/components/shared/form-section"
+import { LocationPicker } from "@/components/shared/location-picker"
 import { FormLabel, MutedText } from "@/components/ui/typography"
 import { cn } from "@/lib/utils"
 
@@ -60,6 +61,7 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
   const [uploading, setUploading] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [pendingSubmit, setPendingSubmit] = useState<FormValues | null>(null)
+  const [lokasi, setLokasi] = useState<{ lat: number; lng: number } | null>(null)
 
   const {
     register,
@@ -159,6 +161,8 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
       noHpPelapor: pendingSubmit.noHpPelapor,
       alamatPelapor: pendingSubmit.alamatPelapor,
       deskripsi: pendingSubmit.deskripsi,
+      lokasiLat: kategori === "PENGADUAN" ? lokasi?.lat ?? null : null,
+      lokasiLng: kategori === "PENGADUAN" ? lokasi?.lng ?? null : null,
       fieldValues: Object.entries(dynamicValues).map(([formFieldId, fieldValue]) => ({
         formFieldId,
         fieldValue,
@@ -278,15 +282,15 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
           </FormSection>
         )}
 
-        {/* Data Pelapor */}
+        {/* Data Pemohon */}
         {showForm && (
           <FormSection
-            title="Informasi Pelapor"
-            description="Lengkapi identitas warga atau pihak yang mengajukan laporan / kebutuhan pelayanan."
+            title="Data Pemohon"
+            description="Lengkapi identitas diri pemohon atau pihak yang mengajukan layanan."
           >
             <div className="space-y-1.5">
               <FormLabel htmlFor="pengajuan-namaPelapor">
-                Nama Lengkap Pelapor <span className="text-destructive">*</span>
+                Nama Lengkap <span className="text-destructive">*</span>
               </FormLabel>
               <Input
                 id="pengajuan-namaPelapor"
@@ -303,7 +307,7 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <FormLabel htmlFor="pengajuan-nikPelapor">NIK Pelapor</FormLabel>
+                <FormLabel htmlFor="pengajuan-nikPelapor">NIK</FormLabel>
                 <Input
                   id="pengajuan-nikPelapor"
                   placeholder="16 Digit Nomor Induk Kependudukan (opsional)"
@@ -327,7 +331,7 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
 
             <div className="space-y-1.5">
               <FormLabel htmlFor="pengajuan-alamatPelapor">
-                Alamat Lengkap Domisili <span className="text-destructive">*</span>
+                Alamat Lengkap <span className="text-destructive">*</span>
               </FormLabel>
               <Textarea
                 id="pengajuan-alamatPelapor"
@@ -468,6 +472,16 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
                 </MutedText>
               </div>
             </div>
+          </FormSection>
+        )}
+
+        {/* Lokasi (Pengaduan only) */}
+        {kategori === "PENGADUAN" && (
+          <FormSection
+            title="Lokasi (Opsional)"
+            description="Tandai titik lokasi kejadian atau masalah yang dilaporkan pada peta."
+          >
+            <LocationPicker value={lokasi} onChange={setLokasi} />
           </FormSection>
         )}
 

@@ -26,23 +26,23 @@ export function HeroWelcome({ userName, roleLabel, description }: HeroWelcomePro
 
       <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-3 md:gap-5">
         {/* Logo */}
-        <div className="size-12 md:size-14 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 shadow-sm">
-          <span className="text-white/60 font-bold text-xl md:text-2xl">E</span>
+        <div className="size-12 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 shadow-sm">
+          <span className="text-white/60 font-bold text-xl">E</span>
         </div>
 
         {/* Greeting + Role + Description */}
         <div className="flex-1 min-w-0">
-          <h1 className="text-[16px] md:text-xl font-bold tracking-tight leading-tight">
+          <h1 className="text-[15px] md:text-lg font-bold tracking-tight leading-tight">
             Selamat datang, {userName}
           </h1>
-          <div className="inline-flex items-center gap-1.5 mt-1">
-            <UserCircle className="size-3.5 text-blue-200/70" />
-            <span className="text-[11px] md:text-[12px] font-semibold text-blue-100/80 tracking-wide">
+          <div className="inline-flex items-center gap-1.5 mt-1.5">
+            <UserCircle className="size-4 text-blue-200/70" />
+            <span className="text-[12px] md:text-[13px] font-semibold text-blue-100/80 tracking-wide">
               {roleLabel}
             </span>
           </div>
           {description && (
-            <p className="text-[12px] md:text-[13px] text-blue-50/70 font-medium leading-relaxed mt-2 max-w-2xl line-clamp-2">
+            <p className="text-[13px] md:text-[14px] text-blue-50/70 font-medium leading-relaxed mt-2 max-w-2xl line-clamp-2">
               {description}
             </p>
           )}
