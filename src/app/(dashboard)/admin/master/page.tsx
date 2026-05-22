@@ -2,7 +2,7 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
-import { Building2, List, FileQuestion, MapPin, Users, ArrowRight } from "lucide-react"
+import { Building2, List, FileQuestion, MapPin, Users, CalendarDays, ArrowRight } from "lucide-react"
 import { PageHeader } from "@/components/shared/page-header"
 import { PageContainer } from "@/components/layout/page-container"
 
@@ -10,13 +10,14 @@ export default async function MasterDataPage() {
   const session = await auth()
   if (!session?.user || session.user.role !== "ADMIN_DPMD") redirect("/login")
 
-  const [opdCount, layananCount, fieldCount, desaCount, userCount, posyanduCount] = await Promise.all([
+  const [opdCount, layananCount, fieldCount, desaCount, userCount, posyanduCount, holidayCount] = await Promise.all([
     prisma.opd.count(),
     prisma.layananJenis.count(),
     prisma.formField.count(),
     prisma.desa.count(),
     prisma.user.count(),
     prisma.posyandu.count(),
+    prisma.publicHoliday.count(),
   ])
 
   const cards = [
@@ -59,6 +60,14 @@ export default async function MasterDataPage() {
       count: userCount,
       description: "Kelola seluruh akun petugas desa, OPD, dan admin",
       color: "bg-rose-500/10 text-rose-700 border-rose-500/20",
+    },
+    {
+      href: "/admin/master/hari-libur",
+      icon: CalendarDays,
+      label: "Hari Libur",
+      count: holidayCount,
+      description: "Kelola hari libur nasional untuk kalkulasi SOP",
+      color: "bg-orange-500/10 text-orange-700 border-orange-500/20",
     },
   ]
 

@@ -1,8 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, lazy, Suspense } from "react"
+
+const UsersCsvImport = lazy(() =>
+  import("@/components/admin/master/users-csv-import").then((m) => ({ default: m.UsersCsvImport }))
+)
 import { toast } from "sonner"
-import { Plus, Pencil, X, Check, Search, UserCheck, HelpCircle } from "lucide-react"
+import { Plus, Pencil, X, Check, Search, UserCheck, HelpCircle, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -53,6 +57,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
   const [search, setSearch] = useState("")
   const [filterRole, setFilterRole] = useState("")
   const [showForm, setShowForm] = useState(false)
+  const [showImport, setShowImport] = useState(false)
   const [editing, setEditing] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState(emptyForm)
@@ -151,15 +156,32 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
             {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
           </select>
         </div>
-        <Button
-          onClick={openCreate}
-          size="sm"
-          className="font-bold text-xs gap-1.5 shrink-0 w-full sm:w-auto"
-        >
-          <Plus className="w-4 h-4" />
-          Registrasi Pengguna
-        </Button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button
+            onClick={() => setShowImport(true)}
+            variant="outline"
+            size="sm"
+            className="font-bold text-xs gap-1.5 flex-1 sm:flex-none"
+          >
+            <Upload className="w-4 h-4" />
+            Import CSV
+          </Button>
+          <Button
+            onClick={openCreate}
+            size="sm"
+            className="font-bold text-xs gap-1.5 flex-1 sm:flex-none"
+          >
+            <Plus className="w-4 h-4" />
+            Registrasi Pengguna
+          </Button>
+        </div>
       </div>
+
+      {showImport && (
+        <Suspense fallback={null}>
+          <UsersCsvImport onClose={() => setShowImport(false)} />
+        </Suspense>
+      )}
 
       {showForm && (
         <form onSubmit={handleSubmit} className="transition-all duration-300">

@@ -193,8 +193,10 @@ export default async function KecamatanPage({
             >
               {pengajuans.map((p) => (
                 <TableRow key={p.id} className="hover:bg-muted/40 transition-colors">
-                  <TableCell className="px-4 py-3.5 font-mono text-xs md:text-sm font-bold text-foreground">
-                    {p.tiketNumber}
+                  <TableCell className="px-4 py-3.5">
+                    <Link href={`/kecamatan/${p.id}`} className="font-mono text-xs md:text-sm font-bold text-primary hover:underline">
+                      {p.tiketNumber}
+                    </Link>
                   </TableCell>
                   <TableCell className="px-4 py-3.5 font-semibold text-foreground text-xs md:text-sm">
                     {p.namaPelapor}

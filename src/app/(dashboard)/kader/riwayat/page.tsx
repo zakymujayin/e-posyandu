@@ -12,7 +12,7 @@ import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import type { PengajuanStatus } from "@/lib/messages"
 import { PageContainer } from "@/components/layout/page-container"
-import { FormLabel, MutedText } from "@/components/ui/typography"
+import { FormLabel } from "@/components/ui/typography"
 
 const STATUS_OPTIONS = [
   { value: "", label: "Semua Status" },
@@ -27,19 +27,31 @@ const STATUS_OPTIONS = [
 export default async function KaderRiwayatPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; page?: string }>
+  searchParams: Promise<{ status?: string; opdId?: string; dari?: string; sampai?: string; page?: string }>
 }) {
   const session = await auth()
   if (!session?.user) redirect("/login")
 
   const params = await searchParams
   const status = params.status ?? ""
+  const opdId = params.opdId ?? ""
+  const dari = params.dari ?? ""
+  const sampai = params.sampai ?? ""
   const page = Math.max(1, parseInt(params.page ?? "1"))
   const limit = 10
 
-  const where = {
-    kaderId: session.user.id,
-    ...(status ? { status } : {}),
+  const [opds] = await Promise.all([
+    prisma.opd.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" }, select: { id: true, name: true } }),
+  ])
+
+  const where: Record<string, unknown> = { kaderId: session.user.id }
+  if (status) where.status = status
+  if (opdId) where.opdId = opdId
+  if (dari || sampai) {
+    where.submittedAt = {
+      ...(dari ? { gte: new Date(dari) } : {}),
+      ...(sampai ? { lte: new Date(sampai + "T23:59:59") } : {}),
+    }
   }
 
   const [pengajuans, total] = await Promise.all([
@@ -57,10 +69,10 @@ export default async function KaderRiwayatPage({
   ])
 
   const totalPages = Math.ceil(total / limit)
+  const filterQuery = `status=${status}&opdId=${opdId}&dari=${dari}&sampai=${sampai}`
 
   return (
     <PageContainer className="space-y-6">
-      {/* Page Header */}
       <PageHeader
         title="Riwayat Pengajuan"
         description="Pantau progres dan status verifikasi dari seluruh usulan yang Anda kirimkan."
@@ -69,36 +81,65 @@ export default async function KaderRiwayatPage({
 
       {/* Toolbar Filter */}
       <div className="bg-card border border-border rounded-lg p-4 shadow-xs select-none">
-        <form className="flex items-center gap-3 flex-wrap">
-          <div className="flex flex-col gap-1.5 min-w-[200px]">
-            <FormLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Filter Berdasarkan Status
-            </FormLabel>
+        <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="flex flex-col gap-1.5">
+            <FormLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</FormLabel>
             <select
               name="status"
               defaultValue={status}
-              className="w-full h-9 rounded-lg border border-border bg-background px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+              className="w-full h-9 rounded-lg border border-border bg-background px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
             >
               {STATUS_OPTIONS.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
+                <option key={s.value} value={s.value}>{s.label}</option>
               ))}
             </select>
           </div>
-          <div className="self-end">
+          <div className="flex flex-col gap-1.5">
+            <FormLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">OPD</FormLabel>
+            <select
+              name="opdId"
+              defaultValue={opdId}
+              className="w-full h-9 rounded-lg border border-border bg-background px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="">Semua OPD</option>
+              {opds.map((o) => (
+                <option key={o.id} value={o.id}>{o.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <FormLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Dari Tanggal</FormLabel>
+            <input
+              type="date"
+              name="dari"
+              defaultValue={dari}
+              className="w-full h-9 rounded-lg border border-border bg-background px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <FormLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sampai Tanggal</FormLabel>
+            <input
+              type="date"
+              name="sampai"
+              defaultValue={sampai}
+              className="w-full h-9 rounded-lg border border-border bg-background px-3 text-xs font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <div className="sm:col-span-2 lg:col-span-4 flex gap-2">
             <Button type="submit" size="sm" className="font-semibold tracking-tight">
               Terapkan Filter
+            </Button>
+            <Button type="reset" variant="outline" size="sm" className="font-semibold" asChild>
+              <Link href="/kader/riwayat">Reset</Link>
             </Button>
           </div>
         </form>
       </div>
 
-      {/* Main Table */}
       {pengajuans.length === 0 ? (
         <EmptyState
           title="Tidak ada pengajuan ditemukan"
-          description="Silakan ubah filter status Anda atau buat pengajuan baru di halaman beranda."
+          description="Silakan ubah filter atau buat pengajuan baru di halaman beranda."
         />
       ) : (
         <div className="space-y-4">
@@ -129,35 +170,16 @@ export default async function KaderRiwayatPage({
             ))}
           </DataTable>
 
-          {/* Pagination Navigation */}
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs font-medium text-muted-foreground bg-card border border-border rounded-lg p-4 select-none">
-              <span>
-                Menampilkan Halaman {page} dari {totalPages} ({total} data)
-              </span>
+              <span>Halaman {page} dari {totalPages} ({total} data)</span>
               <div className="flex gap-2">
-                {page > 1 ? (
-                  <Button variant="outline" size="sm" asChild className="font-semibold">
-                    <Link href={`?status=${status}&page=${page - 1}`}>
-                      &larr; Sebelumnya
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button variant="outline" size="sm" disabled className="font-semibold">
-                    &larr; Sebelumnya
-                  </Button>
-                )}
-                {page < totalPages ? (
-                  <Button variant="outline" size="sm" asChild className="font-semibold">
-                    <Link href={`?status=${status}&page=${page + 1}`}>
-                      Selanjutnya &rarr;
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button variant="outline" size="sm" disabled className="font-semibold">
-                    Selanjutnya &rarr;
-                  </Button>
-                )}
+                <Button variant="outline" size="sm" disabled={page <= 1} asChild={page > 1} className="font-semibold">
+                  {page > 1 ? <Link href={`?${filterQuery}&page=${page - 1}`}>&larr; Sebelumnya</Link> : <span>&larr; Sebelumnya</span>}
+                </Button>
+                <Button variant="outline" size="sm" disabled={page >= totalPages} asChild={page < totalPages} className="font-semibold">
+                  {page < totalPages ? <Link href={`?${filterQuery}&page=${page + 1}`}>Selanjutnya &rarr;</Link> : <span>Selanjutnya &rarr;</span>}
+                </Button>
               </div>
             </div>
           )}

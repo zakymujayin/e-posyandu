@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { PageContainer } from "@/components/layout/page-container"
+import { LaporanExport } from "@/components/admin/laporan-export"
 
 export default async function LaporanPage() {
   const session = await auth()
@@ -76,11 +77,14 @@ export default async function LaporanPage() {
 
   return (
     <PageContainer className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Laporan & Statistik</h1>
-        <p className="text-sm text-gray-500">
-          Data per {format(now, "d MMMM yyyy", { locale: localeId })}
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Laporan & Statistik</h1>
+          <p className="text-sm text-gray-500">
+            Data per {format(now, "d MMMM yyyy", { locale: localeId })}
+          </p>
+        </div>
+        <LaporanExport />
       </div>
 
       {/* Summary Cards */}
