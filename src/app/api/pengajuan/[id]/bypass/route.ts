@@ -1,0 +1,74 @@
+import { z } from "zod"
+import { prisma } from "@/lib/prisma"
+import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { createNotificationsForUsers } from "@/lib/notifications"
+
+const schema = z.object({ catatan: z.string().min(1, "Catatan bypass wajib diisi") })
+
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { user, response } = await requireAuth(["ADMIN_DPMD"])
+  if (!user) return response!
+
+  const { id } = await params
+  const parsed = schema.safeParse(await req.json())
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Data tidak valid")
+
+  const pengajuan = await prisma.pengajuan.findUnique({
+    where: { id },
+    include: { kader: { select: { id: true } } },
+  })
+
+  if (!pengajuan) return err("Pengajuan tidak ditemukan", 404)
+
+  const allowedStatuses = ["MENUNGGU_VERIFIKASI", "DALAM_PROSES_OPD"]
+  if (!allowedStatuses.includes(pengajuan.status)) {
+    return err("Status pengajuan tidak dapat di-bypass")
+  }
+
+  const newStatus = pengajuan.status === "MENUNGGU_VERIFIKASI" ? "DALAM_PROSES_OPD" : "SELESAI"
+
+  await prisma.$transaction(async (tx) => {
+    await tx.pengajuan.update({
+      where: { id },
+      data: {
+        status: newStatus,
+        ...(newStatus === "SELESAI" ? { completedAt: new Date() } : {}),
+      },
+    })
+
+    await tx.adminAction.create({
+      data: {
+        pengajuanId: id,
+        adminId: user.id,
+        actionType: "BYPASS_MANUAL",
+        catatan: parsed.data.catatan,
+      },
+    })
+
+    await tx.activityLog.create({
+      data: {
+        pengajuanId: id,
+        userId: user.id,
+        userRole: "ADMIN_DPMD",
+        action: "Bypass manual oleh Admin DPMD",
+        oldStatus: pengajuan.status,
+        newStatus,
+        catatan: parsed.data.catatan,
+      },
+    })
+  })
+
+  // Notif ke kader + petugas terkait
+  const notifyIds = [pengajuan.kaderId]
+  await createNotificationsForUsers(notifyIds, {
+    type: "BYPASS_MANUAL",
+    title: "Bypass oleh Admin DPMD",
+    message: `Pengajuan ${pengajuan.tiketNumber} di-bypass ke status ${newStatus}.`,
+    pengajuanId: id,
+  })
+
+  return ok({ status: newStatus }, "Bypass berhasil dilakukan")
+}
