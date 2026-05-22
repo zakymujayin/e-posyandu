@@ -11,6 +11,14 @@ import { StatusBadge } from "@/components/shared/status-badge"
 import { FileText, PlayCircle } from "lucide-react"
 import { PageContainer } from "@/components/layout/page-container"
 import { CardTitle, MutedText, BodyText } from "@/components/ui/typography"
+import type { PengajuanStatus } from "@/lib/messages"
+
+const ACTION_LABELS: Record<string, string> = {
+  APPROVE: "Disetujui",
+  REVISION_REQUEST: "Revisi Dikirim ke OPD",
+  WARNING: "Surat Teguran Dikirim",
+  BYPASS: "Bypass Tahap Manual",
+}
 
 export default async function AdminPengajuanDetailPage({
   params,
@@ -27,7 +35,7 @@ export default async function AdminPengajuanDetailPage({
     include: {
       opd: { select: { id: true, name: true, color: true, icon: true } },
       layananJenis: { select: { id: true, name: true } },
-      desa: { select: { id: true, name: true } },
+      desa: { select: { id: true, name: true, kecamatan: { select: { name: true } } } },
       posyandu: { select: { id: true, name: true } },
       kader: { select: { id: true, name: true } },
       fieldValues: {
@@ -57,7 +65,7 @@ export default async function AdminPengajuanDetailPage({
       <PageHeader
         title="Detail Pengajuan Berkas"
         description={`Verifikasi dan persetujuan berkas posyandu untuk tiket #${pengajuan.tiketNumber}`}
-        backHref="/admin"
+        backHref="/admin/pengajuan"
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -81,12 +89,13 @@ export default async function AdminPengajuanDetailPage({
                       <MutedText>
                         {tl.petugasOpd.name} · {format(new Date(tl.submittedAt), "d MMM yyyy HH:mm", { locale: localeId })}
                       </MutedText>
+                      <StatusBadge status={tl.status as PengajuanStatus} />
                     </div>
                     <BodyText className="text-xs md:text-sm">{tl.deskripsi}</BodyText>
                     {tl.attachments.length > 0 && (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-border/40 mt-1">
                         {tl.attachments.map((att) => (
-                          <div key={att.id} className="flex items-center gap-2 text-xs md:text-sm bg-card border border-border/50 px-3 py-2 rounded-lg font-semibold hover:border-primary/30 transition-all select-none">
+                          <div key={att.id} className="flex items-center gap-2 text-xs md:text-sm bg-card border border-border/50 px-3 py-2 rounded-lg font-semibold hover:border-primary/30 transition-all">
                             {att.attachmentType === "FILE" ? (
                               <>
                                 <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
@@ -123,7 +132,7 @@ export default async function AdminPengajuanDetailPage({
                 {pengajuan.adminActions.map((action) => (
                   <div key={action.id} className="border-l-2 border-primary/40 pl-4 py-1 space-y-1">
                     <div className="flex items-center justify-between text-xs md:text-sm text-muted-foreground font-semibold flex-wrap gap-2">
-                      <span className="uppercase tracking-wider font-semibold text-primary">{action.actionType.replace("_", " ")}</span>
+                      <span className="font-semibold text-primary">{ACTION_LABELS[action.actionType] ?? action.actionType}</span>
                       <span>Oleh {action.admin.name} · {format(new Date(action.createdAt), "d MMM yyyy HH:mm", { locale: localeId })}</span>
                     </div>
                     <BodyText className="text-xs md:text-sm text-foreground/80 mt-0.5">{action.catatan}</BodyText>

@@ -28,7 +28,7 @@ export default async function TindakLanjutDetailPage({
     include: {
       opd: { select: { id: true, name: true, color: true, icon: true } },
       layananJenis: { select: { id: true, name: true } },
-      desa: { select: { id: true, name: true } },
+      desa: { select: { id: true, name: true, kecamatan: { select: { name: true } } } },
       posyandu: { select: { id: true, name: true } },
       kader: { select: { id: true, name: true } },
       fieldValues: {
@@ -66,7 +66,7 @@ export default async function TindakLanjutDetailPage({
       <PageHeader
         title="Tindak Lanjut Pengajuan"
         description={`Proses peninjauan dan penyelesaian berkas tiket #${pengajuan.tiketNumber}`}
-        backHref="/opd"
+        backHref="/opd/tindak-lanjut"
       />
 
       <div className="space-y-6">

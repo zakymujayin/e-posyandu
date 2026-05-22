@@ -22,7 +22,7 @@ export default async function VerifikasiDetailPage({
     include: {
       opd: { select: { id: true, name: true, color: true, icon: true } },
       layananJenis: { select: { id: true, name: true } },
-      desa: { select: { id: true, name: true } },
+      desa: { select: { id: true, name: true, kecamatan: { select: { name: true } } } },
       posyandu: { select: { id: true, name: true } },
       kader: { select: { id: true, name: true } },
       fieldValues: {
@@ -60,7 +60,7 @@ export default async function VerifikasiDetailPage({
       <PageHeader
         title="Detail Pengajuan Berkas"
         description={`Nomor Tiket: ${pengajuan.tiketNumber}`}
-        backHref="/petugas-desa"
+        backHref="/petugas-desa/verifikasi"
       />
 
       <PengajuanDetail

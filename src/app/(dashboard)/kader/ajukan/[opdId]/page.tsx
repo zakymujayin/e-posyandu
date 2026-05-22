@@ -39,7 +39,7 @@ export default async function AjukanPage({
       <PageHeader
         title={`Pengajuan Layanan ${opd.name}`}
         description="Lengkapi isian data kuesioner dinamis secara lengkap untuk verifikasi petugas."
-        backHref="/kader"
+        backHref="/kader/layanan"
       />
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start mt-6">
@@ -55,7 +55,7 @@ export default async function AjukanPage({
         {/* Kolom Kanan: Panduan & Alur SOP */}
         <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-6">
           {/* Card 1: Ketentuan Dokumen */}
-          <Card className="border border-border bg-card shadow-xs select-none">
+          <Card className="border border-border bg-card shadow-xs">
             <CardHeader className="border-b border-border/50 bg-muted/20 pb-4 px-5">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
@@ -100,7 +100,7 @@ export default async function AjukanPage({
           </Card>
 
           {/* Card 2: Alur SOP */}
-          <Card className="border border-border bg-card shadow-xs select-none">
+          <Card className="border border-border bg-card shadow-xs">
             <CardHeader className="border-b border-border/50 bg-muted/20 pb-4 px-5">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 rounded-lg bg-primary/10 text-primary">

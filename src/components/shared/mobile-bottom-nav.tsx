@@ -3,46 +3,16 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { NAV_ITEMS } from "@/config/navigation"
 import type { UserRole } from "@/types/next-auth"
-import {
-  Home,
-  FileText,
-  CheckCircle,
-  Eye,
-  FileCheck,
-  BarChart3,
-  Settings,
-} from "lucide-react"
 
 interface MobileBottomNavProps {
   role: UserRole
 }
 
-const NAV_ITEMS: Record<
-  UserRole,
-  { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[]
-> = {
-  KADER: [
-    { href: "/kader", label: "Beranda", icon: Home },
-    { href: "/kader/riwayat", label: "Riwayat", icon: FileText },
-  ],
-  PETUGAS_DESA: [
-    { href: "/petugas-desa", label: "Beranda", icon: Home },
-    { href: "/petugas-desa/verifikasi", label: "Verifikasi", icon: CheckCircle },
-  ],
-  PETUGAS_KECAMATAN: [
-    { href: "/kecamatan", label: "Monitoring", icon: Eye },
-  ],
-  PETUGAS_OPD: [
-    { href: "/opd", label: "Beranda", icon: Home },
-    { href: "/opd/tindak-lanjut", label: "Tindak Lanjut", icon: FileCheck },
-  ],
-  ADMIN_DPMD: [
-    { href: "/admin", label: "Dashboard", icon: Home },
-    { href: "/admin/pengajuan", label: "Pengajuan", icon: FileText },
-    { href: "/admin/laporan", label: "Laporan", icon: BarChart3 },
-    { href: "/admin/master", label: "Master", icon: Settings },
-  ],
+const MOBILE_LABELS: Record<string, string> = {
+  "Riwayat Pengajuan": "Riwayat",
+  "Master Data": "Master",
 }
 
 export function MobileBottomNav({ role }: MobileBottomNavProps) {
@@ -56,10 +26,17 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
       <nav className="flex justify-around items-center px-2">
         {items.map((item) => {
           const Icon = item.icon
-          const isActive =
-            item.href === "/"
-              ? pathname === item.href
-              : pathname === item.href || pathname.startsWith(item.href + "/")
+          const isRootPath =
+            item.href === "/" ||
+            item.href === "/admin" ||
+            item.href === "/kader" ||
+            item.href === "/petugas-desa" ||
+            item.href === "/opd"
+
+          const isActive = isRootPath
+            ? pathname === item.href
+            : pathname === item.href || pathname.startsWith(item.href + "/")
+          const label = MOBILE_LABELS[item.label] ?? item.label
 
           return (
             <Link
@@ -82,7 +59,7 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
               >
                 <Icon className={cn("size-5 transition-transform duration-300", isActive && "scale-110")} />
               </div>
-              <span className="truncate max-w-[80px]">{item.label}</span>
+              <span className="truncate max-w-[80px]">{label}</span>
             </Link>
           )
         })}

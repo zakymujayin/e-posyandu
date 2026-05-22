@@ -51,7 +51,7 @@ export function VerifikasiActions({ pengajuanId }: Props) {
 
   return (
     <>
-      <Card className="border border-border rounded-lg shadow-sm overflow-hidden select-none relative">
+      <Card className="border border-border rounded-lg shadow-sm overflow-hidden relative">
         {/* Amber top line */}
         <div className="absolute top-0 left-0 right-0 h-[4px] bg-amber-500" />
         
@@ -87,7 +87,7 @@ export function VerifikasiActions({ pengajuanId }: Props) {
 
       {/* Approve Modal */}
       <Dialog open={showApproveModal} onOpenChange={setShowApproveModal}>
-        <DialogContent className="rounded-lg border border-border bg-card max-w-sm select-none p-6">
+        <DialogContent className="rounded-lg border border-border bg-card max-w-sm p-6">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg font-bold text-foreground flex items-center gap-2">
               <CheckCircle2 className="size-5 text-emerald-500" />
@@ -111,7 +111,7 @@ export function VerifikasiActions({ pengajuanId }: Props) {
 
       {/* Reject Modal */}
       <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
-        <DialogContent className="rounded-lg border border-border bg-card max-w-md select-none p-6">
+        <DialogContent className="rounded-lg border border-border bg-card max-w-md p-6">
           <DialogHeader>
             <DialogTitle className="text-base md:text-lg font-bold text-foreground flex items-center gap-2">
               <AlertTriangle className="size-5 text-destructive" />
@@ -123,10 +123,11 @@ export function VerifikasiActions({ pengajuanId }: Props) {
               Berkas yang ditolak akan ditutup secara permanen dan kader harus melakukan input ulang. Pastikan Anda menuliskan catatan koreksi secara rinci.
             </MutedText>
             <div className="space-y-1.5">
-              <FormLabel className="text-muted-foreground">
+              <FormLabel htmlFor="verifikasi-alasan" className="text-muted-foreground">
                 Uraian Catatan Penolakan <span className="text-destructive">*</span>
               </FormLabel>
               <Textarea
+                id="verifikasi-alasan"
                 value={alasan}
                 onChange={(e) => setAlasan(e.target.value)}
                 placeholder="Tuliskan kekurangan berkas/alasan di sini secara detail..."

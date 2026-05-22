@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { FormSection } from "@/components/shared/form-section"
 import { FormLabel, MutedText } from "@/components/ui/typography"
+import { cn } from "@/lib/utils"
 
 interface LayananJenis {
   id: string
@@ -191,12 +192,16 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
           description="Pilih salah satu spesifikasi klasifikasi layanan yang akan diajukan ke dinas terkait."
         >
           <div className="space-y-1.5">
-            <FormLabel>
+            <FormLabel htmlFor="pengajuan-layananJenisId">
               Klasifikasi Layanan <span className="text-destructive">*</span>
             </FormLabel>
             <Select onValueChange={onLayananChange} value={selectedLayananId ?? ""}>
-              <SelectTrigger className="w-full rounded-lg border-border bg-background focus:ring-primary focus:border-primary">
-                <SelectValue placeholder="— Pilih Klasifikasi Layanan —" />
+              <SelectTrigger id="pengajuan-layananJenisId" className="w-full rounded-lg border-border bg-background focus:ring-primary focus:border-primary">
+                <span className={cn("flex flex-1 text-left text-sm truncate", !selectedLayananId && "text-muted-foreground")}>
+                  {selectedLayananId
+                    ? (layananList.find((l) => l.id === selectedLayananId)?.name ?? "— Pilih Klasifikasi Layanan —")
+                    : "— Pilih Klasifikasi Layanan —"}
+                </span>
               </SelectTrigger>
               <SelectContent>
                 {layananList.map((l) => (
@@ -245,10 +250,11 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
           description="Lengkapi identitas warga atau pihak yang mengajukan laporan / kebutuhan pelayanan."
         >
           <div className="space-y-1.5">
-            <FormLabel>
+            <FormLabel htmlFor="pengajuan-namaPelapor">
               Nama Lengkap Pelapor <span className="text-destructive">*</span>
             </FormLabel>
             <Input
+              id="pengajuan-namaPelapor"
               placeholder="Contoh: Budi Santoso"
               className="rounded-lg border-border bg-background"
               {...register("namaPelapor")}
@@ -262,18 +268,22 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <FormLabel>NIK Pelapor</FormLabel>
+              <FormLabel htmlFor="pengajuan-nikPelapor">NIK Pelapor</FormLabel>
               <Input
+                id="pengajuan-nikPelapor"
                 placeholder="16 Digit Nomor Induk Kependudukan (opsional)"
                 maxLength={16}
+                inputMode="numeric"
                 className="rounded-lg border-border bg-background"
                 {...register("nikPelapor")}
               />
             </div>
             <div className="space-y-1.5">
-              <FormLabel>Nomor HP / WhatsApp</FormLabel>
+              <FormLabel htmlFor="pengajuan-noHpPelapor">Nomor HP / WhatsApp</FormLabel>
               <Input
+                id="pengajuan-noHpPelapor"
                 placeholder="Contoh: 0812XXXXXXXX (opsional)"
+                inputMode="tel"
                 className="rounded-lg border-border bg-background"
                 {...register("noHpPelapor")}
               />
@@ -281,10 +291,11 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
           </div>
 
           <div className="space-y-1.5">
-            <FormLabel>
+            <FormLabel htmlFor="pengajuan-alamatPelapor">
               Alamat Lengkap Domisili <span className="text-destructive">*</span>
             </FormLabel>
             <Textarea
+              id="pengajuan-alamatPelapor"
               placeholder="Tuliskan nama jalan, RT/RW, nomor rumah, dan keterangan wilayah lainnya"
               rows={3}
               className="rounded-lg border-border bg-background resize-none"
@@ -304,16 +315,17 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
           description="Tuliskan penjelasan lengkap mengenai kendala, kronologi, atau bantuan yang dibutuhkan."
         >
           <div className="space-y-1.5">
-            <FormLabel>
+            <FormLabel htmlFor="pengajuan-deskripsi">
               Uraian Detail Pengaduan <span className="text-destructive">*</span>
             </FormLabel>
             <Textarea
+              id="pengajuan-deskripsi"
               placeholder="Ceritakan sedetail mungkin agar mempercepat proses verifikasi oleh tim dinas terkait..."
               rows={5}
               className="rounded-lg border-border bg-background"
               {...register("deskripsi")}
             />
-            <div className="flex items-center justify-between text-xs text-muted-foreground font-medium mt-1 select-none">
+            <div className="flex items-center justify-between text-xs text-muted-foreground font-medium mt-1">
               <span>Pastikan isi deskripsi valid</span>
               <span>Minimal 20 Karakter</span>
             </div>
@@ -332,8 +344,8 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
         >
           {/* File upload */}
           <div className="space-y-3">
-            <FormLabel>Berkas / Dokumen Lampiran</FormLabel>
-            <label className="group/drop flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border rounded-lg p-6 cursor-pointer bg-muted/20 hover:bg-muted/40 hover:border-primary/40 transition-all duration-300">
+            <FormLabel htmlFor="pengajuan-file">Berkas / Dokumen Lampiran</FormLabel>
+            <label htmlFor="pengajuan-file" className="group/drop flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border rounded-lg p-6 cursor-pointer bg-muted/20 hover:bg-muted/40 hover:border-primary/40 transition-all duration-300">
               <div className="p-2.5 rounded-lg bg-background border border-border text-muted-foreground group-hover/drop:scale-110 group-hover/drop:text-primary transition-all duration-300 shadow-xs">
                 <Upload className="w-5 h-5" />
               </div>
@@ -344,6 +356,7 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
                 Klik untuk memilih file dari galeri perangkat Anda
               </span>
               <input
+                id="pengajuan-file"
                 type="file"
                 className="hidden"
                 accept=".jpg,.jpeg,.png,.pdf"
@@ -365,7 +378,7 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
                       type="button"
                       onClick={() => setUploadedFiles((prev) => prev.filter((_, idx) => idx !== i))}
                       className="text-destructive hover:bg-destructive/10 p-1 rounded-lg transition-colors"
-                      title="Hapus"
+                      aria-label={`Hapus ${f.name}`}
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -377,11 +390,12 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
 
           {/* Video links */}
           <div className="space-y-3 pt-3 border-t border-border/50">
-            <FormLabel>Link Referensi Video</FormLabel>
+            <FormLabel htmlFor="pengajuan-video-0">Link Referensi Video</FormLabel>
             {videoFields.map((field, index) => (
               <div key={field.id} className="flex gap-2 items-center animate-fade-in">
                 <div className="flex-1 relative">
                   <Input
+                    id={`pengajuan-video-${index}`}
                     placeholder="Contoh: https://youtube.com/watch?v=..."
                     className="rounded-lg border-border bg-background pr-9"
                     {...register(`videoLinks.${index}.url`)}
@@ -392,6 +406,7 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
                   type="button"
                   onClick={() => removeVideo(index)}
                   className="text-destructive hover:bg-destructive/10 p-2 rounded-lg border border-transparent hover:border-destructive/10 transition-all duration-200"
+                  aria-label="Hapus tautan video"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -423,7 +438,7 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
             onClick={() => router.back()}
             className="flex-1 min-h-[44px] rounded-lg font-bold tracking-tight"
           >
-            Kembali ke Beranda
+            Kembali
           </Button>
           <Button
             type="submit"
@@ -444,7 +459,7 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
 
       {/* Confirm Modal */}
       <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
-        <DialogContent className="rounded-lg border border-border bg-card max-w-sm select-none p-6">
+        <DialogContent className="rounded-lg border border-border bg-card max-w-sm p-6">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-foreground tracking-tight">
               Kirim Pengajuan Sekarang?
@@ -509,10 +524,13 @@ function DynamicFieldInput({
   }
 
   if (field.fieldType === "select") {
+    const selectedOption = options.find((o) => o.value === value)
     return (
       <Select value={value} onValueChange={(v) => onChange(v ?? "")}>
         <SelectTrigger className="w-full rounded-lg border-border bg-background focus:ring-primary focus:border-primary">
-          <SelectValue placeholder={field.placeholder ?? "— Pilih Pilihan —"} />
+          <span className={cn("flex flex-1 text-left text-sm truncate", !selectedOption && "text-muted-foreground")}>
+            {selectedOption ? selectedOption.label : (field.placeholder ?? "— Pilih Pilihan —")}
+          </span>
         </SelectTrigger>
         <SelectContent>
           {options.map((o) => (
@@ -525,7 +543,7 @@ function DynamicFieldInput({
 
   if (field.fieldType === "radio") {
     return (
-      <div className="flex flex-wrap gap-4 py-1.5 select-none">
+      <div className="flex flex-wrap gap-4 py-1.5">
         {options.map((o) => (
           <label key={o.value} className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground">
             <input
@@ -548,7 +566,7 @@ function DynamicFieldInput({
       try { return JSON.parse(value) as string[] } catch { return [] }
     })()
     return (
-      <div className="flex flex-wrap gap-4 py-1.5 select-none">
+      <div className="flex flex-wrap gap-4 py-1.5">
         {options.map((o) => (
           <label key={o.value} className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-foreground">
             <input

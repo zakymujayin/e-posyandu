@@ -32,7 +32,7 @@ export function AppShell({ user, children }: AppShellProps) {
         <Header user={user} />
 
         {/* Content Body with extra padding bottom on mobile to clear bottom navigation */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto py-6 lg:py-8 px-0 pb-24 md:pb-8 animate-fade-in relative z-10">
+        <main id="main-content" className="flex-1 overflow-y-auto py-6 lg:py-8 px-0 pb-24 md:pb-8 animate-fade-in relative z-10">
           {children}
         </main>
       </div>

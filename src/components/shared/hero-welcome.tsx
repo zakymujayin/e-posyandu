@@ -1,6 +1,6 @@
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
-import { Heart, Activity, Calendar, ShieldCheck, UserCircle } from "lucide-react"
+import { UserCircle, Heart } from "lucide-react"
 
 interface HeroWelcomeProps {
   userName: string
@@ -10,62 +10,53 @@ interface HeroWelcomeProps {
 
 export function HeroWelcome({ userName, roleLabel, description }: HeroWelcomeProps) {
   const now = new Date()
-  const dayName = format(now, "EEEE", { locale: localeId })
-  const dayNum = format(now, "d")
-  const monthYear = format(now, "MMMM yyyy", { locale: localeId })
+  const dateStr = format(now, "EEEE, d MMMM yyyy", { locale: localeId })
 
   return (
-    <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-primary via-primary to-primary/80 text-primary-foreground p-6 md:p-8 shadow-[0_8px_30px_rgba(37,99,235,0.12)] border border-primary/20 select-none mb-6">
-      {/* Decorative Vectors/Blobs inside the Hero card */}
-      <div className="absolute right-[-20px] top-[-20px] w-64 h-64 rounded-full bg-white/[0.03] blur-2xl pointer-events-none" />
-      <div className="absolute left-[30%] bottom-[-50px] w-48 h-48 rounded-full bg-indigo-500/[0.1] blur-2xl pointer-events-none" />
-      
-      {/* Brand Identity Background Icons */}
-      <Heart className="absolute right-12 bottom-[-20px] size-40 text-white/5 rotate-12 stroke-[1.5] pointer-events-none" />
-      <Activity className="absolute right-40 top-[-20px] size-32 text-white/5 -rotate-12 stroke-[1.5] pointer-events-none" />
+    <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-primary via-primary to-primary/75 text-primary-foreground p-5 md:p-6 lg:p-7 shadow-[0_8px_30px_rgba(37,99,235,0.12)] border border-primary/20 mb-5">
+      {/* Dot grid pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.07)_1px,transparent_1px)] bg-[size:18px_18px] pointer-events-none" />
 
-      {/* Main Layout Grid */}
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-        
-        {/* Left Side Content */}
-        <div className="space-y-3 max-w-2xl">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/12 text-white border border-white/10 backdrop-blur-xs">
-            <ShieldCheck className="size-3.5 text-blue-200 fill-blue-200/10" />
-            <span>Portal Layanan Terpadu</span>
+      {/* Decorative glows */}
+      <div className="absolute -right-10 -top-10 w-72 h-72 rounded-full bg-white/[0.04] blur-3xl pointer-events-none" />
+      <div className="absolute -left-10 -bottom-10 w-56 h-56 rounded-full bg-indigo-500/[0.08] blur-3xl pointer-events-none" />
+
+      {/* Decorative background icon */}
+      <Heart className="absolute right-12 -bottom-4 size-36 text-white/5 rotate-12 stroke-[1.5] pointer-events-none" />
+
+      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-3 md:gap-5">
+        {/* Logo */}
+        <div className="size-12 md:size-14 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 shadow-sm">
+          <span className="text-white/60 font-bold text-xl md:text-2xl">E</span>
+        </div>
+
+        {/* Greeting + Role + Description */}
+        <div className="flex-1 min-w-0">
+          <h1 className="text-[16px] md:text-xl font-bold tracking-tight leading-tight">
+            Selamat datang, {userName}
+          </h1>
+          <div className="inline-flex items-center gap-1.5 mt-1">
+            <UserCircle className="size-3.5 text-blue-200/70" />
+            <span className="text-[11px] md:text-[12px] font-semibold text-blue-100/80 tracking-wide">
+              {roleLabel}
+            </span>
           </div>
+          {description && (
+            <p className="text-[12px] md:text-[13px] text-blue-50/70 font-medium leading-relaxed mt-2 max-w-2xl line-clamp-2">
+              {description}
+            </p>
+          )}
+        </div>
 
-          <div className="space-y-2">
-            <h1 className="text-[18px] md:text-[28px] font-extrabold tracking-tight leading-tight">
-              Selamat datang kembali, {userName}
-            </h1>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 border border-white/20 text-blue-50 text-[12px] font-bold shadow-sm">
-              <UserCircle className="size-3.5 opacity-80" />
-              <span className="tracking-wide">Akses: {roleLabel}</span>
-            </div>
-          </div>
-
-          <p className="text-[14px] text-blue-50/90 leading-relaxed font-medium">
-            {description || "Pantau layanan Posyandu, verifikasi data, dan kelola pengajuan masyarakat hari ini."}
+        {/* Date */}
+        <div className="shrink-0 sm:text-right self-start sm:self-center">
+          <p className="text-[10px] md:text-[11px] font-bold text-blue-200/70 uppercase tracking-wider leading-none">
+            Hari ini
+          </p>
+          <p className="text-[13px] md:text-[14px] font-bold text-white leading-tight mt-0.5 whitespace-nowrap">
+            {dateStr}
           </p>
         </div>
-
-        {/* Right Side Date Widget */}
-        <div className="shrink-0 flex items-center gap-4 bg-white/10 border border-white/12 backdrop-blur-md rounded-lg p-4 md:p-5 text-center min-w-[150px] shadow-inner">
-          <Calendar className="size-8 text-blue-200 stroke-[1.5] hidden sm:block" />
-          <div className="text-left">
-            <p className="text-[12px] font-bold text-blue-200 uppercase tracking-wider leading-none">
-              Hari ini
-            </p>
-            <p className="text-[18px] font-extrabold tracking-tight mt-1 leading-none">
-              {dayName}
-            </p>
-            <p className="text-[12px] font-medium text-blue-100 mt-1 leading-none">
-              {dayNum} {monthYear}
-            </p>
-          </div>
-        </div>
-
       </div>
     </div>
   )

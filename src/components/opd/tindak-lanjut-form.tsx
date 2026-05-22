@@ -138,10 +138,11 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Column: Deskripsi */}
             <div className="space-y-2">
-              <FormLabel>
+              <FormLabel htmlFor="tindaklanjut-deskripsi">
                 Deskripsi Tindak Lanjut <span className="text-destructive">*</span>
               </FormLabel>
               <Textarea
+                id="tindaklanjut-deskripsi"
                 placeholder="Jelaskan langkah-langkah konkret yang telah dilakukan oleh dinas/OPD terkait..."
                 rows={9}
                 className="resize-none h-[calc(100%-2rem)] min-h-[220px]"
@@ -156,8 +157,8 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
             <div className="space-y-4">
               {/* File Upload */}
               <div className="space-y-3">
-                <FormLabel>Upload Bukti Dokumen/Foto (Maksimal 5)</FormLabel>
-                <label className="group relative flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border/80 rounded-lg p-6 cursor-pointer text-center transition-all hover:bg-muted/30 hover:border-primary/50 select-none">
+                <FormLabel htmlFor="tindaklanjut-file">Upload Bukti Dokumen/Foto (Maksimal 5)</FormLabel>
+                <label htmlFor="tindaklanjut-file" className="group relative flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border/80 rounded-lg p-6 cursor-pointer text-center transition-all hover:bg-muted/30 hover:border-primary/50">
                   <div className="p-3 bg-muted group-hover:bg-primary/5 group-hover:text-primary rounded-lg transition-colors">
                     <Upload className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
@@ -170,6 +171,7 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
                     </MutedText>
                   </div>
                   <input
+                    id="tindaklanjut-file"
                     type="file"
                     className="hidden"
                     accept=".jpg,.jpeg,.png,.pdf"
@@ -196,6 +198,7 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
                           size="icon-xs"
                           onClick={() => setUploadedFiles((p) => p.filter((_, idx) => idx !== i))}
                           className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                          aria-label={`Hapus ${f.name}`}
                         >
                           <X className="w-3.5 h-3.5" />
                         </Button>
@@ -207,21 +210,23 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
 
               {/* Video Links */}
               <div className="space-y-3 pt-2">
-                <FormLabel>Tautan Link Video Bukti (Opsional)</FormLabel>
-                <div className="space-y-2">
-                  {fields.map((field, index) => (
-                    <div key={field.id} className="flex gap-2 items-center">
-                      <Input
-                        placeholder="https://youtube.com/... atau tautan video lainnya"
-                        {...register(`videoLinks.${index}.url`)}
-                        className="flex-1"
-                      />
+              <FormLabel htmlFor="tindaklanjut-video-0">Tautan Link Video Bukti (Opsional)</FormLabel>
+              <div className="space-y-2">
+                {fields.map((field, index) => (
+                  <div key={field.id} className="flex gap-2 items-center">
+                    <Input
+                      id={`tindaklanjut-video-${index}`}
+                      placeholder="https://youtube.com/... atau tautan video lainnya"
+                      {...register(`videoLinks.${index}.url`)}
+                      className="flex-1"
+                    />
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => remove(index)}
                         className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 shrink-0"
+                        aria-label="Hapus tautan video"
                       >
                         <X className="w-4 h-4" />
                       </Button>
@@ -299,8 +304,9 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 py-2">
-            <FormLabel>Alasan Penolakan <span className="text-destructive">*</span></FormLabel>
+            <FormLabel htmlFor="tindaklanjut-alasanTolak">Alasan Penolakan <span className="text-destructive">*</span></FormLabel>
             <Textarea
+              id="tindaklanjut-alasanTolak"
               value={alasanTolak}
               onChange={(e) => setAlasanTolak(e.target.value)}
               placeholder="Berikan alasan logis mengapa pengajuan ini tidak dapat ditindaklanjuti..."

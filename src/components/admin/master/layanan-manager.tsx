@@ -2,13 +2,14 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
-import { Plus, Pencil, Trash2, X, Check, List, HelpCircle } from "lucide-react"
+import { Plus, Pencil, Trash2, X, Check, List, HelpCircle, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { DataTable } from "@/components/shared/data-table"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
+import { MasterCsvImport } from "./master-csv-import"
 
 interface Layanan {
   id: string
@@ -32,6 +33,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
   const [editing, setEditing] = useState<Layanan | null>(null)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({ opdId: "", name: "", description: "", sortOrder: 0 })
+  const [showImport, setShowImport] = useState(false)
 
   const filtered = filterOpd ? layanans.filter((l) => l.opdId === filterOpd) : layanans
 
@@ -102,7 +104,19 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center select-none">
+      {showImport && (
+        <MasterCsvImport
+          title="Import Layanan dari CSV"
+          description="Upload file CSV sesuai template yang tersedia"
+          apiEndpoint="/api/admin/master/layanan/import"
+          templateHeaders={["nama", "opd_kode", "urutan"]}
+          templateExample={["Pemberian Makanan Tambahan", "DINKES", "1"]}
+          templateFilename="template_layanan"
+          onClose={() => setShowImport(false)}
+        />
+      )}
+
+      <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
         <select
           value={filterOpd}
           onChange={(e) => setFilterOpd(e.target.value)}
@@ -111,14 +125,24 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
           <option value="">Semua Dinas/OPD</option>
           {opds.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
         </select>
-        <Button
-          onClick={openCreate}
-          size="sm"
-          className="font-bold text-xs gap-1.5 shrink-0 w-full sm:w-auto"
-        >
-          <Plus className="w-4 h-4" />
-          Tambah Layanan Baru
-        </Button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button
+            onClick={() => setShowImport(true)}
+            variant="outline"
+            size="sm"
+            className="font-bold text-xs gap-1.5 flex-1 sm:flex-none"
+          >
+            <Upload className="w-4 h-4" /> Import CSV
+          </Button>
+          <Button
+            onClick={openCreate}
+            size="sm"
+            className="font-bold text-xs gap-1.5 flex-1 sm:flex-none"
+          >
+            <Plus className="w-4 h-4" />
+            Tambah Layanan Baru
+          </Button>
+        </div>
       </div>
 
       {showForm && (

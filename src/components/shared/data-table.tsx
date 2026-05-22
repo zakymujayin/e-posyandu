@@ -27,10 +27,10 @@ export function DataTable({
   className,
 }: DataTableProps) {
   return (
-    <div className={cn("rounded-lg border border-border bg-card overflow-hidden shadow-xs", className)}>
+    <div className={cn("rounded-lg border border-border bg-card shadow-xs", className)}>
       <div className="w-full overflow-x-auto">
         <Table>
-          <TableHeader className="bg-muted/40 select-none">
+          <TableHeader className="bg-muted/40">
             <TableRow>
               {columns.map((column, index) => (
                 <TableHead

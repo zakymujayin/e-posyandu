@@ -58,7 +58,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex bg-slate-50 transition-all duration-300">
       {/* Left side: branding/illustration panel (desktop only) */}
-      <div className="hidden lg:flex lg:w-[52%] flex-col justify-between relative overflow-hidden select-none p-12"
+      <div className="hidden lg:flex lg:w-[52%] flex-col justify-between relative overflow-hidden p-12"
         style={{
           background: "linear-gradient(135deg, oklch(0.28 0.14 265) 0%, oklch(0.36 0.17 255) 30%, oklch(0.44 0.18 245) 60%, oklch(0.38 0.16 270) 100%)"
         }}
@@ -155,10 +155,10 @@ export default function LoginPage() {
           />
 
           <CardHeader className="space-y-2 text-center pt-8">
-            <CardTitle className="text-2xl font-bold tracking-tight text-foreground select-none">
+            <CardTitle className="text-2xl font-bold tracking-tight text-foreground">
               Selamat Datang
             </CardTitle>
-            <CardDescription className="text-[13px] text-muted-foreground select-none">
+            <CardDescription className="text-[13px] text-muted-foreground">
               Silakan masukkan email dan kata sandi Anda untuk mengakses layanan
             </CardDescription>
           </CardHeader>
@@ -207,6 +207,7 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />

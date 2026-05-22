@@ -5,17 +5,10 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { MESSAGES } from "@/lib/messages"
+import { NAV_ITEMS } from "@/config/navigation"
 import type { UserRole } from "@/types/next-auth"
 import {
-  Home,
-  FileText,
-  CheckCircle,
-  Eye,
-  FileCheck,
-  BarChart3,
-  Settings,
   LogOut,
-  User,
   Heart,
 } from "lucide-react"
 
@@ -25,33 +18,6 @@ interface SidebarProps {
     email: string
     role: UserRole
   }
-}
-
-const NAV_ITEMS: Record<
-  UserRole,
-  { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[]
-> = {
-  KADER: [
-    { href: "/kader", label: "Beranda", icon: Home },
-    { href: "/kader/riwayat", label: "Riwayat Pengajuan", icon: FileText },
-  ],
-  PETUGAS_DESA: [
-    { href: "/petugas-desa", label: "Beranda", icon: Home },
-    { href: "/petugas-desa/verifikasi", label: "Verifikasi", icon: CheckCircle },
-  ],
-  PETUGAS_KECAMATAN: [
-    { href: "/kecamatan", label: "Monitoring", icon: Eye },
-  ],
-  PETUGAS_OPD: [
-    { href: "/opd", label: "Beranda", icon: Home },
-    { href: "/opd/tindak-lanjut", label: "Tindak Lanjut", icon: FileCheck },
-  ],
-  ADMIN_DPMD: [
-    { href: "/admin", label: "Dashboard", icon: Home },
-    { href: "/admin/pengajuan", label: "Pengajuan", icon: FileText },
-    { href: "/admin/laporan", label: "Laporan", icon: BarChart3 },
-    { href: "/admin/master", label: "Master Data", icon: Settings },
-  ],
 }
 
 export function Sidebar({ user }: SidebarProps) {

@@ -59,7 +59,7 @@ export default function TrackingPage() {
       {/* Navigation Header */}
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
         <div className="container max-w-5xl mx-auto h-16 px-4 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 select-none">
+          <div className="flex items-center gap-2.5">
             <div className="size-9 rounded-xl bg-primary flex items-center justify-center font-black text-white text-base shadow-md shadow-primary/20">
               eP
             </div>
@@ -78,7 +78,7 @@ export default function TrackingPage() {
       <section className="relative overflow-hidden bg-gradient-to-b from-[#0A2540] to-[#04101D] dark:from-[#05111F] dark:to-background text-white py-16 px-4 border-b border-border/10">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/25 via-transparent to-transparent opacity-70" />
         
-        <div className="relative max-w-2xl mx-auto text-center space-y-4 select-none">
+        <div className="relative max-w-2xl mx-auto text-center space-y-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/25 uppercase tracking-wider">
             Layanan Publik Resmi
           </span>
@@ -195,7 +195,7 @@ export default function TrackingPage() {
               {/* Progress Timeline */}
               {result.activityLogs.length > 0 && (
                 <div className="border-t border-border/50 pt-6 space-y-4">
-                  <h4 className="text-xs font-bold text-foreground uppercase tracking-wider select-none">
+                  <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
                     Timeline & Riwayat Peninjauan
                   </h4>
                   <div className="relative pl-6 border-l border-border/80 ml-3 space-y-6">
@@ -234,7 +234,7 @@ export default function TrackingPage() {
       </main>
 
       {/* Footer footer info */}
-      <footer className="border-t border-border/30 bg-muted/10 py-6 text-center select-none mt-auto">
+      <footer className="border-t border-border/30 bg-muted/10 py-6 text-center mt-auto">
         <p className="text-[10px] md:text-xs text-muted-foreground/75 font-semibold tracking-wider">
           © {new Date().getFullYear()} DINAS PEMBERDAYAAN MASYARAKAT & DESA (DPMD) KABUPATEN LEBAK. ALL RIGHTS RESERVED.
         </p>

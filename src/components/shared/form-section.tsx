@@ -16,7 +16,7 @@ export function FormSection({
   className,
 }: FormSectionProps) {
   return (
-    <Card className={cn("transition-all duration-300 border border-border select-none shadow-xs hover:shadow-xs", className)}>
+    <Card className={cn("transition-all duration-300 border border-border shadow-xs hover:shadow-xs", className)}>
       <CardHeader className="border-b border-border/50 bg-muted/15 pb-4 px-6">
         <CardTitle>
           {title}

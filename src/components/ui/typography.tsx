@@ -98,7 +98,7 @@ export const FormLabel = React.forwardRef<
   <label
     ref={ref}
     className={cn(
-      "text-[14px] xl:text-[15px] font-semibold text-slate-800 select-none",
+      "text-[14px] xl:text-[15px] font-semibold text-slate-800",
       className
     )}
     {...props}

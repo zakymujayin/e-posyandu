@@ -12,31 +12,9 @@ import { Button } from "@/components/ui/button"
 import { formatDistanceToNow } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { MESSAGES, type PengajuanStatus } from "@/lib/messages"
-import { 
-  FileText, 
-  Clock, 
-  CheckCircle2, 
-  XCircle, 
-  ArrowRight,
-  HeartPulse,
-  GraduationCap,
-  HardHat,
-  Home as HomeIcon,
-  Shield,
-  HandHeart,
-  HelpCircle
-} from "lucide-react"
+import { FileText, Clock, CheckCircle2, XCircle, Plus } from "lucide-react"
 import { PageContainer } from "@/components/layout/page-container"
-import { SectionTitle, CardTitle, MutedText } from "@/components/ui/typography"
-
-const OPD_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  "heart-pulse": HeartPulse,
-  "book-open": GraduationCap,
-  "building": HardHat,
-  "home": HomeIcon,
-  "shield": Shield,
-  "hand-heart": HandHeart,
-}
+import { SectionTitle } from "@/components/ui/typography"
 
 export default async function KaderPage() {
   const session = await auth()
@@ -45,11 +23,6 @@ export default async function KaderPage() {
   const kader = await prisma.user.findUnique({
     where: { id: session.user.id },
     include: { posyandu: { include: { desa: true } } },
-  })
-
-  const opds = await prisma.opd.findMany({
-    where: { isActive: true },
-    orderBy: { sortOrder: "asc" },
   })
 
   const [total, dalamProses, selesai, ditolak] = await Promise.all([
@@ -79,12 +52,20 @@ export default async function KaderPage() {
 
   return (
     <PageContainer className="space-y-6">
-      {/* Page Header */}
       <HeroWelcome
         userName={session.user.name || "Kader"}
         roleLabel={MESSAGES.roles[session.user.role]}
         description={description}
       />
+
+      <div className="flex">
+        <Button asChild className="gap-2 font-bold">
+          <Link href="/kader/layanan">
+            <Plus className="w-4 h-4" />
+            Buat Pengajuan Baru
+          </Link>
+        </Button>
+      </div>
 
       {/* Stats Section */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -99,68 +80,14 @@ export default async function KaderPage() {
         ))}
       </div>
 
-      {/* OPD Services Grid */}
-      <div className="space-y-4">
-        <div className="select-none">
-          <SectionTitle>Buat Pengajuan Baru</SectionTitle>
-          <MutedText className="mt-1">
-            Pilih OPD yang sesuai dengan jenis layanan atau pengaduan masyarakat:
-          </MutedText>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-          {opds.map((opd) => {
-            const OpdIcon = OPD_ICONS[opd.icon || ""] || HelpCircle
-            return (
-              <Link
-                key={opd.id}
-                href={`/kader/ajukan/${opd.id}`}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-lg bg-card p-5 border border-border transition-all duration-300 hover:shadow-md hover:border-primary/20"
-              >
-                {/* Colored left bar for category identifier */}
-                <div
-                  className="absolute left-0 top-0 bottom-0 w-[4px] transition-all duration-300 group-hover:w-[6px]"
-                  style={{ backgroundColor: opd.color || "var(--primary)" }}
-                />
-                
-                <div className="space-y-4">
-                  {/* Soft tinted backdrop background with solid icon */}
-                  <div
-                    className="size-12 rounded-lg flex items-center justify-center shrink-0 shadow-xs"
-                    style={{
-                      backgroundColor: opd.color ? `${opd.color}15` : "rgba(var(--primary), 0.08)",
-                      color: opd.color || "var(--primary)"
-                    }}
-                  >
-                    <OpdIcon className="size-6" />
-                  </div>
-
-                  <div className="space-y-1">
-                    <CardTitle className="group-hover:text-primary transition-colors duration-200">
-                      {opd.name}
-                    </CardTitle>
-                    {opd.description && (
-                      <MutedText className="line-clamp-2 leading-relaxed mt-1">
-                        {opd.description}
-                      </MutedText>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-1.5 text-[12px] font-bold text-primary dark:text-primary-foreground mt-4 group-hover:translate-x-1 transition-transform duration-200">
-                  <span>Pilih Layanan</span>
-                  <ArrowRight className="size-3" />
-                </div>
-              </Link>
-            )
-          })}
-        </div>
-      </div>
-
       {/* Recent Submissions Section */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between select-none">
-          <SectionTitle>Pengajuan Terbaru</SectionTitle>
-          <Button variant="link" size="sm" asChild className="text-primary hover:text-primary/80 font-semibold px-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-4 bg-primary rounded-full shrink-0" />
+            <SectionTitle>Pengajuan Terbaru</SectionTitle>
+          </div>
+          <Button variant="link" size="sm" asChild className="text-primary hover:text-primary/80 font-bold px-0">
             <Link href="/kader/riwayat">
               Lihat Semua
             </Link>
@@ -173,22 +100,24 @@ export default async function KaderPage() {
           emptyState={
             <EmptyState
               title="Belum ada pengajuan"
-              description="Pilih salah satu OPD di atas untuk mengirimkan usulan pertama Anda."
+              description="Klik tombol Buat Pengajuan Baru untuk mengirimkan usulan pertama Anda."
             />
           }
         >
           {recentPengajuan.map((p) => (
             <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
-              <TableCell className="px-4 py-3 font-mono text-xs font-semibold text-foreground">
-                {p.tiketNumber}
+              <TableCell className="px-4 py-3.5 font-mono text-xs md:text-sm font-semibold">
+                <Link href={`/kader/riwayat/${p.id}`} className="text-primary hover:underline transition-colors">
+                    {p.tiketNumber}
+                  </Link>
               </TableCell>
-              <TableCell className="px-4 py-3 text-xs text-muted-foreground font-medium">
+              <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
                 {p.opd.name}
               </TableCell>
-              <TableCell className="px-4 py-3">
+              <TableCell className="px-4 py-3.5">
                 <StatusBadge status={p.status as PengajuanStatus} />
               </TableCell>
-              <TableCell className="px-4 py-3 text-xs font-semibold text-muted-foreground">
+              <TableCell className="px-4 py-3.5 text-xs md:text-sm font-semibold text-muted-foreground">
                 {formatDistanceToNow(new Date(p.submittedAt), { addSuffix: true, locale: localeId })}
               </TableCell>
             </TableRow>

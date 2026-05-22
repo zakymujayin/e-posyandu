@@ -2,6 +2,7 @@ import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { createNotificationsForUsers } from "@/lib/notifications"
+import { sendStatusChangeEmail } from "@/lib/email"
 
 const schema = z.object({
   action: z.enum(["APPROVE", "REJECT"]),
@@ -28,7 +29,7 @@ export async function PATCH(
 
   const pengajuan = await prisma.pengajuan.findUnique({
     where: { id },
-    include: { kader: { select: { id: true } } },
+    include: { kader: { select: { id: true, email: true, name: true } } },
   })
 
   if (!pengajuan) return err("Pengajuan tidak ditemukan", 404)
@@ -93,6 +94,16 @@ export async function PATCH(
       pengajuanId: id,
     })
   }
+
+  // Email to kader (fire-and-forget)
+  sendStatusChangeEmail(
+    pengajuan.kader.email,
+    pengajuan.kader.name,
+    pengajuan.tiketNumber,
+    action === "APPROVE" ? "Dalam Proses OPD" : "Ditolak Desa",
+    id,
+    "KADER"
+  ).catch(() => {})
 
   return ok({ status: newStatus }, action === "APPROVE" ? "Pengajuan diverifikasi" : "Pengajuan ditolak")
 }

@@ -2,13 +2,14 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
-import { Plus, Pencil, Trash2, X, Check, Building2, HelpCircle } from "lucide-react"
+import { Plus, Pencil, Trash2, X, Check, Building2, HelpCircle, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { DataTable } from "@/components/shared/data-table"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
+import { MasterCsvImport } from "./master-csv-import"
 
 interface Opd {
   id: string
@@ -26,6 +27,7 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
   const [editing, setEditing] = useState<Opd | null>(null)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({ name: "", code: "", tiketPrefix: "", description: "", sortOrder: 0 })
+  const [showImport, setShowImport] = useState(false)
 
   function openCreate() {
     setEditing(null)
@@ -93,7 +95,27 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end select-none">
+      {showImport && (
+        <MasterCsvImport
+          title="Import OPD dari CSV"
+          description="Upload file CSV sesuai template yang tersedia"
+          apiEndpoint="/api/admin/master/opd/import"
+          templateHeaders={["nama", "kode", "prefix_tiket", "urutan"]}
+          templateExample={["Dinas Kesehatan", "DINKES", "DKS", "1"]}
+          templateFilename="template_opd"
+          onClose={() => setShowImport(false)}
+        />
+      )}
+
+      <div className="flex gap-2 justify-end">
+        <Button
+          onClick={() => setShowImport(true)}
+          variant="outline"
+          size="sm"
+          className="font-bold text-xs gap-1.5"
+        >
+          <Upload className="w-4 h-4" /> Import CSV
+        </Button>
         <Button
           onClick={openCreate}
           size="sm"

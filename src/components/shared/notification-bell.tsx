@@ -38,7 +38,7 @@ export function NotificationBell() {
         setUnread(json.data.unreadCount)
       }
     } catch {
-      // silent
+      console.error("Gagal fetch notifikasi")
     }
   }
 
@@ -60,8 +60,15 @@ export function NotificationBell() {
         setOpen(false)
       }
     }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false)
+    }
     document.addEventListener("mousedown", handleClick)
-    return () => document.removeEventListener("mousedown", handleClick)
+    document.addEventListener("keydown", handleKey)
+    return () => {
+      document.removeEventListener("mousedown", handleClick)
+      document.removeEventListener("keydown", handleKey)
+    }
   }, [])
 
   function handleOpen() {
@@ -75,7 +82,7 @@ export function NotificationBell() {
     <div ref={ref} className="relative">
       <button
         onClick={handleOpen}
-        className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+        className="relative p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors"
         aria-label="Notifikasi"
       >
         <Bell className="w-5 h-5" />
@@ -87,9 +94,9 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-[-12px] sm:right-0 top-full mt-2 w-80 max-w-[calc(100vw-24px)] bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-900">Notifikasi</p>
+        <div className="absolute right-0 top-full mt-2 w-80 max-w-[calc(100vw-24px)] bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden">
+          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+            <p className="text-sm font-semibold text-foreground">Notifikasi</p>
             {unread > 0 && (
               <button onClick={markAllRead} className="text-xs text-blue-600 hover:underline">
                 Tandai semua dibaca
@@ -97,18 +104,18 @@ export function NotificationBell() {
             )}
           </div>
 
-          <div className="max-h-80 overflow-y-auto divide-y divide-gray-50">
+          <div className="max-h-80 overflow-y-auto divide-y divide-border">
             {notifications.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-6">Tidak ada notifikasi</p>
+              <p className="text-sm text-muted-foreground text-center py-6">Tidak ada notifikasi</p>
             ) : (
               notifications.map((n) => (
                 <div
                   key={n.id}
-                  className={`px-4 py-3 hover:bg-gray-50 transition-colors ${!n.isRead ? "bg-blue-50" : ""}`}
+                  className={`px-4 py-3 hover:bg-muted/40 transition-colors ${!n.isRead ? "bg-primary/5" : ""}`}
                 >
-                  <p className="text-sm font-medium text-gray-900">{n.title}</p>
-                  <p className="text-xs text-gray-600 mt-0.5 line-clamp-2">{n.message}</p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-sm font-medium text-foreground">{n.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.message}</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">
                     {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: localeId })}
                   </p>
                 </div>

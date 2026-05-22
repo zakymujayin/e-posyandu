@@ -134,7 +134,7 @@ export function FieldsManager({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center select-none">
+      <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
         <div className="flex gap-2 flex-wrap w-full sm:w-auto">
           <select
             value={filterOpd}
@@ -255,7 +255,7 @@ export function FieldsManager({
                   placeholder="0"
                 />
               </div>
-              <div className="flex items-center gap-2 pt-6 select-none">
+              <div className="flex items-center gap-2 pt-6">
                 <input
                   type="checkbox"
                   id="isRequired"

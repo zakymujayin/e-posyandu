@@ -5,6 +5,7 @@ import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { generateTicketNumber } from "@/lib/ticket"
 import { calculateDeadline } from "@/lib/working-days"
 import { notifyPengajuanBaru } from "@/lib/notifications"
+import { sendNewPengajuanEmail } from "@/lib/email"
 
 const createSchema = z.object({
   opdId: z.string().min(1),
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
     // Ambil posyandu dan desa dari user
     const kader = await prisma.user.findUnique({
       where: { id: user.id },
-      select: { posyanduId: true, posyandu: { select: { desaId: true } } },
+      select: { name: true, posyanduId: true, posyandu: { select: { desaId: true } } },
     })
 
     if (!kader?.posyanduId || !kader.posyandu?.desaId) {
@@ -100,6 +101,16 @@ export async function POST(req: NextRequest) {
     })
 
     await notifyPengajuanBaru(user.id, pengajuan.id, tiketNumber)
+
+    // Send email to Petugas Desa (fire-and-forget)
+    prisma.user.findMany({
+      where: { role: "PETUGAS_DESA", desaId: kader.posyandu!.desaId, isActive: true },
+      select: { email: true, name: true },
+    }).then((officers) => {
+      officers.forEach((o) => {
+        sendNewPengajuanEmail(o.email, o.name, tiketNumber, kader.name ?? "Kader").catch(() => {})
+      })
+    }).catch(() => {})
 
     return ok({ id: pengajuan.id, tiketNumber }, "Pengajuan berhasil dikirim")
   } catch (e) {

@@ -2,6 +2,7 @@ import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { createNotificationsForUsers } from "@/lib/notifications"
+import { sendStatusChangeEmail } from "@/lib/email"
 
 const schema = z.object({
   catatan: z.string().min(1, "Alasan penolakan wajib diisi"),
@@ -21,7 +22,7 @@ export async function POST(
 
   const pengajuan = await prisma.pengajuan.findUnique({
     where: { id },
-    include: { kader: { select: { id: true } } },
+    include: { kader: { select: { id: true, email: true, name: true } } },
   })
 
   if (!pengajuan) return err("Pengajuan tidak ditemukan", 404)
@@ -56,6 +57,15 @@ export async function POST(
     message: `Pengajuan ${pengajuan.tiketNumber} ditolak oleh OPD. Alasan: ${parsed.data.catatan}`,
     pengajuanId: id,
   })
+
+  sendStatusChangeEmail(
+    pengajuan.kader.email,
+    pengajuan.kader.name,
+    pengajuan.tiketNumber,
+    "Ditolak OPD",
+    id,
+    "KADER"
+  ).catch(() => {})
 
   return ok({ status: "DITOLAK_OPD" }, "Pengajuan berhasil ditolak")
 }

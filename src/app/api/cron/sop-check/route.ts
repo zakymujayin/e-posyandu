@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { getRemainingWorkingDays } from "@/lib/working-days"
 import { createNotificationsForUsers } from "@/lib/notifications"
+import { sendDeadlineReminderEmail } from "@/lib/email"
 import { differenceInCalendarDays } from "date-fns"
 import { ok, err } from "@/lib/api-helpers"
 
@@ -44,6 +45,18 @@ export async function POST(req: Request) {
         pengajuanId: p.id,
       })
       await prisma.pengajuan.update({ where: { id: p.id }, data: { notifiedH2: true } })
+
+      // Email to handlers (fire-and-forget)
+      if (p.status === "DALAM_PROSES_OPD") {
+        prisma.user.findMany({
+          where: { role: "PETUGAS_OPD", opdId: p.opdId, isActive: true },
+          select: { email: true, name: true },
+        }).then((officers) => {
+          officers.forEach((o) => {
+            sendDeadlineReminderEmail(o.email, o.name, p.tiketNumber, remaining, p.id).catch(() => {})
+          })
+        }).catch(() => {})
+      }
     }
 
     // SOP expired notification

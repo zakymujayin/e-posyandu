@@ -135,7 +135,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center select-none">
+      <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
         <div className="flex gap-2 flex-wrap w-full sm:w-auto">
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -191,8 +191,9 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">Nama Lengkap <span className="text-destructive">*</span></Label>
+                <Label htmlFor="users-name" className="text-xs font-bold text-foreground">Nama Lengkap <span className="text-destructive">*</span></Label>
                 <Input
+                  id="users-name"
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
@@ -202,8 +203,9 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               </div>
               {!editing && (
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-foreground">Alamat Email <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="users-email" className="text-xs font-bold text-foreground">Alamat Email <span className="text-destructive">*</span></Label>
                   <Input
+                    id="users-email"
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
@@ -213,8 +215,9 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                 </div>
               )}
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">{editing ? "Kata Sandi Baru (Kosongkan jika tidak diubah)" : "Kata Sandi Baru"}</Label>
+                <Label htmlFor="users-password" className="text-xs font-bold text-foreground">{editing ? "Kata Sandi Baru (Kosongkan jika tidak diubah)" : "Kata Sandi Baru"}</Label>
                 <Input
+                  id="users-password"
                   type="password"
                   value={form.password}
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
@@ -225,8 +228,9 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               </div>
               {!editing && (
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-foreground">Hak Akses / Peran Sistem <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="users-role" className="text-xs font-bold text-foreground">Hak Akses / Peran Sistem <span className="text-destructive">*</span></Label>
                   <select
+                    id="users-role"
                     value={form.role}
                     onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
                     className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
@@ -238,8 +242,9 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               )}
               {showDesa && (
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-foreground">Wilayah Kerja Desa</Label>
+                  <Label htmlFor="users-desaId" className="text-xs font-bold text-foreground">Wilayah Kerja Desa</Label>
                   <select
+                    id="users-desaId"
                     value={form.desaId}
                     onChange={(e) => setForm((f) => ({ ...f, desaId: e.target.value }))}
                     className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
@@ -251,8 +256,9 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               )}
               {showKec && (
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-foreground font-semibold">Wilayah Kerja Kecamatan</Label>
+                  <Label htmlFor="users-kecamatanId" className="text-xs font-bold text-foreground font-semibold">Wilayah Kerja Kecamatan</Label>
                   <select
+                    id="users-kecamatanId"
                     value={form.kecamatanId}
                     onChange={(e) => setForm((f) => ({ ...f, kecamatanId: e.target.value }))}
                     className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
@@ -264,8 +270,9 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               )}
               {showOpd && (
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-foreground">Dinas / OPD Instansi</Label>
+                  <Label htmlFor="users-opdId" className="text-xs font-bold text-foreground">Dinas / OPD Instansi</Label>
                   <select
+                    id="users-opdId"
                     value={form.opdId}
                     onChange={(e) => setForm((f) => ({ ...f, opdId: e.target.value }))}
                     className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
@@ -277,8 +284,9 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               )}
               {showPosyandu && (
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold text-foreground">Unit Kerja Posyandu</Label>
+                  <Label htmlFor="users-posyanduId" className="text-xs font-bold text-foreground">Unit Kerja Posyandu</Label>
                   <select
+                    id="users-posyanduId"
                     value={form.posyanduId}
                     onChange={(e) => setForm((f) => ({ ...f, posyanduId: e.target.value }))}
                     className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
@@ -370,6 +378,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                     size="icon-xs"
                     onClick={() => openEdit(u)}
                     className="text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all"
+                    aria-label={`Edit ${u.name}`}
                   >
                     <Pencil className="w-3.5 h-3.5" />
                   </Button>

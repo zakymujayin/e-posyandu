@@ -13,7 +13,6 @@ export const metadata: Metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
 }
 
 export default function RootLayout({
@@ -24,6 +23,12 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body className={inter.className}>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:shadow-lg focus:outline-none focus:text-sm focus:font-bold"
+        >
+          Langsung ke konten
+        </a>
         {children}
         <Toaster />
       </body>

@@ -64,7 +64,7 @@ export function HolidaysManager({ initialHolidays }: { initialHolidays: Holiday[
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center select-none">
+      <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
         <select
           value={filterYear}
           onChange={(e) => setFilterYear(e.target.value)}

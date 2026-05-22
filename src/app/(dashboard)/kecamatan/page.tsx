@@ -146,11 +146,12 @@ export default async function KecamatanPage({
         </div>
         <form className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 bg-card border border-border p-4 rounded-lg shadow-xs">
         <div className="flex flex-col gap-1.5 flex-1 min-w-[180px]">
-          <FormLabel>Pilih Desa</FormLabel>
+          <FormLabel htmlFor="filter-desaId">Pilih Desa</FormLabel>
           <select
+            id="filter-desaId"
             name="desaId"
             defaultValue={filterDesa}
-            className="min-h-[42px] px-3 bg-background border border-border text-foreground rounded-lg text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/45 hover:bg-muted/40 transition-all cursor-pointer"
+            className="min-h-[42px] px-3 bg-background border border-border text-foreground rounded-lg text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 hover:bg-muted/40 transition-all cursor-pointer"
           >
             <option value="">Semua Desa</option>
             {user.kecamatan?.desas.map((d) => (
@@ -160,11 +161,12 @@ export default async function KecamatanPage({
         </div>
 
         <div className="flex flex-col gap-1.5 flex-1 min-w-[180px]">
-          <FormLabel>Pilih Status</FormLabel>
+          <FormLabel htmlFor="filter-status">Pilih Status</FormLabel>
           <select
+            id="filter-status"
             name="status"
             defaultValue={filterStatus}
-            className="min-h-[42px] px-3 bg-background border border-border text-foreground rounded-lg text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/45 hover:bg-muted/40 transition-all cursor-pointer"
+            className="min-h-[42px] px-3 bg-background border border-border text-foreground rounded-lg text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 hover:bg-muted/40 transition-all cursor-pointer"
           >
             <option value="">Semua Status</option>
             <option value="MENUNGGU_VERIFIKASI">Menunggu Verifikasi</option>
@@ -176,7 +178,7 @@ export default async function KecamatanPage({
           </select>
         </div>
 
-        <Button type="submit" className="min-h-[42px] px-5 font-bold text-xs md:text-sm gap-2 shrink-0">
+        <Button type="submit" size="sm" className="font-bold text-xs md:text-sm gap-2 shrink-0">
           <Filter className="size-3.5" />
           Terapkan Filter
         </Button>
@@ -219,7 +221,7 @@ export default async function KecamatanPage({
 
           {/* Pagination Navigation */}
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-card border border-border rounded-lg p-4 select-none">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-card border border-border rounded-lg p-4">
               <MutedText>
                 Menampilkan Halaman {page} dari {totalPages} ({totalFiltered} data)
               </MutedText>

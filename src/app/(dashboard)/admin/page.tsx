@@ -14,7 +14,7 @@ import { id as localeId } from "date-fns/locale"
 import { MESSAGES, type PengajuanStatus } from "@/lib/messages"
 import { ClipboardList, AlertTriangle, FileSpreadsheet, Hourglass, CheckCircle2, XCircle } from "lucide-react"
 import { PageContainer } from "@/components/layout/page-container"
-import { SectionTitle, MutedText } from "@/components/ui/typography"
+import { SectionTitle, MutedText, FormLabel } from "@/components/ui/typography"
 
 export default async function AdminPage({
   searchParams,
@@ -65,10 +65,10 @@ export default async function AdminPage({
 
   const summaryCards = [
     { label: "Total Pengajuan", value: total, icon: ClipboardList, color: "primary" as const, desc: "Seluruh berkas masuk" },
-    { label: "Menunggu Verifikasi", value: menungguVerifikasi, icon: Hourglass, color: "accent" as const, desc: "Menunggu tinjauan desa" },
-    { label: "Dalam Proses OPD", value: dalamProses, icon: FileSpreadsheet, color: "secondary" as const, desc: "Sedang diproses dinas" },
-    { label: "Menunggu Approval", value: menungguApproval, icon: AlertTriangle, color: "accent" as const, desc: "Perlu persetujuan DPMD", urgent: menungguApproval > 0 },
-    { label: "Selesai", value: selesai, icon: CheckCircle2, color: "accent" as const, desc: "Berkas selesai diproses" },
+    { label: "Menunggu Verifikasi", value: menungguVerifikasi, icon: Hourglass, color: "info" as const, desc: "Menunggu tinjauan desa" },
+    { label: "Menunggu Approval", value: menungguApproval, icon: AlertTriangle, color: "warning" as const, desc: "Perlu persetujuan DPMD", urgent: menungguApproval > 0 },
+    { label: "Dalam Proses OPD", value: dalamProses, icon: FileSpreadsheet, color: "accent" as const, desc: "Sedang diproses dinas" },
+    { label: "Selesai", value: selesai, icon: CheckCircle2, color: "secondary" as const, desc: "Berkas selesai diproses" },
     { label: "Ditolak", value: ditolak, icon: XCircle, color: "destructive" as const, desc: "Berkas ditolak sistem" },
   ]
 
@@ -91,7 +91,7 @@ export default async function AdminPage({
       />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {summaryCards.map((s) => (
           <StatCard
             key={s.label}
@@ -119,9 +119,9 @@ export default async function AdminPage({
               <Link
                 key={p.id}
                 href={`/admin/pengajuan/${p.id}`}
-                className="flex items-center justify-between text-xs md:text-sm bg-card border border-border/60 rounded-lg px-4 py-3 hover:bg-muted/40 hover:border-primary/40 transition-all select-none font-semibold text-foreground"
+                className="flex items-center justify-between text-xs md:text-sm bg-card border border-border/60 rounded-lg px-4 py-3 hover:bg-muted/40 hover:border-primary/40 transition-all font-semibold"
               >
-                <span className="font-mono text-muted-foreground">{p.tiketNumber}</span>
+                <span className="font-mono text-primary">{p.tiketNumber}</span>
                 <span className="truncate max-w-[150px]">{p.opd.name}</span>
                 <span className="text-xs font-semibold text-muted-foreground">
                   {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
@@ -139,20 +139,24 @@ export default async function AdminPage({
             <span className="w-1.5 h-4 bg-primary rounded-full"></span>
             <SectionTitle>Semua Berkas Pengajuan</SectionTitle>
           </div>
-          <form className="flex gap-2 w-full sm:w-auto">
-            <select
-              name="status"
-              defaultValue={filterStatus}
-              className="border border-border/80 rounded-lg px-3 py-2 text-xs md:text-sm bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
-            >
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-            <Button type="submit" size="sm" className="font-bold text-xs md:text-sm">
-              Saring
+          <form className="flex items-end gap-2 w-full sm:w-auto">
+            <div className="flex flex-col gap-1.5">
+              <FormLabel htmlFor="admin-filter-status" className="sr-only">Filter Status</FormLabel>
+              <select
+                id="admin-filter-status"
+                name="status"
+                defaultValue={filterStatus}
+                className="min-h-[42px] rounded-lg border border-border bg-background px-3 text-xs md:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 hover:bg-muted/40 transition-all cursor-pointer w-full sm:w-48"
+              >
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Button type="submit" size="sm" className="font-bold text-xs md:text-sm rounded-md">
+              Filter
             </Button>
           </form>
         </div>
@@ -170,8 +174,10 @@ export default async function AdminPage({
             >
               {pengajuans.map((p) => (
                 <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
-                  <TableCell className="px-4 py-3.5 font-mono text-xs md:text-sm font-semibold text-foreground">
+                  <TableCell className="px-4 py-3.5 font-mono text-xs md:text-sm font-semibold">
+                  <Link href={`/admin/pengajuan/${p.id}`} className="text-primary hover:underline transition-colors">
                     {p.tiketNumber}
+                  </Link>
                   </TableCell>
                   <TableCell className="px-4 py-3.5 text-xs md:text-sm text-foreground font-semibold">
                     {p.namaPelapor}
@@ -190,7 +196,7 @@ export default async function AdminPage({
                   </TableCell>
                   <TableCell className="px-4 py-3.5">
                     <Button variant="outline" size="xs" asChild className="font-semibold text-xs md:text-sm">
-                      <Link href={`/admin/pengajuan/${p.id}`}>Detail</Link>
+                      <Link href={`/admin/pengajuan/${p.id}`} className="font-bold">Detail</Link>
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -198,7 +204,7 @@ export default async function AdminPage({
             </DataTable>
 
             {totalPages > 1 && (
-              <div className="flex items-center justify-between bg-card border border-border rounded-lg p-4 select-none">
+              <div className="flex items-center justify-between bg-card border border-border rounded-lg p-4">
                 <MutedText>Halaman {page} dari {totalPages}</MutedText>
                 <div className="flex gap-2">
                   {page > 1 && (

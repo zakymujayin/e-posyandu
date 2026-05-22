@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { createNotificationsForUsers } from "@/lib/notifications"
+import { sendStatusChangeEmail } from "@/lib/email"
 
 export async function POST(
   req: Request,
@@ -14,7 +15,7 @@ export async function POST(
   const pengajuan = await prisma.pengajuan.findUnique({
     where: { id },
     include: {
-      kader: { select: { id: true } },
+      kader: { select: { id: true, email: true, name: true } },
       tindakLanjuts: { orderBy: { submittedAt: "desc" }, take: 1, select: { id: true, petugasOpdId: true } },
     },
   })
@@ -68,6 +69,15 @@ export async function POST(
     message: `Pengajuan ${pengajuan.tiketNumber} telah diselesaikan oleh Admin DPMD.`,
     pengajuanId: id,
   })
+
+  sendStatusChangeEmail(
+    pengajuan.kader.email,
+    pengajuan.kader.name,
+    pengajuan.tiketNumber,
+    "Selesai",
+    id,
+    "KADER"
+  ).catch(() => {})
 
   return ok({ status: "SELESAI" }, "Pengajuan berhasil diselesaikan")
 }

@@ -12,7 +12,7 @@ interface StatCardProps {
     isPositive: boolean
   }
   className?: string
-  colorVariant?: "primary" | "secondary" | "accent" | "destructive"
+  colorVariant?: "primary" | "secondary" | "accent" | "destructive" | "info" | "warning"
 }
 
 const COLOR_VARIANTS = {
@@ -52,6 +52,24 @@ const COLOR_VARIANTS = {
     descColor: "text-slate-500 dark:text-slate-400",
     valueColor: "text-slate-900 dark:text-white",
   },
+  info: {
+    cardBg: "bg-gradient-to-br from-white to-sky-50/80 border-sky-100 dark:from-slate-900 dark:to-sky-950/40 dark:border-sky-900/50",
+    cardBorder: "hover:border-sky-300 dark:hover:border-sky-700 hover:shadow-[0_8px_30px_rgba(14,165,233,0.15)]",
+    iconBg: "bg-gradient-to-tr from-sky-500 to-cyan-500 text-white shadow-[inset_0_1px_rgba(255,255,255,0.4),0_4px_10px_rgba(14,165,233,0.2)]",
+    watermark: "text-sky-600/[0.08] dark:text-sky-400/[0.05]",
+    labelColor: "text-sky-800/90 dark:text-sky-300/90",
+    descColor: "text-slate-500 dark:text-slate-400",
+    valueColor: "text-slate-900 dark:text-white",
+  },
+  warning: {
+    cardBg: "bg-gradient-to-br from-white to-violet-50/80 border-violet-100 dark:from-slate-900 dark:to-violet-950/40 dark:border-violet-900/50",
+    cardBorder: "hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-[0_8px_30px_rgba(139,92,246,0.15)]",
+    iconBg: "bg-gradient-to-tr from-violet-500 to-purple-600 text-white shadow-[inset_0_1px_rgba(255,255,255,0.4),0_4px_10px_rgba(139,92,246,0.2)]",
+    watermark: "text-violet-600/[0.08] dark:text-violet-400/[0.05]",
+    labelColor: "text-violet-800/90 dark:text-violet-300/90",
+    descColor: "text-slate-500 dark:text-slate-400",
+    valueColor: "text-slate-900 dark:text-white",
+  },
 }
 
 export function StatCard({
@@ -75,16 +93,16 @@ export function StatCard({
       )}
     >
       {/* Decorative Watermark Icon to add character */}
-      <Icon className={cn("absolute -right-6 -top-6 size-32 -rotate-12 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6", variant.watermark)} />
+      <Icon className={cn("absolute -right-6 -top-6 size-20 lg:size-24 -rotate-12 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6", variant.watermark)} />
 
-      <CardContent className="relative z-10 p-5 sm:p-6 flex flex-col gap-5 select-none">
+      <CardContent className="relative z-10 p-4 sm:p-5 lg:p-3 flex flex-col gap-3 lg:gap-2">
         
         {/* Header: Label & Icon */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-4 lg:gap-3">
           <span className={cn("text-[12px] font-extrabold uppercase tracking-widest mt-1", variant.labelColor)}>
             {title}
           </span>
-          <div className={cn("size-10 sm:size-11 rounded-[14px] flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3", variant.iconBg)}>
+          <div className={cn("size-9 sm:size-10 lg:size-9 rounded-[14px] lg:rounded-xl flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3", variant.iconBg)}>
             <Icon className="size-5 text-white drop-shadow-sm" />
           </div>
         </div>
@@ -92,7 +110,7 @@ export function StatCard({
         {/* Value & Trend */}
         <div className="space-y-1 mt-1">
           <div className="flex items-baseline gap-2 sm:gap-3 flex-wrap">
-            <span className={cn("text-[28px] sm:text-[36px] font-black tracking-tight leading-none", variant.valueColor)}>
+            <span className={cn("text-xl sm:text-2xl lg:text-2xl font-black tracking-tight leading-none", variant.valueColor)}>
               {value}
             </span>
             {trend && (

@@ -90,7 +90,7 @@ export default async function OpdPage({
             <span className="w-1.5 h-4 bg-primary rounded-full" />
             <SectionTitle>{tab.label}</SectionTitle>
           </div>
-          <div className="flex bg-muted/60 border border-border p-1 rounded-lg w-fit select-none shadow-xs overflow-x-auto">
+          <div className="flex bg-muted/60 border border-border p-1 rounded-lg w-fit shadow-xs overflow-x-auto">
             {TABS.map((t, i) => (
               <Button
                 key={t.value}
@@ -120,8 +120,10 @@ export default async function OpdPage({
           >
             {pengajuans.map((p) => (
               <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
-                <TableCell className="px-4 py-3.5 font-mono text-xs md:text-sm font-semibold text-foreground">
-                  {p.tiketNumber}
+                <TableCell className="px-4 py-3.5 font-mono text-xs md:text-sm font-semibold">
+                  <Link href={`/opd/tindak-lanjut/${p.id}`} className="text-primary hover:underline transition-colors">
+                    {p.tiketNumber}
+                  </Link>
                 </TableCell>
                 <TableCell className="px-4 py-3.5 text-xs md:text-sm text-foreground font-semibold">
                   {p.namaPelapor}

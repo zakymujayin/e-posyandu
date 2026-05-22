@@ -2,6 +2,7 @@ import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { createNotificationsForUsers } from "@/lib/notifications"
+import { sendStatusChangeEmail } from "@/lib/email"
 
 const schema = z.object({
   deskripsi: z.string().min(1, "Deskripsi wajib diisi"),
@@ -30,7 +31,7 @@ export async function POST(
 
   const pengajuan = await prisma.pengajuan.findUnique({
     where: { id },
-    include: { kader: { select: { id: true } } },
+    include: { kader: { select: { id: true, email: true, name: true } } },
   })
 
   if (!pengajuan) return err("Pengajuan tidak ditemukan", 404)
@@ -96,6 +97,16 @@ export async function POST(
     message: `Tindak lanjut untuk pengajuan ${pengajuan.tiketNumber} menunggu persetujuan Anda.`,
     pengajuanId: id,
   })
+
+  // Email to kader: status now MENUNGGU_APPROVAL_DPMD (fire-and-forget)
+  sendStatusChangeEmail(
+    pengajuan.kader.email,
+    pengajuan.kader.name,
+    pengajuan.tiketNumber,
+    "Menunggu Approval DPMD",
+    id,
+    "KADER"
+  ).catch(() => {})
 
   return ok({ id: tindakLanjut.id }, "Tindak lanjut berhasil dikirim")
 }

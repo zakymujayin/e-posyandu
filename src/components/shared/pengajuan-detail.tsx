@@ -3,6 +3,16 @@ import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import type { PengajuanStatus } from "@/lib/messages"
 import { CardTitle, MutedText } from "@/components/ui/typography"
+import { Paperclip, Video, AlertTriangle } from "lucide-react"
+import { cn } from "@/lib/utils"
+
+const ROLE_LABELS: Record<string, string> = {
+  KADER: "Kader",
+  PETUGAS_DESA: "Petugas Desa",
+  PETUGAS_OPD: "Petugas OPD",
+  ADMIN_DPMD: "Admin DPMD",
+  SYSTEM: "Sistem",
+}
 
 interface FormField {
   fieldLabel: string
@@ -47,7 +57,7 @@ interface PengajuanDetailProps {
     deadlineAt: Date | string
     opd: { name: string }
     layananJenis: { name: string }
-    desa: { name: string }
+    desa: { name: string; kecamatan?: { name: string } | null }
     posyandu: { name: string }
     kader: { name: string }
     fieldValues: FieldValue[]
@@ -58,6 +68,10 @@ interface PengajuanDetailProps {
     remainingDays: number
     sopStatus: string
   } | null
+}
+
+function getFileExt(fileName: string): string {
+  return fileName.split(".").pop()?.toUpperCase() ?? "FILE"
 }
 
 function parseFieldValue(value: string, fieldType: string): string {
@@ -77,8 +91,24 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
 
   return (
     <div className="space-y-4">
+      {/* SOP Warning Banner */}
+      {sopInfo && sopInfo.sopStatus !== "NORMAL" && (
+        <div className={cn(
+          "flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-xs font-semibold",
+          sopInfo.sopStatus === "EXPIRED"
+            ? "bg-destructive/10 text-destructive border border-destructive/20"
+            : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
+        )}>
+          <AlertTriangle className="size-3.5 shrink-0" />
+          {sopInfo.sopStatus === "EXPIRED"
+            ? "SOP berkas ini telah melewati batas waktu penyelesaian."
+            : `Peringatan: Sisa ${sopInfo.remainingDays} hari sebelum batas SOP terlampaui.`}
+        </div>
+      )}
+
       {/* Header Info */}
       <div className="bg-white dark:bg-card rounded-lg border border-border p-5 space-y-3">
+        {/* Baris 1: Tiket + Status */}
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <MutedText>No. Tiket</MutedText>
@@ -87,7 +117,8 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
           <StatusBadge status={pengajuan.status as PengajuanStatus} />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+        {/* Baris 2: OPD / Layanan / Tanggal / Deadline */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm border-t border-border pt-3">
           <div>
             <MutedText>OPD Tujuan</MutedText>
             <p className="font-medium text-foreground mt-0.5">{pengajuan.opd.name}</p>
@@ -111,7 +142,18 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm border-t border-border pt-3">
+        {/* Baris 3: Informasi Wilayah */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm border-t border-border pt-3">
+          {pengajuan.desa.kecamatan?.name && (
+            <div>
+              <MutedText>Kecamatan</MutedText>
+              <p className="text-foreground/90 mt-0.5">{pengajuan.desa.kecamatan.name}</p>
+            </div>
+          )}
+          <div>
+            <MutedText>Desa</MutedText>
+            <p className="text-foreground/90 mt-0.5">{pengajuan.desa.name}</p>
+          </div>
           <div>
             <MutedText>Posyandu</MutedText>
             <p className="text-foreground/90 mt-0.5">{pengajuan.posyandu.name}</p>
@@ -126,24 +168,26 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
       {/* Data Pelapor */}
       <div className="bg-white dark:bg-card rounded-lg border border-border p-5 space-y-3">
         <CardTitle>Data Pelapor</CardTitle>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
           <div>
             <MutedText>Nama Pelapor</MutedText>
             <p className="text-foreground font-medium mt-0.5">{pengajuan.namaPelapor}</p>
           </div>
-          {pengajuan.nikPelapor && (
-            <div>
-              <MutedText>NIK</MutedText>
-              <p className="text-foreground/90 mt-0.5">{pengajuan.nikPelapor}</p>
-            </div>
-          )}
-          {pengajuan.noHpPelapor && (
-            <div>
-              <MutedText>No. HP</MutedText>
-              <p className="text-foreground/90 mt-0.5">{pengajuan.noHpPelapor}</p>
-            </div>
-          )}
-          <div className="sm:col-span-2">
+          <div>
+            <MutedText>NIK</MutedText>
+            <p className="text-foreground/90 mt-0.5">{pengajuan.nikPelapor || "-"}</p>
+          </div>
+          <div>
+            <MutedText>No. HP</MutedText>
+            {pengajuan.noHpPelapor ? (
+              <a href={`tel:${pengajuan.noHpPelapor}`} className="text-primary hover:underline font-medium mt-0.5 block">
+                {pengajuan.noHpPelapor}
+              </a>
+            ) : (
+              <p className="text-foreground/90 mt-0.5">-</p>
+            )}
+          </div>
+          <div className="sm:col-span-3">
             <MutedText>Alamat</MutedText>
             <p className="text-foreground/90 mt-0.5">{pengajuan.alamatPelapor}</p>
           </div>
@@ -156,9 +200,9 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
           <CardTitle>Detail Layanan</CardTitle>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             {pengajuan.fieldValues.map((fv) => (
-              <div key={fv.id}>
+              <div key={fv.id} className={fv.formField.fieldType === "textarea" ? "sm:col-span-2" : ""}>
                 <MutedText>{fv.formField.fieldLabel}</MutedText>
-                <p className="text-foreground/90 mt-0.5">{parseFieldValue(fv.fieldValue, fv.formField.fieldType)}</p>
+                <p className="text-foreground/90 mt-0.5 whitespace-pre-wrap">{parseFieldValue(fv.fieldValue, fv.formField.fieldType)}</p>
               </div>
             ))}
           </div>
@@ -175,29 +219,34 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
       {pengajuanAttachments.length > 0 && (
         <div className="bg-white dark:bg-card rounded-lg border border-border p-5 space-y-3">
           <CardTitle>Lampiran dari Kader</CardTitle>
-          <div className="space-y-2">
+          <div className="flex flex-wrap gap-2">
             {pengajuanAttachments.map((att) => (
-              <div key={att.id} className="flex items-center gap-2 text-sm">
-                {att.attachmentType === "FILE" ? (
-                  <a
-                    href={att.filePath ?? "#"}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary hover:underline font-medium flex items-center gap-1"
-                  >
-                    📎 {att.fileName}
-                  </a>
-                ) : (
-                  <a
-                    href={att.videoUrl ?? "#"}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary hover:underline font-medium flex items-center gap-1"
-                  >
-                    🎥 {att.videoUrl}
-                  </a>
-                )}
-              </div>
+              att.attachmentType === "FILE" ? (
+                <a
+                  key={att.id}
+                  href={att.filePath ?? "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border/60 bg-muted/20 hover:border-primary/30 hover:bg-muted/40 transition-all text-xs md:text-sm font-semibold text-primary"
+                >
+                  <Paperclip className="size-3.5 shrink-0" />
+                  <span className="px-1.5 py-0.5 text-[10px] font-bold rounded bg-primary/10 text-primary/80 uppercase shrink-0">
+                    {getFileExt(att.fileName ?? "")}
+                  </span>
+                  {att.fileName}
+                </a>
+              ) : (
+                <a
+                  key={att.id}
+                  href={att.videoUrl ?? "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border/60 bg-muted/20 hover:border-primary/30 hover:bg-muted/40 transition-all text-xs md:text-sm font-semibold text-primary"
+                >
+                  <Video className="size-3.5 shrink-0" />
+                  {att.videoPlatform ? `Lihat Video (${att.videoPlatform})` : "Lihat Video Bukti"}
+                </a>
+              )
             ))}
           </div>
         </div>
@@ -220,7 +269,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
                   <p className="font-medium text-foreground">{log.action}</p>
                   <MutedText className="mt-0.5">
                     {format(new Date(log.createdAt), "d MMM yyyy HH:mm", { locale: localeId })}
-                    {log.userRole ? ` · ${log.userRole}` : ""}
+                    {log.userRole ? ` · ${ROLE_LABELS[log.userRole] ?? log.userRole}` : ""}
                   </MutedText>
                 </div>
               </div>

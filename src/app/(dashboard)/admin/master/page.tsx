@@ -76,6 +76,7 @@ export default async function MasterDataPage() {
       <PageHeader
         title="Pusat Master Data"
         description="Kelola dan konfigurasi seluruh data referensi fundamental sistem E-Posyandu."
+        backHref="/admin"
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -85,10 +86,10 @@ export default async function MasterDataPage() {
             <Link
               key={card.href}
               href={card.href}
-              className="group bg-card border border-border rounded-2xl p-5 shadow-xs transition-all duration-300 hover:shadow-sm hover:border-primary/40 hover:-translate-y-0.5 flex flex-col justify-between select-none"
+              className="group bg-card border border-border rounded-lg p-5 shadow-xs transition-all duration-300 hover:shadow-sm hover:border-primary/40 hover:-translate-y-1 flex flex-col justify-between"
             >
               <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-xl border ${card.color} shrink-0`}>
+                <div className={`p-3 rounded-lg border ${card.color} shrink-0`}>
                   <Icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">

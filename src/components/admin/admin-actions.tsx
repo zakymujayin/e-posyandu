@@ -55,7 +55,7 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
 
   return (
     <>
-      <div className="bg-card border border-border rounded-lg p-5 shadow-xs space-y-4 select-none">
+      <div className="bg-card border border-border rounded-lg p-5 shadow-xs space-y-4">
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-4 bg-primary rounded-full"></span>
           <CardTitle>Panel Aksi Verifikator</CardTitle>
@@ -143,8 +143,9 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 py-2">
-            <FormLabel>Catatan Revisi <span className="text-destructive">*</span></FormLabel>
+            <FormLabel htmlFor="admin-catatanRevisi">Catatan Revisi <span className="text-destructive">*</span></FormLabel>
             <Textarea
+              id="admin-catatanRevisi"
               value={catatan}
               onChange={(e) => setCatatan(e.target.value)}
               placeholder="Berikan alasan revisi dan petunjuk perbaikan berkas secara spesifik..."
@@ -177,11 +178,17 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
               Surat teguran elektronik akan dikirimkan kepada instansi terkait sebagai peringatan penyelesaian berkas.
             </DialogDescription>
           </DialogHeader>
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20">
+            <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-xs text-amber-800 dark:text-amber-400 font-medium leading-relaxed">
+              Teguran ini akan tercatat sebagai notifikasi resmi dalam sistem dan dikirimkan kepada instansi yang dipilih. Pastikan isi teguran jelas dan sesuai.
+            </p>
+          </div>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <FormLabel>Sasaran Instansi Penerima</FormLabel>
+              <FormLabel htmlFor="admin-targetRole">Sasaran Instansi Penerima</FormLabel>
               <Select value={targetRole} onValueChange={(v) => setTargetRole(v as "PETUGAS_DESA" | "PETUGAS_OPD")}>
-                <SelectTrigger className="font-semibold text-xs md:text-sm text-foreground bg-card border-border/80"><SelectValue /></SelectTrigger>
+                <SelectTrigger id="admin-targetRole" className="w-full font-semibold text-xs md:text-sm text-foreground bg-card border-border/80"><SelectValue /></SelectTrigger>
                 <SelectContent className="rounded-lg">
                   <SelectItem value="PETUGAS_DESA" className="text-xs md:text-sm font-semibold">Aparatur Pemerintahan Desa</SelectItem>
                   <SelectItem value="PETUGAS_OPD" className="text-xs md:text-sm font-semibold">Organisasi Perangkat Daerah (OPD)</SelectItem>
@@ -189,8 +196,9 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <FormLabel>Isi Teguran/Instruksi <span className="text-destructive">*</span></FormLabel>
+              <FormLabel htmlFor="admin-catatanTeguran">Isi Teguran/Instruksi <span className="text-destructive">*</span></FormLabel>
               <Textarea
+                id="admin-catatanTeguran"
                 value={catatan}
                 onChange={(e) => setCatatan(e.target.value)}
                 placeholder="Tuliskan pesan instruksi percepatan berkas..."
@@ -224,9 +232,16 @@ export function AdminActions({ pengajuanId, status, sopExpired }: Props) {
               Bypass secara paksa akan melompati tahap verifikasi saat ini dan memindahkan status berkas langsung ke instansi berikutnya. Gunakan hanya jika berkas melebihi batas waktu SOP.
             </DialogDescription>
           </DialogHeader>
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+            <ShieldAlert className="size-4 text-destructive shrink-0 mt-0.5" />
+            <p className="text-xs text-destructive font-medium leading-relaxed">
+              Aksi ini tidak dapat dibatalkan. Berkas akan dipindahkan paksa ke tahap berikutnya tanpa persetujuan instansi bersangkutan.
+            </p>
+          </div>
           <div className="space-y-2 py-2">
-            <FormLabel>Alasan Bypass Paksa <span className="text-destructive">*</span></FormLabel>
+            <FormLabel htmlFor="admin-catatanBypass">Alasan Bypass Paksa <span className="text-destructive">*</span></FormLabel>
             <Textarea
+              id="admin-catatanBypass"
               value={catatan}
               onChange={(e) => setCatatan(e.target.value)}
               placeholder="Jelaskan alasan bypass dan kondisi keterlambatan berkas..."
