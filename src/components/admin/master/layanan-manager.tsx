@@ -6,6 +6,7 @@ import { Plus, Pencil, Trash2, X, Check, List, HelpCircle, Upload } from "lucide
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { FormLabel, SubText } from "@/components/ui/typography"
 import { DataTable } from "@/components/shared/data-table"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
@@ -153,7 +154,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground font-semibold">Penanggung Jawab OPD <span className="text-destructive">*</span></Label>
+                <FormLabel>Penanggung Jawab OPD <span className="text-destructive">*</span></FormLabel>
                 <select
                   value={form.opdId}
                   onChange={(e) => setForm((f) => ({ ...f, opdId: e.target.value }))}
@@ -166,7 +167,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
                 </select>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">Nama Jenis Layanan <span className="text-destructive">*</span></Label>
+                <FormLabel>Nama Jenis Layanan <span className="text-destructive">*</span></FormLabel>
                 <Input
                   type="text"
                   value={form.name}
@@ -176,7 +177,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">Urutan Tampil</Label>
+                <FormLabel>Urutan Tampil</FormLabel>
                 <Input
                   type="number"
                   value={form.sortOrder}
@@ -185,7 +186,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">Keterangan / Deskripsi (Opsional)</Label>
+                <FormLabel>Keterangan / Deskripsi (Opsional)</FormLabel>
                 <Input
                   type="text"
                   value={form.description}
@@ -240,7 +241,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
                   </div>
                   <div>
                     <p className="font-bold text-xs text-foreground">{l.name}</p>
-                    {l.description && <p className="text-[10px] text-muted-foreground mt-0.5 leading-relaxed font-semibold">{l.description}</p>}
+                    {l.description && <SubText className="leading-relaxed font-semibold mt-0.5">{l.description}</SubText>}
                   </div>
                 </div>
               </TableCell>
@@ -250,7 +251,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
               <TableCell className="px-4 py-3.5">
                 <button
                   onClick={() => handleToggle(l)}
-                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all active:scale-95 cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-full text-xs font-bold border transition-all active:scale-95 cursor-pointer ${
                     l.isActive
                       ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/20"
                       : "bg-muted/60 text-muted-foreground border-border/80"

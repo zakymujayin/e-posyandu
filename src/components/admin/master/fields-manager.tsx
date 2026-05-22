@@ -6,6 +6,7 @@ import { Plus, Pencil, Trash2, X, Check, HelpCircle, FileQuestion } from "lucide
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { FormLabel, SubText } from "@/components/ui/typography"
 import { DataTable } from "@/components/shared/data-table"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
@@ -170,7 +171,7 @@ export function FieldsManager({
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">Jenis Layanan Posyandu <span className="text-destructive">*</span></Label>
+                <FormLabel>Jenis Layanan Posyandu <span className="text-destructive">*</span></FormLabel>
                 <select
                   value={form.layananJenisId}
                   onChange={(e) => setForm((f) => ({ ...f, layananJenisId: e.target.value }))}
@@ -183,7 +184,7 @@ export function FieldsManager({
                 </select>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">Label Input <span className="text-destructive">*</span></Label>
+                <FormLabel>Label Input <span className="text-destructive">*</span></FormLabel>
                 <Input
                   type="text"
                   value={form.fieldLabel}
@@ -193,7 +194,7 @@ export function FieldsManager({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">Key Database (snake_case) <span className="text-destructive">*</span></Label>
+                <FormLabel>Key Database (snake_case) <span className="text-destructive">*</span></FormLabel>
                 <Input
                   type="text"
                   value={form.fieldName}
@@ -205,7 +206,7 @@ export function FieldsManager({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground font-semibold">Tipe Komponen Input</Label>
+                <FormLabel>Tipe Komponen Input</FormLabel>
                 <select
                   value={form.fieldType}
                   onChange={(e) => setForm((f) => ({ ...f, fieldType: e.target.value }))}
@@ -218,7 +219,7 @@ export function FieldsManager({
 
               {HAS_OPTIONS.includes(form.fieldType) && (
                 <div className="md:col-span-2 space-y-1.5">
-                  <Label className="text-xs font-bold text-foreground">Daftar Pilihan / Opsi (Pisahkan dengan koma)</Label>
+                  <FormLabel>Daftar Pilihan / Opsi (Pisahkan dengan koma)</FormLabel>
                   <Input
                     type="text"
                     value={form.fieldOptions}
@@ -229,7 +230,7 @@ export function FieldsManager({
               )}
 
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">Placeholder Text (Opsional)</Label>
+                <FormLabel>Placeholder Text (Opsional)</FormLabel>
                 <Input
                   type="text"
                   value={form.placeholder}
@@ -238,7 +239,7 @@ export function FieldsManager({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">Helper Text (Keterangan kecil)</Label>
+                <FormLabel>Helper Text (Keterangan kecil)</FormLabel>
                 <Input
                   type="text"
                   value={form.helperText}
@@ -247,7 +248,7 @@ export function FieldsManager({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">Urutan Sortir</Label>
+                <FormLabel>Urutan Sortir</FormLabel>
                 <Input
                   type="number"
                   value={form.sortOrder}
@@ -315,19 +316,19 @@ export function FieldsManager({
                   </div>
                   <div>
                     <p className="font-bold text-xs text-foreground">{f.fieldLabel}</p>
-                    <p className="text-[9px] font-mono text-muted-foreground font-semibold mt-0.5">{f.fieldName}</p>
+                    <SubText className="font-mono !text-[10px]">{f.fieldName}</SubText>
                   </div>
                 </div>
               </TableCell>
               <TableCell className="px-4 py-3.5">
                 <p className="text-xs text-foreground font-semibold">{f.layananJenis.name}</p>
-                <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">{f.layananJenis.opd.name}</p>
+                <SubText className="!text-[10px]">{f.layananJenis.opd.name}</SubText>
               </TableCell>
-              <TableCell className="px-4 py-3.5 font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
+              <TableCell className="px-4 py-3.5 font-mono text-xs font-bold uppercase tracking-wider text-primary">
                 {f.fieldType}
               </TableCell>
               <TableCell className="px-4 py-3.5">
-                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
                   f.isRequired
                     ? "bg-rose-500/10 text-rose-700 border-rose-500/20"
                     : "bg-muted text-muted-foreground border-border/80"

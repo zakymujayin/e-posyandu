@@ -94,19 +94,19 @@ export default async function MasterDataPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">
+                    <h3 className="font-bold text-base text-foreground group-hover:text-primary transition-colors">
                       {card.label}
                     </h3>
-                    <span className="text-xl font-bold text-foreground font-mono bg-muted/40 px-2 py-0.5 rounded-lg border border-border/50 text-xs">
+                    <span className="font-bold text-foreground font-mono bg-muted/40 px-2 py-0.5 rounded-lg border border-border/50 text-sm">
                       {card.count}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed font-semibold">
+                  <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed font-semibold">
                     {card.description}
                   </p>
                 </div>
               </div>
-              <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between text-[10px] font-bold text-muted-foreground group-hover:text-primary transition-colors">
+              <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between text-xs font-bold text-muted-foreground group-hover:text-primary transition-colors">
                 <span>Konfigurasi Referensi</span>
                 <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
               </div>

@@ -6,6 +6,7 @@ import { Plus, Trash2, X, Check, CalendarDays, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { FormLabel } from "@/components/ui/typography"
 import { DataTable } from "@/components/shared/data-table"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
@@ -85,7 +86,7 @@ export function HolidaysManager({ initialHolidays }: { initialHolidays: Holiday[
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">Tanggal <span className="text-destructive">*</span></Label>
+                <FormLabel>Tanggal <span className="text-destructive">*</span></FormLabel>
                 <Input
                   type="date"
                   value={form.date}
@@ -94,7 +95,7 @@ export function HolidaysManager({ initialHolidays }: { initialHolidays: Holiday[
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-foreground">Nama Hari Libur <span className="text-destructive">*</span></Label>
+                <FormLabel>Nama Hari Libur <span className="text-destructive">*</span></FormLabel>
                 <Input
                   type="text"
                   value={form.name}

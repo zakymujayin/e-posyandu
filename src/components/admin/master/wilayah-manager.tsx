@@ -6,6 +6,7 @@ import { Plus, X, Check, MapPin, Building, HelpCircle, Heart, Pencil, Trash2, Up
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { FormLabel, SubText } from "@/components/ui/typography"
 import { DataTable } from "@/components/shared/data-table"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
@@ -362,7 +363,7 @@ export function WilayahManager({
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-foreground">Nama Kecamatan <span className="text-destructive">*</span></Label>
+                    <FormLabel>Nama Kecamatan <span className="text-destructive">*</span></FormLabel>
                     <Input
                       type="text"
                       value={kecForm.name}
@@ -372,7 +373,7 @@ export function WilayahManager({
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-foreground">Kode Kecamatan <span className="text-destructive">*</span></Label>
+                    <FormLabel>Kode Kecamatan <span className="text-destructive">*</span></FormLabel>
                     <Input
                       type="text"
                       value={kecForm.code}
@@ -524,7 +525,7 @@ export function WilayahManager({
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-foreground">Desa Induk <span className="text-destructive">*</span></Label>
+                    <FormLabel>Desa Induk <span className="text-destructive">*</span></FormLabel>
                     <select
                       value={posyanduForm.desaId}
                       onChange={(e) => setPosyanduForm((f) => ({ ...f, desaId: e.target.value }))}
@@ -536,7 +537,7 @@ export function WilayahManager({
                     </select>
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-foreground">Nama Posyandu <span className="text-destructive">*</span></Label>
+                    <FormLabel>Nama Posyandu <span className="text-destructive">*</span></FormLabel>
                     <Input
                       type="text"
                       value={posyanduForm.name}
@@ -546,7 +547,7 @@ export function WilayahManager({
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-foreground">Kode Posyandu <span className="text-destructive">*</span></Label>
+                    <FormLabel>Kode Posyandu <span className="text-destructive">*</span></FormLabel>
                     <Input
                       type="text"
                       value={posyanduForm.code}
@@ -604,7 +605,7 @@ export function WilayahManager({
                         </div>
                         <div>
                           <p className="font-bold text-xs text-foreground">{p.name}</p>
-                          <p className="font-mono text-[10px] text-muted-foreground mt-0.5">{p.code}</p>
+                          <p className="font-mono text-xs text-muted-foreground mt-0.5">{p.code}</p>
                         </div>
                       </div>
                     </TableCell>
@@ -683,7 +684,7 @@ export function WilayahManager({
               >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-foreground">Kecamatan Induk <span className="text-destructive">*</span></Label>
+                    <FormLabel>Kecamatan Induk <span className="text-destructive">*</span></FormLabel>
                     <select
                       value={desaForm.kecamatanId}
                       onChange={(e) => setDesaForm((f) => ({ ...f, kecamatanId: e.target.value }))}
@@ -695,7 +696,7 @@ export function WilayahManager({
                     </select>
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-foreground">Nama Desa <span className="text-destructive">*</span></Label>
+                    <FormLabel>Nama Desa <span className="text-destructive">*</span></FormLabel>
                     <Input
                       type="text"
                       value={desaForm.name}
@@ -705,7 +706,7 @@ export function WilayahManager({
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-foreground">Kode Desa <span className="text-destructive">*</span></Label>
+                    <FormLabel>Kode Desa <span className="text-destructive">*</span></FormLabel>
                     <Input
                       type="text"
                       value={desaForm.code}

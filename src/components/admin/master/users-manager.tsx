@@ -10,6 +10,7 @@ import { Plus, Pencil, X, Check, Search, UserCheck, HelpCircle, Upload } from "l
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { FormLabel, SubText } from "@/components/ui/typography"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { DataTable } from "@/components/shared/data-table"
@@ -193,7 +194,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="users-name" className="text-xs font-bold text-foreground">Nama Lengkap <span className="text-destructive">*</span></Label>
+                <FormLabel htmlFor="users-name">Nama Lengkap <span className="text-destructive">*</span></FormLabel>
                 <Input
                   id="users-name"
                   type="text"
@@ -205,7 +206,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               </div>
               {!editing && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="users-email" className="text-xs font-bold text-foreground">Alamat Email <span className="text-destructive">*</span></Label>
+                  <FormLabel htmlFor="users-email">Alamat Email <span className="text-destructive">*</span></FormLabel>
                   <Input
                     id="users-email"
                     type="email"
@@ -218,7 +219,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               )}
               {!editing && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="users-username" className="text-xs font-bold text-foreground">Username Login <span className="text-destructive">*</span></Label>
+                  <FormLabel htmlFor="users-username">Username Login <span className="text-destructive">*</span></FormLabel>
                   <Input
                     id="users-username"
                     type="text"
@@ -227,11 +228,11 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                     placeholder="Contoh: petugas_desa01"
                     required
                   />
-                  <p className="text-[10px] text-muted-foreground">Huruf kecil, angka, dan underscore saja</p>
+                  <SubText>Huruf kecil, angka, dan underscore saja</SubText>
                 </div>
               )}
               <div className="space-y-1.5">
-                <Label htmlFor="users-password" className="text-xs font-bold text-foreground">{editing ? "Kata Sandi Baru (Kosongkan jika tidak diubah)" : "Kata Sandi Baru"}</Label>
+                <FormLabel htmlFor="users-password">{editing ? "Kata Sandi Baru (Kosongkan jika tidak diubah)" : "Kata Sandi Baru"}</FormLabel>
                 <Input
                   id="users-password"
                   type="password"
@@ -243,7 +244,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="users-role" className="text-xs font-bold text-foreground">Hak Akses / Peran Sistem <span className="text-destructive">*</span></Label>
+                <FormLabel htmlFor="users-role">Hak Akses / Peran Sistem <span className="text-destructive">*</span></FormLabel>
                 <select
                   id="users-role"
                   value={form.role}
@@ -256,7 +257,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               </div>
               {showDesa && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="users-desaId" className="text-xs font-bold text-foreground">Wilayah Kerja Desa</Label>
+                  <FormLabel htmlFor="users-desaId">Wilayah Kerja Desa</FormLabel>
                   <select
                     id="users-desaId"
                     value={form.desaId}
@@ -270,7 +271,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               )}
               {showKec && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="users-kecamatanId" className="text-xs font-bold text-foreground font-semibold">Wilayah Kerja Kecamatan</Label>
+                  <FormLabel htmlFor="users-kecamatanId">Wilayah Kerja Kecamatan</FormLabel>
                   <select
                     id="users-kecamatanId"
                     value={form.kecamatanId}
@@ -284,7 +285,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               )}
               {showOpd && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="users-opdId" className="text-xs font-bold text-foreground">Dinas / OPD Instansi</Label>
+                  <FormLabel htmlFor="users-opdId">Dinas / OPD Instansi</FormLabel>
                   <select
                     id="users-opdId"
                     value={form.opdId}
@@ -298,7 +299,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               )}
               {showPosyandu && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="users-posyanduId" className="text-xs font-bold text-foreground">Unit Kerja Posyandu</Label>
+                  <FormLabel htmlFor="users-posyanduId">Unit Kerja Posyandu</FormLabel>
                   <select
                     id="users-posyanduId"
                     value={form.posyanduId}
@@ -359,31 +360,31 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                     </div>
                     <div>
                       <p className="font-bold text-xs text-foreground">{u.name}</p>
-                      <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">{u.email}</p>
+                      <SubText className="font-semibold mt-0.5">{u.email}</SubText>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell className="px-4 py-3.5">
                   {u.username
                     ? <span className="font-mono text-[11px] text-blue-600 font-semibold">{u.username}</span>
-                    : <span className="text-[10px] text-muted-foreground/50 italic">Belum diset</span>
+                    : <SubText className="italic !text-[10px] text-muted-foreground/50">Belum diset</SubText>
                   }
                 </TableCell>
                 <TableCell className="px-4 py-3.5 font-semibold text-xs text-foreground">
-                  <span className="px-2 py-0.5 bg-muted rounded-md text-[10px] font-bold border border-border/60">
+                    <span className="px-2 py-0.5 bg-muted rounded-md text-xs font-bold border border-border/60">
                     {ROLE_LABELS[u.role] || u.role}
                   </span>
                 </TableCell>
                 <TableCell className="px-4 py-3.5 text-xs text-muted-foreground font-semibold">
                   {wilayah}
                 </TableCell>
-                <TableCell className="px-4 py-3.5 text-[10px] text-muted-foreground font-semibold">
+                <TableCell className="px-4 py-3.5 text-xs text-muted-foreground font-semibold">
                   {u.lastLoginAt ? format(new Date(u.lastLoginAt), "d MMM yyyy HH:mm", { locale: localeId }) : "-"}
                 </TableCell>
                 <TableCell className="px-4 py-3.5">
                   <button
                     onClick={() => handleToggle(u)}
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all active:scale-95 cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-full text-xs font-bold border transition-all active:scale-95 cursor-pointer ${
                       u.isActive
                         ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/20"
                         : "bg-muted/60 text-muted-foreground border-border/80"
