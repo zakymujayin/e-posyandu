@@ -19,8 +19,8 @@ import {
   XCircle, 
   ArrowRight,
   HeartPulse,
-  BookOpen,
-  Building,
+  GraduationCap,
+  HardHat,
   Home as HomeIcon,
   Shield,
   HandHeart,
@@ -31,8 +31,8 @@ import { SectionTitle, CardTitle, MutedText } from "@/components/ui/typography"
 
 const OPD_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   "heart-pulse": HeartPulse,
-  "book-open": BookOpen,
-  "building": Building,
+  "book-open": GraduationCap,
+  "building": HardHat,
   "home": HomeIcon,
   "shield": Shield,
   "hand-heart": HandHeart,
