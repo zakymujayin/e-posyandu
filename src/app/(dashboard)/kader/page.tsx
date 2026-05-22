@@ -122,16 +122,16 @@ export default async function KaderPage() {
                   style={{ backgroundColor: opd.color || "var(--primary)" }}
                 />
                 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {/* Soft tinted backdrop background with solid icon */}
                   <div
-                    className="size-9 rounded-lg flex items-center justify-center shrink-0 shadow-xs"
+                    className="size-12 rounded-lg flex items-center justify-center shrink-0 shadow-xs"
                     style={{
                       backgroundColor: opd.color ? `${opd.color}15` : "rgba(var(--primary), 0.08)",
                       color: opd.color || "var(--primary)"
                     }}
                   >
-                    <OpdIcon className="size-4.5" />
+                    <OpdIcon className="size-6" />
                   </div>
 
                   <div className="space-y-1">
