@@ -10,12 +10,13 @@ export default async function MasterDataPage() {
   const session = await auth()
   if (!session?.user || session.user.role !== "ADMIN_DPMD") redirect("/login")
 
-  const [opdCount, layananCount, fieldCount, desaCount, userCount] = await Promise.all([
+  const [opdCount, layananCount, fieldCount, desaCount, userCount, posyanduCount] = await Promise.all([
     prisma.opd.count(),
     prisma.layananJenis.count(),
     prisma.formField.count(),
     prisma.desa.count(),
     prisma.user.count(),
+    prisma.posyandu.count(),
   ])
 
   const cards = [
@@ -46,9 +47,9 @@ export default async function MasterDataPage() {
     {
       href: "/admin/master/wilayah",
       icon: MapPin,
-      label: "Wilayah Desa",
-      count: desaCount,
-      description: "Kelola data kecamatan, posyandu, dan desa",
+      label: "Wilayah & Posyandu",
+      count: desaCount + posyanduCount,
+      description: `${desaCount} desa · ${posyanduCount} posyandu terdaftar`,
       color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
     },
     {

@@ -109,9 +109,9 @@ export default async function KaderRiwayatPage({
             {pengajuans.map((p) => (
               <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
                 <TableCell className="px-4 py-3">
-                  <span className="font-mono text-xs font-semibold text-foreground">
+                  <Link href={`/kader/riwayat/${p.id}`} className="font-mono text-xs font-semibold text-primary hover:underline">
                     {p.tiketNumber}
-                  </span>
+                  </Link>
                 </TableCell>
                 <TableCell className="px-4 py-3 text-xs text-foreground font-semibold">
                   {p.namaPelapor}
