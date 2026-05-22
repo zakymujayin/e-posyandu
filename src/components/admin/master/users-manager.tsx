@@ -29,6 +29,7 @@ interface User {
   id: string
   name: string
   email: string
+  username?: string | null
   role: string
   isActive: boolean
   createdAt: Date | string
@@ -48,7 +49,7 @@ interface Props {
 }
 
 const emptyForm = {
-  name: "", email: "", password: "", role: "KADER" as string,
+  name: "", email: "", username: "", password: "", role: "KADER" as string,
   desaId: "", kecamatanId: "", opdId: "", posyanduId: "", phone: "",
 }
 
@@ -88,8 +89,9 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
       const body = {
         name: form.name,
         email: editing ? undefined : form.email,
+        username: editing ? undefined : form.username,
         password: form.password || undefined,
-        role: editing ? undefined : form.role,
+        role: form.role,
         desaId: form.desaId || null,
         kecamatanId: form.kecamatanId || null,
         opdId: form.opdId || null,
@@ -101,7 +103,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
       const method = editing ? "PATCH" : "POST"
       const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
       const data = await res.json()
-      if (!res.ok) { toast.error(data.message); return }
+      if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
 
       if (editing) {
         setUsers((prev) => prev.map((u) => u.id === editing.id ? { ...u, ...data.data } : u))
@@ -123,7 +125,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
       body: JSON.stringify({ isActive: !u.isActive }),
     })
     const data = await res.json()
-    if (!res.ok) { toast.error(data.message); return }
+    if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
     setUsers((prev) => prev.map((x) => x.id === u.id ? { ...x, isActive: data.data.isActive } : x))
     toast.success(data.data.isActive ? "Akun diaktifkan" : "Akun dinonaktifkan")
   }
@@ -214,6 +216,20 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                   />
                 </div>
               )}
+              {!editing && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="users-username" className="text-xs font-bold text-foreground">Username Login <span className="text-destructive">*</span></Label>
+                  <Input
+                    id="users-username"
+                    type="text"
+                    value={form.username}
+                    onChange={(e) => setForm((f) => ({ ...f, username: e.target.value.toLowerCase() }))}
+                    placeholder="Contoh: petugas_desa01"
+                    required
+                  />
+                  <p className="text-[10px] text-muted-foreground">Huruf kecil, angka, dan underscore saja</p>
+                </div>
+              )}
               <div className="space-y-1.5">
                 <Label htmlFor="users-password" className="text-xs font-bold text-foreground">{editing ? "Kata Sandi Baru (Kosongkan jika tidak diubah)" : "Kata Sandi Baru"}</Label>
                 <Input
@@ -226,20 +242,18 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                   minLength={8}
                 />
               </div>
-              {!editing && (
-                <div className="space-y-1.5">
-                  <Label htmlFor="users-role" className="text-xs font-bold text-foreground">Hak Akses / Peran Sistem <span className="text-destructive">*</span></Label>
-                  <select
-                    id="users-role"
-                    value={form.role}
-                    onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
-                    required
-                  >
-                    {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
-                  </select>
-                </div>
-              )}
+              <div className="space-y-1.5">
+                <Label htmlFor="users-role" className="text-xs font-bold text-foreground">Hak Akses / Peran Sistem <span className="text-destructive">*</span></Label>
+                <select
+                  id="users-role"
+                  value={form.role}
+                  onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
+                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                  required
+                >
+                  {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
+                </select>
+              </div>
               {showDesa && (
                 <div className="space-y-1.5">
                   <Label htmlFor="users-desaId" className="text-xs font-bold text-foreground">Wilayah Kerja Desa</Label>
@@ -346,6 +360,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                     <div>
                       <p className="font-bold text-xs text-foreground">{u.name}</p>
                       <p className="text-[10px] text-muted-foreground font-semibold mt-0.5">{u.email}</p>
+                      {u.username && <p className="text-[10px] text-blue-500 font-mono mt-0.5">@{u.username}</p>}
                     </div>
                   </div>
                 </TableCell>

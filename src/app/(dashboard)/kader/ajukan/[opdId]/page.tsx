@@ -6,7 +6,8 @@ import { PageHeader } from "@/components/shared/page-header"
 import { PageContainer } from "@/components/layout/page-container"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { CardTitle, MutedText } from "@/components/ui/typography"
-import { BookOpen, FileText, CheckCircle2, Clock, ShieldAlert, PhoneCall, HelpCircle, Activity } from "lucide-react"
+import { BookOpen, FileText, CheckCircle2, Clock, ShieldAlert, PhoneCall, HelpCircle, Activity, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default async function AjukanPage({
   params,
@@ -27,9 +28,12 @@ export default async function AjukanPage({
   if (!userWithKader?.posyanduId) {
     return (
       <PageContainer className="py-6">
-        <div className="p-4 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-xs font-semibold">
-          Profil Anda belum dihubungkan ke Posyandu. Silakan hubungi Admin.
-        </div>
+        <Alert variant="destructive" className="max-w-lg">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Profil Anda belum dihubungkan ke Posyandu. Silakan hubungi Admin.
+          </AlertDescription>
+        </Alert>
       </PageContainer>
     )
   }

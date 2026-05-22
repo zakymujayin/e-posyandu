@@ -9,21 +9,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Credentials({
       name: "credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email dan password wajib diisi")
+        if (!credentials?.username || !credentials?.password) {
+          throw new Error("Username dan password wajib diisi")
         }
 
-        const email = credentials.email as string
+        const username = credentials.username as string
         const password = credentials.password as string
 
-        const user = await prisma.user.findUnique({ where: { email } })
+        const user = await prisma.user.findUnique({ where: { username } })
 
         if (!user) {
-          throw new Error("Email atau kata sandi salah")
+          throw new Error("Username atau kata sandi salah")
         }
 
         // Check lockout
@@ -54,7 +54,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             where: { id: user.id },
             data: { failedLoginAttempts: attempts },
           })
-          throw new Error("Email atau kata sandi salah")
+          throw new Error("Username atau kata sandi salah")
         }
 
         // Reset lockout state

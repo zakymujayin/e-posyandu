@@ -60,7 +60,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
           body: JSON.stringify({ name: form.name, description: form.description || null, sortOrder: form.sortOrder }),
         })
         const data = await res.json()
-        if (!res.ok) { toast.error(data.message); return }
+        if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
         setLayanans((prev) => prev.map((l) => l.id === editing.id ? { ...data.data, opd: editing.opd } : l))
         toast.success("Layanan diperbarui")
       } else {
@@ -70,7 +70,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
           body: JSON.stringify({ ...form, sortOrder: Number(form.sortOrder) }),
         })
         const data = await res.json()
-        if (!res.ok) { toast.error(data.message); return }
+        if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
         const opdName = opds.find((o) => o.id === form.opdId)?.name ?? ""
         setLayanans((prev) => [...prev, { ...data.data, opd: { name: opdName } }])
         toast.success("Layanan ditambahkan")
@@ -88,7 +88,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
       body: JSON.stringify({ isActive: !l.isActive }),
     })
     const data = await res.json()
-    if (!res.ok) { toast.error(data.message); return }
+    if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
     setLayanans((prev) => prev.map((x) => x.id === l.id ? { ...data.data, opd: l.opd } : x))
     toast.success(`Layanan ${l.name} ${!l.isActive ? 'diaktifkan' : 'dinonaktifkan'}`)
   }
@@ -97,7 +97,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
     if (!confirm(`Hapus layanan "${l.name}"?`)) return
     const res = await fetch(`/api/admin/master/layanan/${l.id}`, { method: "DELETE" })
     const data = await res.json()
-    if (!res.ok) { toast.error(data.message); return }
+    if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
     setLayanans((prev) => prev.filter((x) => x.id !== l.id))
     toast.success("Layanan dihapus")
   }

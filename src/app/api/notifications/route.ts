@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { NextRequest } from "next/server"
 
-export async function GET() {
+export async function GET(_req: NextRequest) {
   const { user, response } = await requireAuth()
   if (!user) return response!
 
@@ -32,7 +33,7 @@ export async function GET() {
   }
 }
 
-export async function PATCH() {
+export async function PATCH(_req: NextRequest) {
   const { user, response } = await requireAuth()
   if (!user) return response!
 
@@ -45,5 +46,18 @@ export async function PATCH() {
   } catch (e) {
     console.error(e)
     return err("Gagal memperbarui notifikasi", 500)
+  }
+}
+
+export async function DELETE(_req: NextRequest) {
+  const { user, response } = await requireAuth()
+  if (!user) return response!
+
+  try {
+    await prisma.notification.deleteMany({ where: { userId: user.id } })
+    return ok(null, "Semua notifikasi dihapus")
+  } catch (e) {
+    console.error(e)
+    return err("Gagal menghapus notifikasi", 500)
   }
 }

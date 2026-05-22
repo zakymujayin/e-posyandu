@@ -65,18 +65,25 @@ export function WilayahManager({
   const [showImport, setShowImport] = useState<"kecamatan" | "desa" | "posyandu" | null>(null)
 
   async function refreshData(type: "kecamatan" | "desa" | "posyandu") {
-    if (type === "kecamatan") {
-      const res = await fetch("/api/admin/master/wilayah/kecamatan")
-      const data = await res.json()
-      if (res.ok) setKecamatans(data.data)
-    } else if (type === "desa") {
-      const res = await fetch("/api/admin/master/wilayah/desa")
-      const data = await res.json()
-      if (res.ok) setDesas(data.data)
-    } else {
-      const res = await fetch("/api/admin/master/posyandu")
-      const data = await res.json()
-      if (res.ok) setPosyandus(data.data)
+    try {
+      if (type === "kecamatan") {
+        const res = await fetch("/api/admin/master/wilayah/kecamatan")
+        const data = await res.json()
+        if (res.ok) setKecamatans(data.data)
+        else toast.error(data.error ?? "Gagal memuat data kecamatan")
+      } else if (type === "desa") {
+        const res = await fetch("/api/admin/master/wilayah/desa")
+        const data = await res.json()
+        if (res.ok) setDesas(data.data)
+        else toast.error(data.error ?? "Gagal memuat data desa")
+      } else {
+        const res = await fetch("/api/admin/master/posyandu")
+        const data = await res.json()
+        if (res.ok) setPosyandus(data.data)
+        else toast.error(data.error ?? "Gagal memuat data posyandu")
+      }
+    } catch {
+      toast.error("Gagal memuat data, periksa koneksi Anda")
     }
   }
 
@@ -93,7 +100,7 @@ export function WilayahManager({
         body: JSON.stringify(kecForm),
       })
       const data = await res.json()
-      if (!res.ok) { toast.error(data.message); return }
+      if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
       setKecamatans((prev) => [...prev, { ...data.data, _count: { desas: 0 } }])
       setKecForm({ name: "", code: "" })
       setShowKecForm(false)
@@ -114,7 +121,7 @@ export function WilayahManager({
         body: JSON.stringify({ name: kecForm.name }),
       })
       const data = await res.json()
-      if (!res.ok) { toast.error(data.message); return }
+      if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
       const newName = data.data.name
       setKecamatans((prev) => prev.map((k) => k.id === editingKec.id ? { ...k, name: newName } : k))
       setDesas((prev) => prev.map((d) =>
@@ -137,7 +144,7 @@ export function WilayahManager({
     try {
       const res = await fetch(`/api/admin/master/wilayah/kecamatan/${id}`, { method: "DELETE" })
       const data = await res.json()
-      if (!res.ok) { toast.error(data.message); return }
+      if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
       setKecamatans((prev) => prev.filter((k) => k.id !== id))
       setDeletingId(null)
       toast.success("Kecamatan dihapus")
@@ -156,7 +163,7 @@ export function WilayahManager({
         body: JSON.stringify(desaForm),
       })
       const data = await res.json()
-      if (!res.ok) { toast.error(data.message); return }
+      if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
       const kecName = kecamatans.find((k) => k.id === desaForm.kecamatanId)?.name ?? ""
       setDesas((prev) => [...prev, { ...data.data, kecamatan: { name: kecName } }])
       setKecamatans((prev) => prev.map((k) =>
@@ -181,7 +188,7 @@ export function WilayahManager({
         body: JSON.stringify({ name: desaForm.name }),
       })
       const data = await res.json()
-      if (!res.ok) { toast.error(data.message); return }
+      if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
       setDesas((prev) => prev.map((d) => d.id === editingDesa.id ? { ...d, name: data.data.name } : d))
       setEditingDesa(null)
       toast.success("Desa diperbarui")
@@ -196,7 +203,7 @@ export function WilayahManager({
     try {
       const res = await fetch(`/api/admin/master/wilayah/desa/${id}`, { method: "DELETE" })
       const data = await res.json()
-      if (!res.ok) { toast.error(data.message); return }
+      if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
       setDesas((prev) => prev.filter((d) => d.id !== id))
       if (targetDesa) {
         setKecamatans((prev) => prev.map((k) =>
@@ -222,7 +229,7 @@ export function WilayahManager({
         body: JSON.stringify(posyanduForm),
       })
       const data = await res.json()
-      if (!res.ok) { toast.error(data.message); return }
+      if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
       setPosyandus((prev) => [...prev, data.data])
       setPosyanduForm({ desaId: "", name: "", code: "" })
       setShowPosyandu(false)
@@ -239,7 +246,7 @@ export function WilayahManager({
       body: JSON.stringify({ isActive: !p.isActive }),
     })
     const data = await res.json()
-    if (!res.ok) { toast.error(data.message); return }
+    if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
     setPosyandus((prev) => prev.map((x) => x.id === p.id ? { ...data.data } : x))
     toast.success(`Posyandu ${p.name} ${!p.isActive ? "diaktifkan" : "dinonaktifkan"}`)
   }
@@ -249,7 +256,7 @@ export function WilayahManager({
     try {
       const res = await fetch(`/api/admin/master/posyandu/${id}`, { method: "DELETE" })
       const data = await res.json()
-      if (!res.ok) { toast.error(data.message); return }
+      if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
       setPosyandus((prev) => prev.filter((p) => p.id !== id))
       setDeletingId(null)
       toast.success("Posyandu dihapus")

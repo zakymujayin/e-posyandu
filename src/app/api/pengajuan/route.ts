@@ -8,8 +8,9 @@ import { notifyPengajuanBaru } from "@/lib/notifications"
 import { sendNewPengajuanEmail } from "@/lib/email"
 
 const createSchema = z.object({
-  opdId: z.string().min(1),
-  layananJenisId: z.string().min(1),
+  opdId: z.string().min(1, "OPD wajib dipilih"),
+  kategori: z.enum(["PENGADUAN", "PERMOHONAN"]).default("PENGADUAN"),
+  layananJenisId: z.string().optional(),
   namaPelapor: z.string().min(1, "Nama pelapor wajib diisi"),
   nikPelapor: z.string().optional(),
   noHpPelapor: z.string().optional(),
@@ -43,6 +44,10 @@ export async function POST(req: NextRequest) {
 
     const data = parsed.data
 
+    if (data.kategori === "PERMOHONAN" && !data.layananJenisId) {
+      return err("Pilih layanan untuk permohonan")
+    }
+
     // Ambil posyandu dan desa dari user
     const kader = await prisma.user.findUnique({
       where: { id: user.id },
@@ -63,7 +68,8 @@ export async function POST(req: NextRequest) {
         posyanduId: kader.posyanduId,
         desaId: kader.posyandu.desaId,
         opdId: data.opdId,
-        layananJenisId: data.layananJenisId,
+        kategori: data.kategori,
+        layananJenisId: data.layananJenisId ?? null,
         namaPelapor: data.namaPelapor,
         nikPelapor: data.nikPelapor,
         noHpPelapor: data.noHpPelapor,

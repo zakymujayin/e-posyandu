@@ -10,6 +10,7 @@ import { Eye, EyeOff, Loader2, Landmark, CheckCircle, ShieldAlert } from "lucide
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Card,
   CardContent,
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/card"
 
 const loginSchema = z.object({
-  email: z.string().email("Format email tidak valid"),
+  username: z.string().min(1, "Username wajib diisi"),
   password: z.string().min(1, "Password wajib diisi"),
 })
 
@@ -41,13 +42,18 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     setError(null)
     const result = await signIn("credentials", {
-      email: data.email,
+      username: data.username,
       password: data.password,
       redirect: false,
     })
 
     if (result?.error) {
-      setError(result.error)
+      const errorMap: Record<string, string> = {
+        CredentialsSignin: "Username atau kata sandi tidak valid. Pastikan data login Anda sudah benar.",
+        Configuration: "Terjadi kesalahan sistem. Silakan hubungi administrator.",
+        AccessDenied: "Akses ditolak. Akun Anda mungkin tidak aktif.",
+      }
+      setError(errorMap[result.error] ?? "Terjadi kesalahan saat login. Silakan coba lagi.")
       return
     }
 
@@ -165,27 +171,27 @@ export default function LoginPage() {
           <CardContent className="pb-8">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {error && (
-                <div className="bg-destructive/10 text-destructive text-xs px-4 py-3 rounded-xl border border-destructive/20 flex items-start gap-2.5 animate-in fade-in duration-300">
-                  <ShieldAlert className="size-4 shrink-0 mt-0.5" />
-                  <span className="font-medium">{error}</span>
-                </div>
+                <Alert variant="destructive" className="py-3 animate-in fade-in duration-300">
+                  <ShieldAlert className="size-4" />
+                  <AlertDescription className="text-xs font-medium">{error}</AlertDescription>
+                </Alert>
               )}
 
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-[13px] font-semibold text-slate-700">
-                  Email Layanan
+                <Label htmlFor="username" className="text-[13px] font-semibold text-slate-700">
+                  Username
                 </Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="name@domain.com"
-                  autoComplete="email"
+                  id="username"
+                  type="text"
+                  placeholder="masukkan username Anda"
+                  autoComplete="username"
                   className="rounded-xl border-slate-200 bg-white focus:ring-primary focus:border-primary"
-                  {...register("email")}
+                  {...register("username")}
                 />
-                {errors.email && (
+                {errors.username && (
                   <p className="text-xs font-medium text-destructive mt-1">
-                    {errors.email.message}
+                    {errors.username.message}
                   </p>
                 )}
               </div>

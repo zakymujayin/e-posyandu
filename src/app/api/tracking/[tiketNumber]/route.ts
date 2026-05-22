@@ -16,6 +16,7 @@ export async function GET(
         status: true,
         submittedAt: true,
         deadlineAt: true,
+        kategori: true,
         deskripsi: true,
         opd: { select: { name: true } },
         layananJenis: { select: { name: true } },

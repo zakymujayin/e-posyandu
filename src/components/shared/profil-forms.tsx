@@ -25,7 +25,7 @@ export function ProfilForms({ initialName }: { initialName: string }) {
         body: JSON.stringify({ name }),
       })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.message ?? "Gagal menyimpan")
+      if (!res.ok) throw new Error(json.error ?? "Gagal menyimpan")
       toast.success("Nama berhasil diperbarui")
       router.refresh()
     } catch (err: unknown) {
@@ -37,6 +37,14 @@ export function ProfilForms({ initialName }: { initialName: string }) {
 
   async function handleChangePassword(e: React.FormEvent) {
     e.preventDefault()
+    if (!pw.current) {
+      toast.error("Password lama wajib diisi")
+      return
+    }
+    if (pw.new.length < 6) {
+      toast.error("Password baru minimal 6 karakter")
+      return
+    }
     if (pw.new !== pw.confirm) {
       toast.error("Konfirmasi password tidak cocok")
       return
@@ -53,7 +61,7 @@ export function ProfilForms({ initialName }: { initialName: string }) {
         }),
       })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.message ?? "Gagal menyimpan")
+      if (!res.ok) throw new Error(json.error ?? "Gagal menyimpan")
       toast.success("Password berhasil diubah")
       setPw({ current: "", new: "", confirm: "" })
     } catch (err: unknown) {

@@ -38,7 +38,7 @@ export function Header({ user }: HeaderProps) {
 
         {/* Right Side: Notifications & Profile */}
         <div className="flex items-center gap-4">
-          <NotificationBell />
+          <NotificationBell userRole={user.role} />
           
           {/* Divider */}
           <div className="h-5 w-px bg-border hidden md:block" />

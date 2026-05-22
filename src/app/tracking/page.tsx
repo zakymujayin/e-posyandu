@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Search, Clock, Building2, User, CalendarRange, FileText, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { StatusBadge } from "@/components/shared/status-badge"
@@ -16,7 +17,8 @@ interface TrackingResult {
   status: string
   submittedAt: string
   opd: { name: string }
-  layananJenis: { name: string }
+  layananJenis: { name: string } | null
+  kategori?: string | null
   desa: { name: string }
   activityLogs: {
     action: string
@@ -122,15 +124,13 @@ export default function TrackingPage() {
 
           {/* Not Found alert */}
           {notFound && (
-            <div className="flex items-start gap-3 bg-destructive/10 text-destructive border border-destructive/20 rounded-xl p-4 transition-all">
-              <AlertCircle className="size-4 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <p className="text-xs font-bold uppercase tracking-wider">Berkas Tidak Ditemukan</p>
-                <p className="text-xs text-destructive/90 font-medium leading-relaxed">
-                  Nomor tiket tidak terdaftar di sistem. Mohon periksa kembali kesesuaian karakter, tanda baca slash (/), dan angka yang dimasukkan.
-                </p>
-              </div>
-            </div>
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Berkas Tidak Ditemukan</AlertTitle>
+              <AlertDescription>
+                Nomor tiket tidak terdaftar di sistem. Mohon periksa kembali kesesuaian karakter, tanda baca slash (/), dan angka yang dimasukkan.
+              </AlertDescription>
+            </Alert>
           )}
         </div>
 
@@ -165,7 +165,9 @@ export default function TrackingPage() {
                   </div>
                   <div>
                     <span className="block text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Kategori Layanan</span>
-                    <span className="text-xs md:text-sm font-bold text-foreground block mt-0.5">{result.layananJenis.name}</span>
+                    <span className="text-xs md:text-sm font-bold text-foreground block mt-0.5">
+                      {result.kategori === "PERMOHONAN" ? (result.layananJenis?.name ?? "-") : "Pengaduan"}
+                    </span>
                   </div>
                 </div>
 

@@ -40,7 +40,6 @@ interface Props {
 }
 
 const formSchema = z.object({
-  layananJenisId: z.string().min(1, "Pilih jenis layanan"),
   namaPelapor: z.string().min(1, "Nama pelapor wajib diisi"),
   nikPelapor: z.string().optional(),
   noHpPelapor: z.string().optional(),
@@ -53,6 +52,8 @@ type FormValues = z.infer<typeof formSchema>
 
 export function PengajuanForm({ opdId, opdName, layananList }: Props) {
   const router = useRouter()
+  const [kategori, setKategori] = useState<"" | "PENGADUAN" | "PERMOHONAN">("")
+  const [selectedLayananId, setSelectedLayananId] = useState("")
   const [dynamicFields, setDynamicFields] = useState<FormField[]>([])
   const [dynamicValues, setDynamicValues] = useState<Record<string, string>>({})
   const [uploadedFiles, setUploadedFiles] = useState<{ path: string; name: string; size: number; mime: string }[]>([])
@@ -63,8 +64,6 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     control,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
@@ -77,13 +76,17 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
     name: "videoLinks",
   })
 
-  const selectedLayananId = watch("layananJenisId")
+  function handleKategoriChange(value: "PENGADUAN" | "PERMOHONAN") {
+    setKategori(value)
+    setSelectedLayananId("")
+    setDynamicFields([])
+    setDynamicValues({})
+  }
 
-  async function onLayananChange(layananId: string | null) {
-    setValue("layananJenisId", layananId ?? "")
+  async function onLayananChange(layananId: string) {
+    setSelectedLayananId(layananId)
     setDynamicValues({})
     if (!layananId) return setDynamicFields([])
-
     try {
       const res = await fetch(`/api/layanan/${layananId}/fields`)
       const json = await res.json()
@@ -125,6 +128,14 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
   }
 
   function onSubmit(values: FormValues) {
+    if (!kategori) {
+      toast.error("Pilih jenis pengajuan terlebih dahulu")
+      return
+    }
+    if (kategori === "PERMOHONAN" && !selectedLayananId) {
+      toast.error("Pilih nama layanan untuk permohonan")
+      return
+    }
     for (const field of dynamicFields) {
       if (field.isRequired && !dynamicValues[field.id]?.trim()) {
         toast.error(`${field.fieldLabel} wajib diisi`)
@@ -141,7 +152,8 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
 
     const payload = {
       opdId,
-      layananJenisId: pendingSubmit.layananJenisId,
+      kategori,
+      ...(kategori === "PERMOHONAN" ? { layananJenisId: selectedLayananId } : {}),
       namaPelapor: pendingSubmit.namaPelapor,
       nikPelapor: pendingSubmit.nikPelapor,
       noHpPelapor: pendingSubmit.noHpPelapor,
@@ -183,42 +195,64 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
     }
   }
 
+  const showForm = kategori !== ""
+  const showLayananSelect = kategori === "PERMOHONAN"
+  const showDynamicFields = kategori === "PERMOHONAN" && dynamicFields.length > 0
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-12">
-        {/* Jenis Layanan */}
+        {/* Jenis Pengajuan */}
         <FormSection
-          title="Jenis Layanan"
-          description="Pilih salah satu spesifikasi klasifikasi layanan yang akan diajukan ke dinas terkait."
+          title="Jenis Pengajuan"
+          description="Pilih kategori pengajuan: Pengaduan untuk melaporkan masalah, atau Permohonan untuk mengajukan layanan dari dinas terkait."
         >
           <div className="space-y-1.5">
-            <FormLabel htmlFor="pengajuan-layananJenisId">
-              Klasifikasi Layanan <span className="text-destructive">*</span>
+            <FormLabel>
+              Kategori Pengajuan <span className="text-destructive">*</span>
             </FormLabel>
-            <Select onValueChange={onLayananChange} value={selectedLayananId ?? ""}>
-              <SelectTrigger id="pengajuan-layananJenisId" className="w-full rounded-lg border-border bg-background focus:ring-primary focus:border-primary">
-                <span className={cn("flex flex-1 text-left text-sm truncate", !selectedLayananId && "text-muted-foreground")}>
-                  {selectedLayananId
-                    ? (layananList.find((l) => l.id === selectedLayananId)?.name ?? "— Pilih Klasifikasi Layanan —")
-                    : "— Pilih Klasifikasi Layanan —"}
+            <Select onValueChange={(v) => v && handleKategoriChange(v as "PENGADUAN" | "PERMOHONAN")} value={kategori}>
+              <SelectTrigger className="w-full rounded-lg border-border bg-background focus:ring-primary focus:border-primary">
+                <span className={cn("flex flex-1 text-left text-sm truncate", !kategori && "text-muted-foreground")}>
+                  {kategori === "PENGADUAN"
+                    ? "Pengaduan"
+                    : kategori === "PERMOHONAN"
+                    ? "Permohonan Layanan"
+                    : "— Pilih Jenis Pengajuan —"}
                 </span>
               </SelectTrigger>
               <SelectContent>
-                {layananList.map((l) => (
-                  <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
-                ))}
+                <SelectItem value="PENGADUAN">Pengaduan</SelectItem>
+                <SelectItem value="PERMOHONAN">Permohonan Layanan</SelectItem>
               </SelectContent>
             </Select>
-            {errors.layananJenisId && (
-              <p className="text-xs font-medium text-destructive mt-1">
-                {errors.layananJenisId.message}
-              </p>
-            )}
           </div>
+
+          {showLayananSelect && (
+            <div className="space-y-1.5">
+              <FormLabel>
+                Nama Layanan <span className="text-destructive">*</span>
+              </FormLabel>
+              <Select onValueChange={(v) => v && onLayananChange(v)} value={selectedLayananId}>
+                <SelectTrigger className="w-full rounded-lg border-border bg-background focus:ring-primary focus:border-primary">
+                  <span className={cn("flex flex-1 text-left text-sm truncate", !selectedLayananId && "text-muted-foreground")}>
+                    {selectedLayananId
+                      ? (layananList.find((l) => l.id === selectedLayananId)?.name ?? "— Pilih Layanan —")
+                      : "— Pilih Layanan —"}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {layananList.map((l) => (
+                    <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </FormSection>
 
-        {/* Dynamic Fields */}
-        {dynamicFields.length > 0 && (
+        {/* Dynamic Fields — Permohonan only */}
+        {showDynamicFields && (
           <FormSection
             title="Formulir Detail Layanan"
             description="Silakan lengkapi atribut data dukung di bawah ini sesuai spesifikasi jenis layanan."
@@ -245,216 +279,225 @@ export function PengajuanForm({ opdId, opdName, layananList }: Props) {
         )}
 
         {/* Data Pelapor */}
-        <FormSection
-          title="Informasi Pelapor"
-          description="Lengkapi identitas warga atau pihak yang mengajukan laporan / kebutuhan pelayanan."
-        >
-          <div className="space-y-1.5">
-            <FormLabel htmlFor="pengajuan-namaPelapor">
-              Nama Lengkap Pelapor <span className="text-destructive">*</span>
-            </FormLabel>
-            <Input
-              id="pengajuan-namaPelapor"
-              placeholder="Contoh: Budi Santoso"
-              className="rounded-lg border-border bg-background"
-              {...register("namaPelapor")}
-            />
-            {errors.namaPelapor && (
-              <p className="text-xs font-medium text-destructive mt-1">
-                {errors.namaPelapor.message}
-              </p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {showForm && (
+          <FormSection
+            title="Informasi Pelapor"
+            description="Lengkapi identitas warga atau pihak yang mengajukan laporan / kebutuhan pelayanan."
+          >
             <div className="space-y-1.5">
-              <FormLabel htmlFor="pengajuan-nikPelapor">NIK Pelapor</FormLabel>
+              <FormLabel htmlFor="pengajuan-namaPelapor">
+                Nama Lengkap Pelapor <span className="text-destructive">*</span>
+              </FormLabel>
               <Input
-                id="pengajuan-nikPelapor"
-                placeholder="16 Digit Nomor Induk Kependudukan (opsional)"
-                maxLength={16}
-                inputMode="numeric"
+                id="pengajuan-namaPelapor"
+                placeholder="Contoh: Budi Santoso"
                 className="rounded-lg border-border bg-background"
-                {...register("nikPelapor")}
+                {...register("namaPelapor")}
               />
+              {errors.namaPelapor && (
+                <p className="text-xs font-medium text-destructive mt-1">
+                  {errors.namaPelapor.message}
+                </p>
+              )}
             </div>
-            <div className="space-y-1.5">
-              <FormLabel htmlFor="pengajuan-noHpPelapor">Nomor HP / WhatsApp</FormLabel>
-              <Input
-                id="pengajuan-noHpPelapor"
-                placeholder="Contoh: 0812XXXXXXXX (opsional)"
-                inputMode="tel"
-                className="rounded-lg border-border bg-background"
-                {...register("noHpPelapor")}
-              />
-            </div>
-          </div>
 
-          <div className="space-y-1.5">
-            <FormLabel htmlFor="pengajuan-alamatPelapor">
-              Alamat Lengkap Domisili <span className="text-destructive">*</span>
-            </FormLabel>
-            <Textarea
-              id="pengajuan-alamatPelapor"
-              placeholder="Tuliskan nama jalan, RT/RW, nomor rumah, dan keterangan wilayah lainnya"
-              rows={3}
-              className="rounded-lg border-border bg-background resize-none"
-              {...register("alamatPelapor")}
-            />
-            {errors.alamatPelapor && (
-              <p className="text-xs font-medium text-destructive mt-1">
-                {errors.alamatPelapor.message}
-              </p>
-            )}
-          </div>
-        </FormSection>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <FormLabel htmlFor="pengajuan-nikPelapor">NIK Pelapor</FormLabel>
+                <Input
+                  id="pengajuan-nikPelapor"
+                  placeholder="16 Digit Nomor Induk Kependudukan (opsional)"
+                  maxLength={16}
+                  inputMode="numeric"
+                  className="rounded-lg border-border bg-background"
+                  {...register("nikPelapor")}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <FormLabel htmlFor="pengajuan-noHpPelapor">Nomor HP / WhatsApp</FormLabel>
+                <Input
+                  id="pengajuan-noHpPelapor"
+                  placeholder="Contoh: 0812XXXXXXXX (opsional)"
+                  inputMode="tel"
+                  className="rounded-lg border-border bg-background"
+                  {...register("noHpPelapor")}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <FormLabel htmlFor="pengajuan-alamatPelapor">
+                Alamat Lengkap Domisili <span className="text-destructive">*</span>
+              </FormLabel>
+              <Textarea
+                id="pengajuan-alamatPelapor"
+                placeholder="Tuliskan nama jalan, RT/RW, nomor rumah, dan keterangan wilayah lainnya"
+                rows={3}
+                className="rounded-lg border-border bg-background resize-none"
+                {...register("alamatPelapor")}
+              />
+              {errors.alamatPelapor && (
+                <p className="text-xs font-medium text-destructive mt-1">
+                  {errors.alamatPelapor.message}
+                </p>
+              )}
+            </div>
+          </FormSection>
+        )}
 
         {/* Deskripsi */}
-        <FormSection
-          title="Deskripsi Masalah / Uraian"
-          description="Tuliskan penjelasan lengkap mengenai kendala, kronologi, atau bantuan yang dibutuhkan."
-        >
-          <div className="space-y-1.5">
-            <FormLabel htmlFor="pengajuan-deskripsi">
-              Uraian Detail Pengaduan <span className="text-destructive">*</span>
-            </FormLabel>
-            <Textarea
-              id="pengajuan-deskripsi"
-              placeholder="Ceritakan sedetail mungkin agar mempercepat proses verifikasi oleh tim dinas terkait..."
-              rows={5}
-              className="rounded-lg border-border bg-background"
-              {...register("deskripsi")}
-            />
-            <div className="flex items-center justify-between text-xs text-muted-foreground font-medium mt-1">
-              <span>Pastikan isi deskripsi valid</span>
-              <span>Minimal 20 Karakter</span>
+        {showForm && (
+          <FormSection
+            title={kategori === "PERMOHONAN" ? "Deskripsi Permohonan" : "Deskripsi Pengaduan"}
+            description={kategori === "PERMOHONAN" ? "Jelaskan kebutuhan layanan yang diajukan secara rinci." : "Jelaskan kronologi, kendala, atau masalah yang ingin dilaporkan secara rinci."}
+          >
+            <div className="space-y-1.5">
+              <FormLabel htmlFor="pengajuan-deskripsi">
+                {kategori === "PERMOHONAN" ? "Uraian Detail Permohonan" : "Uraian Detail Pengaduan"}{" "}
+                <span className="text-destructive">*</span>
+              </FormLabel>
+              <Textarea
+                id="pengajuan-deskripsi"
+                placeholder="Ceritakan sedetail mungkin agar mempercepat proses verifikasi oleh tim dinas terkait..."
+                rows={5}
+                className="rounded-lg border-border bg-background"
+                {...register("deskripsi")}
+              />
+              <div className="flex items-center justify-between text-xs text-muted-foreground font-medium mt-1">
+                <span>Pastikan isi deskripsi valid</span>
+                <span>Minimal 20 Karakter</span>
+              </div>
+              {errors.deskripsi && (
+                <p className="text-xs font-medium text-destructive mt-1">
+                  {errors.deskripsi.message}
+                </p>
+              )}
             </div>
-            {errors.deskripsi && (
-              <p className="text-xs font-medium text-destructive mt-1">
-                {errors.deskripsi.message}
-              </p>
-            )}
-          </div>
-        </FormSection>
+          </FormSection>
+        )}
 
         {/* Lampiran */}
-        <FormSection
-          title="Lampiran & Berkas Dukung"
-          description="Unggah foto kejadian, surat rekomendasi, berkas PDF pendukung, atau tautan video."
-        >
-          {/* File upload */}
-          <div className="space-y-3">
-            <FormLabel htmlFor="pengajuan-file">Berkas / Dokumen Lampiran</FormLabel>
-            <label htmlFor="pengajuan-file" className="group/drop flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border rounded-lg p-6 cursor-pointer bg-muted/20 hover:bg-muted/40 hover:border-primary/40 transition-all duration-300">
-              <div className="p-2.5 rounded-lg bg-background border border-border text-muted-foreground group-hover/drop:scale-110 group-hover/drop:text-primary transition-all duration-300 shadow-xs">
-                <Upload className="w-5 h-5" />
-              </div>
-              <span className="text-xs font-bold text-foreground mt-1">
-                {uploading ? "Sedang Mengunggah..." : "Pilih Dokumen Dukung"}
-              </span>
-              <span className="text-xs text-muted-foreground font-medium">
-                Klik untuk memilih file dari galeri perangkat Anda
-              </span>
-              <input
-                id="pengajuan-file"
-                type="file"
-                className="hidden"
-                accept=".jpg,.jpeg,.png,.pdf"
-                multiple
-                onChange={handleFileChange}
-                disabled={uploading || uploadedFiles.length >= 5}
-              />
-            </label>
-            <MutedText className="italic leading-normal mt-1">
-              * Mendukung format berkas: JPG, PNG, PDF. Maksimal 5 MB per berkas. Maksimal 5 berkas lampiran.
-            </MutedText>
-            
-            {uploadedFiles.length > 0 && (
-              <ul className="space-y-2 mt-3">
-                {uploadedFiles.map((f, i) => (
-                  <li key={i} className="flex items-center justify-between text-xs bg-muted/30 border border-border px-3.5 py-2.5 rounded-lg animate-fade-in">
-                    <span className="truncate text-foreground font-semibold max-w-[80%]">{f.name}</span>
-                    <button
-                      type="button"
-                      onClick={() => setUploadedFiles((prev) => prev.filter((_, idx) => idx !== i))}
-                      className="text-destructive hover:bg-destructive/10 p-1 rounded-lg transition-colors"
-                      aria-label={`Hapus ${f.name}`}
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* Video links */}
-          <div className="space-y-3 pt-3 border-t border-border/50">
-            <FormLabel htmlFor="pengajuan-video-0">Link Referensi Video</FormLabel>
-            {videoFields.map((field, index) => (
-              <div key={field.id} className="flex gap-2 items-center animate-fade-in">
-                <div className="flex-1 relative">
-                  <Input
-                    id={`pengajuan-video-${index}`}
-                    placeholder="Contoh: https://youtube.com/watch?v=..."
-                    className="rounded-lg border-border bg-background pr-9"
-                    {...register(`videoLinks.${index}.url`)}
-                  />
-                  <Video className="size-4 text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2" />
+        {showForm && (
+          <FormSection
+            title={kategori === "PERMOHONAN" ? "Lampiran & Dokumen Pendukung" : "Lampiran & Berkas Dukung"}
+            description={kategori === "PERMOHONAN" ? "Unggah dokumen syarat permohonan, surat pengantar, atau tautan video." : "Unggah foto kejadian, surat rekomendasi, berkas PDF pendukung, atau tautan video."}
+          >
+            {/* File upload */}
+            <div className="space-y-3">
+              <FormLabel htmlFor="pengajuan-file">Berkas / Dokumen Lampiran</FormLabel>
+              <label htmlFor="pengajuan-file" className="group/drop flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border rounded-lg p-6 cursor-pointer bg-muted/20 hover:bg-muted/40 hover:border-primary/40 transition-all duration-300">
+                <div className="p-2.5 rounded-lg bg-background border border-border text-muted-foreground group-hover/drop:scale-110 group-hover/drop:text-primary transition-all duration-300 shadow-xs">
+                  <Upload className="w-5 h-5" />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => removeVideo(index)}
-                  className="text-destructive hover:bg-destructive/10 p-2 rounded-lg border border-transparent hover:border-destructive/10 transition-all duration-200"
-                  aria-label="Hapus tautan video"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-            
-            <div className="pt-1.5 flex flex-col gap-2 items-start">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => appendVideo({ url: "" })}
-                className="rounded-lg font-bold gap-1 text-xs"
-              >
-                <Plus className="w-3.5 h-3.5" /> Tambah Tautan Video
-              </Button>
+                <span className="text-xs font-bold text-foreground mt-1">
+                  {uploading ? "Sedang Mengunggah..." : "Pilih Dokumen Dukung"}
+                </span>
+                <span className="text-xs text-muted-foreground font-medium">
+                  Klik untuk memilih file dari galeri perangkat Anda
+                </span>
+                <input
+                  id="pengajuan-file"
+                  type="file"
+                  className="hidden"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  multiple
+                  onChange={handleFileChange}
+                  disabled={uploading || uploadedFiles.length >= 5}
+                />
+              </label>
               <MutedText className="italic leading-normal mt-1">
-                * Tempel link video dari platform YouTube, TikTok, Instagram, atau Facebook.
+                * Mendukung format berkas: JPG, PNG, PDF. Maksimal 5 MB per berkas. Maksimal 5 berkas lampiran.
               </MutedText>
+
+              {uploadedFiles.length > 0 && (
+                <ul className="space-y-2 mt-3">
+                  {uploadedFiles.map((f, i) => (
+                    <li key={i} className="flex items-center justify-between text-xs bg-muted/30 border border-border px-3.5 py-2.5 rounded-lg animate-fade-in">
+                      <span className="truncate text-foreground font-semibold max-w-[80%]">{f.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setUploadedFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                        className="text-destructive hover:bg-destructive/10 p-1 rounded-lg transition-colors"
+                        aria-label={`Hapus ${f.name}`}
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-          </div>
-        </FormSection>
+
+            {/* Video links */}
+            <div className="space-y-3 pt-3 border-t border-border/50">
+              <FormLabel htmlFor="pengajuan-video-0">Link Referensi Video</FormLabel>
+              {videoFields.map((field, index) => (
+                <div key={field.id} className="flex gap-2 items-center animate-fade-in">
+                  <div className="flex-1 relative">
+                    <Input
+                      id={`pengajuan-video-${index}`}
+                      placeholder="Contoh: https://youtube.com/watch?v=..."
+                      className="rounded-lg border-border bg-background pr-9"
+                      {...register(`videoLinks.${index}.url`)}
+                    />
+                    <Video className="size-4 text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2" />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeVideo(index)}
+                    className="text-destructive hover:bg-destructive/10 p-2 rounded-lg border border-transparent hover:border-destructive/10 transition-all duration-200"
+                    aria-label="Hapus tautan video"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+
+              <div className="pt-1.5 flex flex-col gap-2 items-start">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => appendVideo({ url: "" })}
+                  className="rounded-lg font-bold gap-1 text-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Tambah Tautan Video
+                </Button>
+                <MutedText className="italic leading-normal mt-1">
+                  * Tempel link video dari platform YouTube, TikTok, Instagram, atau Facebook.
+                </MutedText>
+              </div>
+            </div>
+          </FormSection>
+        )}
 
         {/* Actions Submit / Cancel */}
-        <div className="flex gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.back()}
-            className="flex-1 min-h-[44px] rounded-lg font-bold tracking-tight"
-          >
-            Kembali
-          </Button>
-          <Button
-            type="submit"
-            className="flex-1 min-h-[44px] rounded-lg font-bold tracking-tight shadow-md"
-            disabled={isSubmitting || uploading}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Mengirim...
-              </>
-            ) : (
-              "Kirim Pengajuan"
-            )}
-          </Button>
-        </div>
+        {showForm && (
+          <div className="flex gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+              className="flex-1 min-h-[44px] rounded-lg font-bold tracking-tight"
+            >
+              Kembali
+            </Button>
+            <Button
+              type="submit"
+              className="flex-1 min-h-[44px] rounded-lg font-bold tracking-tight shadow-md"
+              disabled={isSubmitting || uploading}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Mengirim...
+                </>
+              ) : (
+                "Kirim Pengajuan"
+              )}
+            </Button>
+          </div>
+        )}
       </form>
 
       {/* Confirm Modal */}

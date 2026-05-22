@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { MESSAGES, type PengajuanStatus } from "@/lib/messages"
-import { FileSpreadsheet, Clock, CheckCircle2 } from "lucide-react"
+import { FileSpreadsheet, Clock, CheckCircle2, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { PageContainer } from "@/components/layout/page-container"
 import { SectionTitle } from "@/components/ui/typography"
 
@@ -40,8 +41,13 @@ export default async function OpdPage({
 
   if (!user?.opdId) {
     return (
-      <div className="p-5 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-xs font-semibold max-w-lg mx-auto mt-12 text-center">
-        Akun Anda belum terasosiasi dengan data OPD manapun. Silakan hubungi Administrator DPMD.
+      <div className="max-w-lg mx-auto mt-12">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Akun Anda belum terasosiasi dengan data OPD manapun. Silakan hubungi Administrator DPMD.
+          </AlertDescription>
+        </Alert>
       </div>
     )
   }
@@ -129,7 +135,7 @@ export default async function OpdPage({
                   {p.namaPelapor}
                 </TableCell>
                 <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
-                  {p.layananJenis.name}
+                  {p.layananJenis?.name ?? "Pengaduan"}
                 </TableCell>
                 <TableCell className="px-4 py-3.5">
                   <StatusBadge status={p.status as PengajuanStatus} />

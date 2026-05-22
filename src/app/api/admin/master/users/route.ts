@@ -8,6 +8,7 @@ const ROLES = ["KADER", "PETUGAS_DESA", "PETUGAS_KECAMATAN", "PETUGAS_OPD", "ADM
 const schema = z.object({
   name: z.string().min(1, "Nama wajib diisi"),
   email: z.string().email("Email tidak valid"),
+  username: z.string().min(3, "Username minimal 3 karakter").regex(/^[a-z0-9_]+$/, "Username hanya huruf kecil, angka, dan underscore"),
   password: z.string().min(8, "Password minimal 8 karakter"),
   role: z.enum(ROLES, { message: "Role tidak valid" }),
   desaId: z.string().optional().nullable(),
@@ -32,7 +33,7 @@ export async function GET(req: Request) {
     },
     orderBy: { createdAt: "desc" },
     select: {
-      id: true, name: true, email: true, role: true,
+      id: true, name: true, email: true, username: true, role: true,
       isActive: true, createdAt: true, lastLoginAt: true,
       desa: { select: { name: true } },
       kecamatan: { select: { name: true } },
@@ -53,6 +54,9 @@ export async function POST(req: Request) {
 
   const existing = await prisma.user.findUnique({ where: { email: parsed.data.email } })
   if (existing) return err("Email sudah terdaftar")
+
+  const existingUsername = await prisma.user.findUnique({ where: { username: parsed.data.username } })
+  if (existingUsername) return err("Username sudah digunakan")
 
   const { password, ...rest } = parsed.data
   const hashed = await bcrypt.hash(password, 12)

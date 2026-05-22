@@ -101,7 +101,7 @@ export function FieldsManager({
           }),
         })
         const data = await res.json()
-        if (!res.ok) { toast.error(data.message); return }
+        if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
         setFields((prev) => prev.map((f) => f.id === editing.id ? { ...data.data, layananJenis: editing.layananJenis } : f))
         toast.success("Field berhasil diperbarui")
       } else {
@@ -111,7 +111,7 @@ export function FieldsManager({
           body: JSON.stringify(body),
         })
         const data = await res.json()
-        if (!res.ok) { toast.error(data.message); return }
+        if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
         const layanan = layanans.find((l) => l.id === body.layananJenisId)
         const opd = opds.find((o) => o.id === layanan?.opdId)
         setFields((prev) => [...prev, { ...data.data, layananJenis: { name: layanan?.name ?? "", opd: { name: opd?.name ?? "" } } }])
@@ -127,7 +127,7 @@ export function FieldsManager({
     if (!confirm(`Hapus field "${f.fieldLabel}"?`)) return
     const res = await fetch(`/api/admin/master/fields/${f.id}`, { method: "DELETE" })
     const data = await res.json()
-    if (!res.ok) { toast.error(data.message); return }
+    if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
     setFields((prev) => prev.filter((x) => x.id !== f.id))
     toast.success("Field berhasil dihapus")
   }

@@ -56,7 +56,8 @@ interface PengajuanDetailProps {
     submittedAt: Date | string
     deadlineAt: Date | string
     opd: { name: string }
-    layananJenis: { name: string }
+    layananJenis: { name: string } | null
+    kategori?: string | null
     desa: { name: string; kecamatan?: { name: string } | null }
     posyandu: { name: string }
     kader: { name: string }
@@ -125,7 +126,9 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
           </div>
           <div>
             <MutedText>Jenis Layanan</MutedText>
-            <p className="font-medium text-foreground mt-0.5">{pengajuan.layananJenis.name}</p>
+            <p className="font-medium text-foreground mt-0.5">
+              {pengajuan.kategori === "PERMOHONAN" ? (pengajuan.layananJenis?.name ?? "-") : "Pengaduan"}
+            </p>
           </div>
           <div>
             <MutedText>Tanggal Submit</MutedText>

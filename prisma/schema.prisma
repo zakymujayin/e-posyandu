@@ -125,6 +125,7 @@ model User {
   id           String   @id @default(uuid())
   name         String
   email        String   @unique
+  username     String?  @unique @map("username")
   password     String
   role         String
   posyanduId   String?  @map("posyandu_id")
@@ -180,7 +181,8 @@ model Pengajuan {
   posyanduId      String   @map("posyandu_id")
   desaId          String   @map("desa_id")
   opdId           String   @map("opd_id")
-  layananJenisId  String   @map("layanan_jenis_id")
+  layananJenisId  String?  @map("layanan_jenis_id")
+  kategori        String   @default("PENGADUAN") @map("kategori")
 
   namaPelapor     String   @map("nama_pelapor")
   nikPelapor      String?  @map("nik_pelapor")
@@ -203,7 +205,7 @@ model Pengajuan {
   posyandu        Posyandu         @relation(fields: [posyanduId], references: [id])
   desa            Desa             @relation(fields: [desaId], references: [id])
   opd             Opd              @relation(fields: [opdId], references: [id])
-  layananJenis    LayananJenis     @relation(fields: [layananJenisId], references: [id])
+  layananJenis    LayananJenis?    @relation(fields: [layananJenisId], references: [id])
 
   fieldValues     PengajuanFieldValue[]
   attachments     PengajuanAttachment[]

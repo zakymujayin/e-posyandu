@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { Bell } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
+import { Bell, X, CheckCheck, Trash2, BellOff } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { id as localeId } from "date-fns/locale"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 interface Notification {
   id: string
@@ -16,20 +16,32 @@ interface Notification {
   pengajuanId?: string | null
 }
 
-function roleLink(pengajuanId: string | null | undefined, type: string): string | null {
-  if (!pengajuanId) return null
-  // Return null — the bell is used in a shared header; link to /admin/pengajuan/:id is safe for admin
-  // Actual role-routing can be done server-side if needed; for now return the generic admin path as fallback
-  return null
+const ROLE_LINK_MAP: Record<string, string> = {
+  KADER: "/kader/riwayat",
+  PETUGAS_DESA: "/petugas-desa/verifikasi",
+  PETUGAS_OPD: "/opd/tindak-lanjut",
+  PETUGAS_KECAMATAN: "/kecamatan",
+  ADMIN_DPMD: "/admin/pengajuan",
 }
 
-export function NotificationBell() {
+function roleLink(pengajuanId: string | null | undefined, userRole: string): string | null {
+  if (!pengajuanId) return null
+  const base = ROLE_LINK_MAP[userRole]
+  return base ? `${base}/${pengajuanId}` : null
+}
+
+interface Props {
+  userRole: string
+}
+
+export function NotificationBell({ userRole }: Props) {
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unread, setUnread] = useState(0)
-  const ref = useRef<HTMLDivElement>(null)
+  const [confirmClear, setConfirmClear] = useState(false)
 
-  async function fetchNotifications() {
+  const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch("/api/notifications")
       const json = await res.json()
@@ -38,9 +50,26 @@ export function NotificationBell() {
         setUnread(json.data.unreadCount)
       }
     } catch {
-      console.error("Gagal fetch notifikasi")
+      // silent
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchNotifications()
+    const interval = setInterval(fetchNotifications, 60_000)
+    return () => clearInterval(interval)
+  }, [fetchNotifications])
+
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setOpen(false)
+        setConfirmClear(false)
+      }
+    }
+    document.addEventListener("keydown", handleKey)
+    return () => document.removeEventListener("keydown", handleKey)
+  }, [])
 
   async function markAllRead() {
     await fetch("/api/notifications", { method: "PATCH" })
@@ -48,40 +77,35 @@ export function NotificationBell() {
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
   }
 
-  useEffect(() => {
-    fetchNotifications()
-    const interval = setInterval(fetchNotifications, 60_000)
-    return () => clearInterval(interval)
-  }, [])
+  async function markOneRead(id: string) {
+    await fetch(`/api/notifications/${id}`, { method: "PATCH" })
+    setNotifications((prev) =>
+      prev.map((n) => n.id === id ? { ...n, isRead: true } : n)
+    )
+    setUnread((prev) => Math.max(0, prev - 1))
+  }
 
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
-    }
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false)
-    }
-    document.addEventListener("mousedown", handleClick)
-    document.addEventListener("keydown", handleKey)
-    return () => {
-      document.removeEventListener("mousedown", handleClick)
-      document.removeEventListener("keydown", handleKey)
-    }
-  }, [])
+  async function clearAll() {
+    await fetch("/api/notifications", { method: "DELETE" })
+    setNotifications([])
+    setUnread(0)
+    setConfirmClear(false)
+  }
 
-  function handleOpen() {
-    setOpen((prev) => {
-      if (!prev) markAllRead()
-      return !prev
-    })
+  async function handleNotifClick(n: Notification) {
+    if (!n.isRead) await markOneRead(n.id)
+    const link = roleLink(n.pengajuanId, userRole)
+    if (link) {
+      setOpen(false)
+      router.push(link)
+    }
   }
 
   return (
-    <div ref={ref} className="relative">
+    <>
+      {/* Bell trigger */}
       <button
-        onClick={handleOpen}
+        onClick={() => setOpen(true)}
         className="relative p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors"
         aria-label="Notifikasi"
       >
@@ -93,37 +117,118 @@ export function NotificationBell() {
         )}
       </button>
 
+      {/* Overlay */}
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 max-w-[calc(100vw-24px)] bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden">
-          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-            <p className="text-sm font-semibold text-foreground">Notifikasi</p>
+        <div
+          className="fixed inset-0 bg-black/30 z-40"
+          onClick={() => { setOpen(false); setConfirmClear(false) }}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Slide-in panel */}
+      <div
+        className={`fixed right-0 top-0 h-full w-80 bg-white dark:bg-card shadow-2xl z-50 flex flex-col transition-transform duration-300 ease-in-out ${open ? "translate-x-0" : "translate-x-full"}`}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3.5 border-b border-border shrink-0">
+          <div className="flex items-center gap-2">
+            <Bell className="w-4 h-4 text-primary" />
+            <h2 className="text-sm font-bold text-foreground">Notifikasi</h2>
             {unread > 0 && (
-              <button onClick={markAllRead} className="text-xs text-blue-600 hover:underline">
+              <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full">
+                {unread}
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => { setOpen(false); setConfirmClear(false) }}
+            className="p-1.5 text-muted-foreground hover:bg-muted rounded-lg transition-colors"
+            aria-label="Tutup panel notifikasi"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Action bar */}
+        {notifications.length > 0 && (
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-border/50 shrink-0">
+            {unread > 0 && (
+              <button
+                onClick={markAllRead}
+                className="flex items-center gap-1.5 text-[11px] text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+              >
+                <CheckCheck className="w-3.5 h-3.5" />
                 Tandai semua dibaca
               </button>
             )}
-          </div>
-
-          <div className="max-h-80 overflow-y-auto divide-y divide-border">
-            {notifications.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">Tidak ada notifikasi</p>
+            <div className="flex-1" />
+            {!confirmClear ? (
+              <button
+                onClick={() => setConfirmClear(true)}
+                className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-destructive font-semibold transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Hapus semua
+              </button>
             ) : (
-              notifications.map((n) => (
-                <div
-                  key={n.id}
-                  className={`px-4 py-3 hover:bg-muted/40 transition-colors ${!n.isRead ? "bg-primary/5" : ""}`}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground">Yakin?</span>
+                <button
+                  onClick={clearAll}
+                  className="text-[11px] text-destructive font-bold hover:underline"
                 >
-                  <p className="text-sm font-medium text-foreground">{n.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.message}</p>
-                  <p className="text-xs text-muted-foreground/60 mt-1">
-                    {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: localeId })}
-                  </p>
-                </div>
-              ))
+                  Ya
+                </button>
+                <button
+                  onClick={() => setConfirmClear(false)}
+                  className="text-[11px] text-muted-foreground font-semibold hover:underline"
+                >
+                  Batal
+                </button>
+              </div>
             )}
           </div>
+        )}
+
+        {/* Notification list */}
+        <div className="flex-1 overflow-y-auto divide-y divide-border/50">
+          {notifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full gap-3 text-center p-8">
+              <BellOff className="w-10 h-10 text-muted-foreground/30" />
+              <p className="text-sm text-muted-foreground font-medium">Tidak ada notifikasi</p>
+            </div>
+          ) : (
+            notifications.map((n) => {
+              const link = roleLink(n.pengajuanId, userRole)
+              const isClickable = !!link
+
+              return (
+                <div
+                  key={n.id}
+                  onClick={() => handleNotifClick(n)}
+                  className={`px-4 py-3.5 transition-colors ${
+                    isClickable ? "cursor-pointer hover:bg-muted/50" : "cursor-default"
+                  } ${!n.isRead ? "bg-blue-50/60 dark:bg-primary/5" : ""}`}
+                >
+                  <div className="flex items-start gap-2.5">
+                    {!n.isRead && (
+                      <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1.5" />
+                    )}
+                    <div className={!n.isRead ? "" : "ml-4"}>
+                      <p className="text-xs font-semibold text-foreground leading-snug">{n.title}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-3">{n.message}</p>
+                      <p className="text-[10px] text-muted-foreground/50 mt-1 font-medium">
+                        {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: localeId })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })
+          )}
         </div>
-      )}
-    </div>
+      </div>
+    </>
   )
 }

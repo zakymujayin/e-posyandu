@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { MESSAGES, type PengajuanStatus } from "@/lib/messages"
-import { ShieldAlert, CheckCircle2, XOctagon } from "lucide-react"
+import { ShieldAlert, CheckCircle2, XOctagon, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { PageContainer } from "@/components/layout/page-container"
 import { SectionTitle, MutedText } from "@/components/ui/typography"
 
@@ -34,8 +35,13 @@ export default async function PetugasDesaPage({
 
   if (!user?.desaId) {
     return (
-      <div className="p-5 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-xs font-semibold max-w-lg mx-auto mt-12 text-center">
-        Akun Anda belum terasosiasi dengan data desa manapun. Silakan hubungi Administrator DPMD.
+      <div className="max-w-lg mx-auto mt-12">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Akun Anda belum terasosiasi dengan data desa manapun. Silakan hubungi Administrator DPMD.
+          </AlertDescription>
+        </Alert>
       </div>
     )
   }

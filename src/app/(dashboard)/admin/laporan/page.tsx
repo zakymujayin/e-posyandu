@@ -101,7 +101,7 @@ export default async function LaporanPage({
   ])
 
   const opdIds = byOpd.map((r) => r.opdId)
-  const layananIds = byLayanan.map((r) => r.layananJenisId)
+  const layananIds = byLayanan.map((r) => r.layananJenisId).filter(Boolean) as string[]
 
   const [opdNames, layananNames] = await Promise.all([
     prisma.opd.findMany({ where: { id: { in: opdIds } }, select: { id: true, name: true } }),
@@ -185,8 +185,8 @@ export default async function LaporanPage({
             </thead>
             <tbody className="divide-y divide-border">
               {byLayanan.map((row) => (
-                <tr key={row.layananJenisId} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 text-sm text-foreground">{layananMap[row.layananJenisId] ?? row.layananJenisId}</td>
+                <tr key={row.layananJenisId ?? "pengaduan"} className="hover:bg-muted/30 transition-colors">
+                  <td className="px-4 py-3 text-sm text-foreground">{row.layananJenisId ? (layananMap[row.layananJenisId] ?? row.layananJenisId) : "Pengaduan"}</td>
                   <td className="px-4 py-3 text-right text-sm font-semibold">{row._count.id}</td>
                   <td className="px-4 py-3 text-right text-sm text-muted-foreground">
                     {totalAll > 0 ? Math.round((row._count.id / totalAll) * 100) : 0}%

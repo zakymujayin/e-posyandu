@@ -51,7 +51,7 @@ export async function GET(req: Request) {
     format(new Date(p.submittedAt), "d MMMM yyyy", { locale: localeId }),
     p.namaPelapor,
     p.opd.name,
-    p.layananJenis.name,
+    p.layananJenis?.name ?? "Pengaduan",
     p.desa.name,
     p.kader.name,
     STATUS_LABELS[p.status] ?? p.status,

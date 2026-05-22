@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { MESSAGES, type PengajuanStatus } from "@/lib/messages"
-import { ClipboardList, Hourglass, CheckCircle2, XCircle, Filter } from "lucide-react"
+import { ClipboardList, Hourglass, CheckCircle2, XCircle, Filter, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { PageContainer } from "@/components/layout/page-container"
 import { SectionTitle, FormLabel, MutedText } from "@/components/ui/typography"
 
@@ -50,8 +51,13 @@ export default async function KecamatanPage({
 
   if (!user?.kecamatanId) {
     return (
-      <div className="p-6 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg text-xs font-semibold max-w-lg mx-auto mt-12 text-center">
-        Akun Anda belum terdaftar di kecamatan. Hubungi Administrator DPMD.
+      <div className="max-w-lg mx-auto mt-12">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Akun Anda belum terdaftar di kecamatan. Hubungi Administrator DPMD.
+          </AlertDescription>
+        </Alert>
       </div>
     )
   }

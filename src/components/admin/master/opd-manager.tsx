@@ -52,7 +52,7 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
           body: JSON.stringify({ name: form.name, description: form.description || null, sortOrder: form.sortOrder }),
         })
         const data = await res.json()
-        if (!res.ok) { toast.error(data.message); return }
+        if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
         setOpds((prev) => prev.map((o) => (o.id === editing.id ? data.data : o)))
         toast.success("OPD berhasil diperbarui")
       } else {
@@ -62,7 +62,7 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
           body: JSON.stringify({ ...form, sortOrder: Number(form.sortOrder) }),
         })
         const data = await res.json()
-        if (!res.ok) { toast.error(data.message); return }
+        if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
         setOpds((prev) => [...prev, data.data])
         toast.success("OPD berhasil ditambahkan")
       }
@@ -79,7 +79,7 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
       body: JSON.stringify({ isActive: !opd.isActive }),
     })
     const data = await res.json()
-    if (!res.ok) { toast.error(data.message); return }
+    if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
     setOpds((prev) => prev.map((o) => (o.id === opd.id ? data.data : o)))
     toast.success(`OPD ${opd.name} ${!opd.isActive ? 'diaktifkan' : 'dinonaktifkan'}`)
   }
@@ -88,7 +88,7 @@ export function OpdManager({ initialOpds }: { initialOpds: Opd[] }) {
     if (!confirm(`Hapus OPD "${opd.name}"?`)) return
     const res = await fetch(`/api/admin/master/opd/${opd.id}`, { method: "DELETE" })
     const data = await res.json()
-    if (!res.ok) { toast.error(data.message); return }
+    if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
     setOpds((prev) => prev.filter((o) => o.id !== opd.id))
     toast.success("OPD berhasil dihapus")
   }
