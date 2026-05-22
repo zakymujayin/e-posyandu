@@ -23,7 +23,7 @@ export const SectionTitle = React.forwardRef<
   <h2
     ref={ref}
     className={cn(
-      "text-base md:text-[18px] font-extrabold tracking-tight text-slate-900",
+      "text-[18px] font-semibold tracking-tight text-slate-900",
       className
     )}
     {...props}
@@ -68,13 +68,28 @@ export const MutedText = React.forwardRef<
   <p
     ref={ref}
     className={cn(
-      "text-[12px] text-slate-500 font-medium",
+      "text-[13px] text-slate-500 font-normal",
       className
     )}
     {...props}
   />
 ))
 MutedText.displayName = "MutedText"
+
+export const SubText = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={cn(
+      "text-[11px] text-slate-400 font-medium",
+      className
+    )}
+    {...props}
+  />
+))
+SubText.displayName = "SubText"
 
 export const FormLabel = React.forwardRef<
   HTMLLabelElement,
@@ -83,7 +98,7 @@ export const FormLabel = React.forwardRef<
   <label
     ref={ref}
     className={cn(
-      "text-[12px] font-bold text-slate-700 select-none",
+      "text-[14px] font-semibold text-slate-800 select-none",
       className
     )}
     {...props}

@@ -10,6 +10,12 @@ export const metadata: Metadata = {
   description: "Sistem Tatakelola Posyandu & Pengaduan Masyarakat Online",
 }
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+}
+
 export default function RootLayout({
   children,
 }: {

@@ -35,7 +35,7 @@ export function DataTable({
               {columns.map((column, index) => (
                 <TableHead
                   key={index}
-                  className="h-12 px-4 text-sm font-bold text-muted-foreground/90 uppercase tracking-wider"
+                  className="h-12 px-4 text-[12px] font-extrabold text-muted-foreground/90 uppercase tracking-widest"
                 >
                   {column}
                 </TableHead>

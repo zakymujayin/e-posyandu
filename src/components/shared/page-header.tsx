@@ -2,7 +2,7 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-import { PageTitle, MutedText } from "@/components/ui/typography"
+import { PageTitle } from "@/components/ui/typography"
 
 interface PageHeaderProps {
   title: string
@@ -32,9 +32,9 @@ export function PageHeader({ title, description, backHref, actions }: PageHeader
             {title}
           </PageTitle>
           {description && (
-            <MutedText className="mt-2 max-w-2xl leading-relaxed">
+            <p className="mt-2 max-w-2xl leading-relaxed text-[14px] text-slate-600 font-normal">
               {description}
-            </MutedText>
+            </p>
           )}
         </div>
       </div>
