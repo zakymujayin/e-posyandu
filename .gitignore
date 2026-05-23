@@ -58,6 +58,9 @@ docs/superpowers/
 # docs
 docs/
 
+# deploy config (VPS-specific)
+deploy/
+
 # env files (never commit)
 .env
 .env.production
