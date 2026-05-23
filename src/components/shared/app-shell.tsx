@@ -30,14 +30,16 @@ export function AppShell({ user, logoUrl, children }: AppShellProps) {
           <div className="absolute bottom-[-5%] left-[-5%] w-[25rem] h-[25rem] rounded-full bg-emerald-500/3 blur-3xl" />
         </div>
 
-        {/* Top Header */}
-        <Header user={user} logoUrl={logoUrl} />
+        {/* Content Body */}
+        <main id="main-content" className="flex-1 flex flex-col py-0 relative z-10">
+          {/* Top Header */}
+          <Header user={user} logoUrl={logoUrl} />
 
-        {/* Content Body with extra padding bottom on mobile to clear bottom navigation */}
-        <main id="main-content" className="flex-1 overflow-y-auto py-6 lg:py-8 px-0 pb-24 md:pb-8 animate-fade-in relative z-10">
-          <LogoUrlProvider logoUrl={logoUrl}>
-            {children}
-          </LogoUrlProvider>
+          <div className="flex-1 py-6 lg:py-8 px-0 pb-24 md:pb-8 animate-fade-in">
+            <LogoUrlProvider logoUrl={logoUrl}>
+              {children}
+            </LogoUrlProvider>
+          </div>
         </main>
       </div>
 
