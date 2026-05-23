@@ -127,7 +127,7 @@
     @apply bg-background text-foreground max-w-full overflow-x-hidden;
   }
   html {
-    @apply font-sans max-w-full overflow-x-hidden;
+    @apply font-sans max-w-full;
   }
 }
 
