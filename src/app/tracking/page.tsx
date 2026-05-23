@@ -202,7 +202,7 @@ export default function TrackingPage() {
                   </h4>
                   <div className="relative pl-6 border-l border-border/80 ml-3 space-y-6">
                     {result.activityLogs.map((log, i) => {
-                      const isLatest = i === 0
+                      const isLatest = i === result.activityLogs.length - 1
                       return (
                         <div key={i} className="relative group">
                           {/* Point indicator */}
