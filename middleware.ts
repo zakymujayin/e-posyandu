@@ -30,7 +30,7 @@ export default auth((req) => {
   const session = req.auth
   const user = session?.user
 
-  // Redirect "/" to role-appropriate dashboard or /login
+  // Redirect "/" to role-appropriate dashboard, or show landing page for guests
   if (pathname === "/") {
     if (user) {
       const dashboard = ROLE_REDIRECTS[user.role]
@@ -38,7 +38,7 @@ export default auth((req) => {
         return NextResponse.redirect(new URL(dashboard, req.url))
       }
     }
-    return NextResponse.redirect(new URL("/login", req.url))
+    return NextResponse.next()
   }
 
   // Redirect unauthenticated users to /login
