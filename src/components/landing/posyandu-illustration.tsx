@@ -1,150 +1,121 @@
 export function PosyanduIllustration({ className = "" }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 480 380"
+      viewBox="0 0 480 360"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
-      aria-label="Ilustrasi kader posyandu melayani ibu dan bayi"
       role="img"
+      aria-label="Tampilan dashboard E-Posyandu"
     >
-      {/* Sky */}
-      <rect width="480" height="380" fill="#EFF6FF" rx="20" />
+      {/* Drop shadow */}
+      <rect x="12" y="14" width="462" height="342" rx="14" fill="#94a3b8" opacity="0.12" />
 
-      {/* Clouds */}
-      <ellipse cx="80" cy="60" rx="40" ry="18" fill="white" opacity="0.8" />
-      <ellipse cx="110" cy="52" rx="30" ry="16" fill="white" opacity="0.8" />
-      <ellipse cx="55" cy="55" rx="25" ry="14" fill="white" opacity="0.8" />
+      {/* Window background */}
+      <rect x="6" y="6" width="468" height="348" rx="14" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1.5" />
 
-      <ellipse cx="380" cy="70" rx="35" ry="16" fill="white" opacity="0.7" />
-      <ellipse cx="405" cy="62" rx="25" ry="14" fill="white" opacity="0.7" />
+      {/* Top bar */}
+      <rect x="6" y="6" width="468" height="44" rx="14" fill="#1e3a8a" />
+      <rect x="6" y="32" width="468" height="18" fill="#1e3a8a" />
 
-      {/* Sun */}
-      <circle cx="420" cy="55" r="32" fill="#FEF08A" opacity="0.6" />
-      <circle cx="420" cy="55" r="22" fill="#FDE047" opacity="0.85" />
+      {/* Window control dots */}
+      <circle cx="26" cy="28" r="5" fill="#ef4444" opacity="0.65" />
+      <circle cx="42" cy="28" r="5" fill="#f59e0b" opacity="0.65" />
+      <circle cx="58" cy="28" r="5" fill="#22c55e" opacity="0.65" />
 
-      {/* Ground */}
-      <rect x="0" y="310" width="480" height="70" fill="#DCFCE7" rx="0" />
-      <ellipse cx="240" cy="312" rx="240" ry="20" fill="#BBF7D0" />
+      {/* Top bar title */}
+      <text x="240" y="32" textAnchor="middle" fill="white" fontSize="11" fontWeight="600" fontFamily="system-ui,sans-serif" opacity="0.85">
+        E-Posyandu — Dashboard DPMD Kabupaten Lebak
+      </text>
 
-      {/* Building — Posyandu */}
-      <rect x="155" y="165" width="170" height="148" fill="#DBEAFE" rx="4" />
-      {/* Roof */}
-      <polygon points="135,168 240,98 345,168" fill="#2563EB" />
-      <polygon points="148,168 240,106 332,168" fill="#3B82F6" />
-      {/* Door */}
-      <rect x="208" y="255" width="32" height="58" fill="#1D4ED8" rx="4" />
-      <circle cx="234" cy="285" r="3" fill="#93C5FD" />
-      {/* Windows */}
-      <rect x="170" y="190" width="38" height="32" fill="#BFDBFE" rx="4" />
-      <rect x="172" cy="206" width="34" height="2" fill="#93C5FD" />
-      <rect x="189" y="192" width="2" height="28" fill="#93C5FD" />
-      <rect x="272" y="190" width="38" height="32" fill="#BFDBFE" rx="4" />
-      <rect x="274" cy="206" width="34" height="2" fill="#93C5FD" />
-      <rect x="291" y="192" width="2" height="28" fill="#93C5FD" />
-      {/* Health cross */}
-      <rect x="232" y="120" width="16" height="36" fill="white" opacity="0.9" rx="2" />
-      <rect x="224" y="128" width="32" height="16" fill="white" opacity="0.9" rx="2" />
+      {/* Sidebar */}
+      <rect x="6" y="50" width="56" height="304" fill="#1e40af" opacity="0.92" />
 
-      {/* Sign/Banner on building */}
-      <rect x="175" y="238" width="130" height="16" fill="#EFF6FF" rx="3" />
-      <rect x="183" y="242" width="50" height="4" fill="#93C5FD" rx="2" />
-      <rect x="183" y="248" width="35" height="4" fill="#93C5FD" rx="2" />
+      {/* Sidebar menu items (abstract bars) */}
+      <rect x="16" y="66" width="36" height="5" rx="2.5" fill="white" opacity="0.55" />
+      <rect x="16" y="75" width="28" height="4" rx="2" fill="white" opacity="0.3" />
+      <rect x="16" y="92" width="36" height="5" rx="2.5" fill="white" opacity="0.3" />
+      <rect x="16" y="101" width="22" height="4" rx="2" fill="white" opacity="0.3" />
+      <rect x="16" y="118" width="36" height="5" rx="2.5" fill="white" opacity="0.3" />
+      <rect x="16" y="127" width="18" height="4" rx="2" fill="white" opacity="0.3" />
+      <rect x="16" y="144" width="36" height="5" rx="2.5" fill="white" opacity="0.3" />
+      <rect x="16" y="153" width="26" height="4" rx="2" fill="white" opacity="0.3" />
 
-      {/* Tree left */}
-      <rect x="74" y="240" width="12" height="70" fill="#92400E" rx="3" />
-      <ellipse cx="80" cy="218" rx="34" ry="38" fill="#16A34A" />
-      <ellipse cx="62" cy="235" rx="24" ry="28" fill="#15803D" />
-      <ellipse cx="98" cy="233" rx="24" ry="28" fill="#15803D" />
+      {/* Active menu indicator */}
+      <rect x="6" y="62" width="4" height="22" rx="2" fill="#93c5fd" />
 
-      {/* Tree right (smaller) */}
-      <rect x="390" y="258" width="10" height="52" fill="#92400E" rx="3" />
-      <ellipse cx="395" cy="240" rx="28" ry="30" fill="#16A34A" />
-      <ellipse cx="380" cy="254" rx="20" ry="23" fill="#15803D" />
+      {/* === STAT CARDS === */}
+      {/* Card 1 */}
+      <rect x="72" y="58" width="126" height="60" rx="8" fill="#EFF6FF" stroke="#BFDBFE" strokeWidth="1" />
+      <text x="84" y="80" fill="#1e3a8a" fontSize="22" fontWeight="700" fontFamily="system-ui,sans-serif">128</text>
+      <text x="84" y="97" fill="#3b82f6" fontSize="9.5" fontFamily="system-ui,sans-serif">Total Pengajuan</text>
+      <rect x="178" y="66" width="12" height="12" rx="3" fill="#2563eb" opacity="0.15" />
+      <rect x="180" y="68" width="8" height="8" rx="1.5" fill="#3b82f6" />
 
-      {/* Bushes */}
-      <ellipse cx="148" cy="315" rx="22" ry="12" fill="#22C55E" opacity="0.7" />
-      <ellipse cx="332" cy="315" rx="20" ry="11" fill="#22C55E" opacity="0.7" />
+      {/* Card 2 */}
+      <rect x="204" y="58" width="126" height="60" rx="8" fill="#EFF6FF" stroke="#BFDBFE" strokeWidth="1" />
+      <text x="216" y="80" fill="#1e3a8a" fontSize="22" fontWeight="700" fontFamily="system-ui,sans-serif">94</text>
+      <text x="216" y="97" fill="#3b82f6" fontSize="9.5" fontFamily="system-ui,sans-serif">Terverifikasi</text>
+      <rect x="310" y="66" width="12" height="12" rx="3" fill="#2563eb" opacity="0.15" />
+      <rect x="312" y="68" width="8" height="8" rx="1.5" fill="#2563eb" />
 
-      {/* Table */}
-      <rect x="185" y="278" width="110" height="10" fill="#CA8A04" rx="4" />
-      <rect x="190" y="287" width="10" height="28" fill="#A16207" rx="3" />
-      <rect x="280" y="287" width="10" height="28" fill="#A16207" rx="3" />
+      {/* Card 3 */}
+      <rect x="336" y="58" width="126" height="60" rx="8" fill="#EFF6FF" stroke="#BFDBFE" strokeWidth="1" />
+      <text x="348" y="80" fill="#1e3a8a" fontSize="22" fontWeight="700" fontFamily="system-ui,sans-serif">31</text>
+      <text x="348" y="97" fill="#3b82f6" fontSize="9.5" fontFamily="system-ui,sans-serif">Selesai</text>
+      <rect x="442" y="66" width="12" height="12" rx="3" fill="#2563eb" opacity="0.15" />
+      <rect x="444" y="68" width="8" height="8" rx="1.5" fill="#1d4ed8" />
 
-      {/* Weighing scale on table */}
-      <rect x="220" y="260" width="40" height="18" fill="#E2E8F0" rx="4" />
-      <rect x="225" y="256" width="30" height="6" fill="#CBD5E1" rx="2" />
-      <rect x="238" y="250" width="4" height="10" fill="#94A3B8" rx="1" />
-      {/* Scale numbers */}
-      <rect x="225" y="264" width="6" height="2" fill="#94A3B8" rx="1" />
-      <rect x="233" y="264" width="6" height="2" fill="#64748B" rx="1" />
-      <rect x="241" y="264" width="6" height="2" fill="#94A3B8" rx="1" />
-      <rect x="249" y="264" width="6" height="2" fill="#94A3B8" rx="1" />
+      {/* === BAR CHART === */}
+      <rect x="72" y="126" width="390" height="118" rx="8" fill="white" stroke="#E2E8F0" strokeWidth="1" />
+      <text x="84" y="143" fill="#334155" fontSize="9.5" fontWeight="600" fontFamily="system-ui,sans-serif">Pengajuan per Bulan</text>
 
-      {/* === KADER FIGURE (right) === */}
-      {/* Legs */}
-      <rect x="343" y="292" width="11" height="32" fill="#1D4ED8" rx="4" />
-      <rect x="358" y="292" width="11" height="32" fill="#1D4ED8" rx="4" />
-      {/* Shoes */}
-      <ellipse cx="348" cy="325" rx="10" ry="5" fill="#1F2937" />
-      <ellipse cx="363" cy="325" rx="10" ry="5" fill="#1F2937" />
-      {/* Body/baju */}
-      <rect x="338" y="248" width="34" height="46" fill="#16A34A" rx="8" />
-      {/* Right arm with clipboard */}
-      <rect x="368" y="255" width="10" height="34" fill="#16A34A" rx="4" />
-      {/* Clipboard */}
-      <rect x="373" y="252" width="22" height="28" fill="#FBBF24" rx="3" />
-      <rect x="379" y="248" width="10" height="7" fill="#D97706" rx="2" />
-      {/* Lines on clipboard */}
-      <rect x="377" y="260" width="13" height="2.5" fill="#92400E" rx="1" />
-      <rect x="377" y="265" width="13" height="2.5" fill="#92400E" rx="1" />
-      <rect x="377" y="270" width="9" height="2.5" fill="#92400E" rx="1" />
-      {/* Left arm */}
-      <rect x="330" y="255" width="10" height="28" fill="#16A34A" rx="4" />
-      {/* Head */}
-      <circle cx="355" cy="234" r="18" fill="#FED7AA" />
-      {/* Hijab */}
-      <ellipse cx="355" cy="228" rx="19" ry="12" fill="#064E3B" />
-      <ellipse cx="355" cy="240" rx="22" ry="8" fill="#064E3B" opacity="0.7" />
-      {/* Face features */}
-      <ellipse cx="350" cy="236" rx="2.5" ry="3" fill="#92400E" opacity="0.6" />
-      <ellipse cx="360" cy="236" rx="2.5" ry="3" fill="#92400E" opacity="0.6" />
-      <path d="M 349 242 Q 355 246 361 242" stroke="#92400E" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      {/* Chart grid lines */}
+      <line x1="100" y1="158" x2="452" y2="158" stroke="#F1F5F9" strokeWidth="1" />
+      <line x1="100" y1="174" x2="452" y2="174" stroke="#F1F5F9" strokeWidth="1" />
+      <line x1="100" y1="190" x2="452" y2="190" stroke="#F1F5F9" strokeWidth="1" />
+      <line x1="100" y1="206" x2="452" y2="206" stroke="#F1F5F9" strokeWidth="1" />
+      <line x1="100" y1="222" x2="452" y2="222" stroke="#E2E8F0" strokeWidth="1" />
 
-      {/* === IBU FIGURE (left) === */}
-      {/* Legs */}
-      <rect x="118" y="292" width="11" height="32" fill="#7C3AED" rx="4" />
-      <rect x="133" y="292" width="11" height="32" fill="#7C3AED" rx="4" />
-      {/* Shoes */}
-      <ellipse cx="123" cy="325" rx="10" ry="5" fill="#1F2937" />
-      <ellipse cx="138" cy="325" rx="10" ry="5" fill="#1F2937" />
-      {/* Body/baju */}
-      <rect x="113" y="252" width="36" height="42" fill="#EC4899" rx="8" />
-      {/* Right arm (extended toward scale) */}
-      <rect x="145" y="258" width="28" height="10" fill="#EC4899" rx="4" />
-      {/* Left arm down */}
-      <rect x="105" y="258" width="10" height="26" fill="#EC4899" rx="4" />
-      {/* Baby held in arms */}
-      <rect x="108" y="272" width="26" height="16" fill="#BFDBFE" rx="6" />
-      <circle cx="121" cy="267" r="10" fill="#FED7AA" />
-      {/* Baby face */}
-      <ellipse cx="118" cy="268" rx="1.5" ry="2" fill="#92400E" opacity="0.5" />
-      <ellipse cx="124" cy="268" rx="1.5" ry="2" fill="#92400E" opacity="0.5" />
-      {/* Head ibu */}
-      <circle cx="131" cy="238" r="18" fill="#FED7AA" />
-      {/* Hair */}
-      <ellipse cx="131" cy="228" rx="19" ry="11" fill="#1F2937" />
-      <ellipse cx="119" cy="234" rx="8" ry="10" fill="#1F2937" />
-      {/* Face ibu */}
-      <ellipse cx="126" cy="240" rx="2.5" ry="3" fill="#92400E" opacity="0.6" />
-      <ellipse cx="136" cy="240" rx="2.5" ry="3" fill="#92400E" opacity="0.6" />
-      <path d="M 125 246 Q 131 250 137 246" stroke="#92400E" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      {/* Bars (bottom y=222) */}
+      <rect x="108" y="182" width="30" height="40" rx="3" fill="#93c5fd" />
+      <rect x="156" y="166" width="30" height="56" rx="3" fill="#60a5fa" />
+      <rect x="204" y="158" width="30" height="64" rx="3" fill="#3b82f6" />
+      <rect x="252" y="150" width="30" height="72" rx="3" fill="#2563eb" />
+      <rect x="300" y="170" width="30" height="52" rx="3" fill="#3b82f6" />
+      <rect x="348" y="162" width="30" height="60" rx="3" fill="#2563eb" />
+      <rect x="396" y="146" width="30" height="76" rx="3" fill="#1d4ed8" />
 
-      {/* Decorative floating dots */}
-      <circle cx="430" cy="140" r="6" fill="#86EFAC" opacity="0.5" />
-      <circle cx="50" cy="170" r="5" fill="#93C5FD" opacity="0.5" />
-      <circle cx="445" cy="180" r="4" fill="#FCD34D" opacity="0.55" />
-      <circle cx="35" cy="120" r="7" fill="#FCA5A5" opacity="0.4" />
-      <circle cx="460" cy="230" r="5" fill="#C4B5FD" opacity="0.45" />
+      {/* Month labels */}
+      <text x="123" y="234" textAnchor="middle" fill="#94a3b8" fontSize="8" fontFamily="system-ui,sans-serif">Jan</text>
+      <text x="171" y="234" textAnchor="middle" fill="#94a3b8" fontSize="8" fontFamily="system-ui,sans-serif">Feb</text>
+      <text x="219" y="234" textAnchor="middle" fill="#94a3b8" fontSize="8" fontFamily="system-ui,sans-serif">Mar</text>
+      <text x="267" y="234" textAnchor="middle" fill="#94a3b8" fontSize="8" fontFamily="system-ui,sans-serif">Apr</text>
+      <text x="315" y="234" textAnchor="middle" fill="#94a3b8" fontSize="8" fontFamily="system-ui,sans-serif">Mei</text>
+      <text x="363" y="234" textAnchor="middle" fill="#94a3b8" fontSize="8" fontFamily="system-ui,sans-serif">Jun</text>
+      <text x="411" y="234" textAnchor="middle" fill="#94a3b8" fontSize="8" fontFamily="system-ui,sans-serif">Jul</text>
+
+      {/* === STATUS LIST === */}
+      <rect x="72" y="252" width="390" height="96" rx="8" fill="white" stroke="#E2E8F0" strokeWidth="1" />
+
+      {/* Row 1 */}
+      <circle cx="90" cy="272" r="4" fill="#3b82f6" />
+      <text x="102" y="276" fill="#334155" fontSize="10" fontFamily="system-ui,sans-serif">Menunggu Verifikasi</text>
+      <rect x="388" y="264" width="64" height="16" rx="8" fill="#F1F5F9" />
+      <text x="420" y="275" textAnchor="middle" fill="#64748b" fontSize="8" fontFamily="system-ui,sans-serif">24 tiket</text>
+      <line x1="84" y1="284" x2="456" y2="284" stroke="#F8FAFC" strokeWidth="1.5" />
+
+      {/* Row 2 */}
+      <circle cx="90" cy="300" r="4" fill="#2563eb" />
+      <text x="102" y="304" fill="#334155" fontSize="10" fontFamily="system-ui,sans-serif">Dalam Proses OPD</text>
+      <rect x="388" y="292" width="64" height="16" rx="8" fill="#DBEAFE" />
+      <text x="420" y="303" textAnchor="middle" fill="#1d4ed8" fontSize="8" fontFamily="system-ui,sans-serif">18 tiket</text>
+      <line x1="84" y1="312" x2="456" y2="312" stroke="#F8FAFC" strokeWidth="1.5" />
+
+      {/* Row 3 */}
+      <circle cx="90" cy="328" r="4" fill="#64748b" />
+      <text x="102" y="332" fill="#334155" fontSize="10" fontFamily="system-ui,sans-serif">Selesai</text>
+      <rect x="388" y="320" width="64" height="16" rx="8" fill="#DCFCE7" />
+      <text x="420" y="331" textAnchor="middle" fill="#15803d" fontSize="8" fontFamily="system-ui,sans-serif">31 tiket</text>
     </svg>
   )
 }
