@@ -35,7 +35,7 @@ export function AppShell({ user, logoUrl, children }: AppShellProps) {
           {/* Top Header */}
           <Header user={user} logoUrl={logoUrl} />
 
-          <div className="flex-1 pt-16 md:pt-[72px] px-0 pb-24 md:pb-8 animate-fade-in">
+          <div className="flex-1 pt-20 md:pt-24 px-0 pb-24 md:pb-8 animate-fade-in">
             <LogoUrlProvider logoUrl={logoUrl}>
               {children}
             </LogoUrlProvider>

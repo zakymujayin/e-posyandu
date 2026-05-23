@@ -97,7 +97,7 @@ export default function TrackingPage() {
       <main className="flex-1 max-w-2xl w-full mx-auto -mt-8 px-4 pb-24 space-y-6 relative z-10">
         {/* Search Panel Card */}
         <div className="bg-card border border-border/80 rounded-2xl shadow-xl p-5 md:p-6 space-y-5">
-          <form onSubmit={handleSearch} className="flex gap-2">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/70" />
               <Input
@@ -107,7 +107,7 @@ export default function TrackingPage() {
                 className="pl-11 min-h-[48px] rounded-xl border border-border uppercase font-semibold bg-background text-xs md:text-sm focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60 transition-all"
               />
             </div>
-            <Button type="submit" disabled={loading} className="min-h-[48px] px-6 rounded-xl font-bold text-xs gap-1.5 shadow-xs">
+            <Button type="submit" disabled={loading} className="w-full sm:w-auto min-h-[48px] px-6 rounded-xl font-bold text-xs gap-1.5 shadow-xs">
               {loading ? (
                 <>
                   <Clock className="size-4 animate-spin" />
