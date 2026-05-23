@@ -49,9 +49,14 @@ next-env.d.ts
 
 # ai agent
 .claude/
+.antigravitycli/
+.opencode/
 CLAUDE.md
 AGENTS.md
 docs/superpowers/
+
+# docs
+docs/
 
 # env files (never commit)
 .env
