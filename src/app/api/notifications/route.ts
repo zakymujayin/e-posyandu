@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { NextRequest } from "next/server"
 
-export async function GET(_req: NextRequest) {
+export async function GET(_req: NextRequest) { // eslint-disable-line @typescript-eslint/no-unused-vars
   const { user, response } = await requireAuth()
   if (!user) return response!
 
@@ -33,7 +33,7 @@ export async function GET(_req: NextRequest) {
   }
 }
 
-export async function PATCH(_req: NextRequest) {
+export async function PATCH(_req: NextRequest) { // eslint-disable-line @typescript-eslint/no-unused-vars
   const { user, response } = await requireAuth()
   if (!user) return response!
 
@@ -49,7 +49,7 @@ export async function PATCH(_req: NextRequest) {
   }
 }
 
-export async function DELETE(_req: NextRequest) {
+export async function DELETE(_req: NextRequest) { // eslint-disable-line @typescript-eslint/no-unused-vars
   const { user, response } = await requireAuth()
   if (!user) return response!
 

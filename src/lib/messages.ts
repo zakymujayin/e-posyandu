@@ -4,8 +4,6 @@ import type { NotificationType } from "@/lib/notifications"
 
 export type PengajuanStatus = "MENUNGGU_VERIFIKASI" | "DALAM_PROSES_OPD" | "MENUNGGU_APPROVAL_DPMD" | "SELESAI" | "DITOLAK_DESA" | "DITOLAK_OPD"
 
-type _PengajuanStatus = PengajuanStatus
-
 export const MESSAGES = {
   auth: {
     loginFailed: "Email atau kata sandi salah",

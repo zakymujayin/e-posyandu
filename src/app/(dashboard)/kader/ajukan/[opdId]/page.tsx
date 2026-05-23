@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/shared/page-header"
 import { PageContainer } from "@/components/layout/page-container"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { CardTitle, MutedText } from "@/components/ui/typography"
-import { BookOpen, FileText, CheckCircle2, Clock, ShieldAlert, PhoneCall, HelpCircle, Activity, AlertCircle } from "lucide-react"
+import { BookOpen, FileText, ShieldAlert, Activity, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default async function AjukanPage({
@@ -51,7 +51,6 @@ export default async function AjukanPage({
         <div className="lg:col-span-2 w-full space-y-6">
           <PengajuanForm
             opdId={opd.id}
-            opdName={opd.name}
             layananList={JSON.parse(JSON.stringify(layanans))}
           />
         </div>

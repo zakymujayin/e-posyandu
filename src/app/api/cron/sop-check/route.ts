@@ -56,7 +56,7 @@ export async function POST(req: Request) {
           await Promise.allSettled(
             officers.map((o) => sendDeadlineReminderEmail(o.email, o.name, p.tiketNumber, remaining, p.id))
           )
-        } catch (_) {}
+        } catch {}
       }
     }
 

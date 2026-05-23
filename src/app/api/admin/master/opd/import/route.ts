@@ -45,7 +45,6 @@ export async function POST(req: Request) {
       }
 
       const code = row.kode.trim().toUpperCase()
-      const urutan = parseInt(row.urutan || "0", 10)
 
       if (seenCodes.has(code)) {
         results.push({ row: rowNum, status: "error", name, message: `Kode "${code}" duplikat dalam file CSV` })

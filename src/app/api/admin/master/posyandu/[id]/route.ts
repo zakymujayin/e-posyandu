@@ -41,8 +41,8 @@ export async function PATCH(
     })
 
     return ok(posyandu)
-  } catch (e: any) {
-    if (e?.code === "P2002") return err("Kode sudah digunakan", 409)
+  } catch (e: unknown) {
+    if (e && typeof e === "object" && "code" in e && (e as { code: string }).code === "P2002") return err("Kode sudah digunakan", 409)
     return err("Gagal memperbarui posyandu", 500)
   }
 }

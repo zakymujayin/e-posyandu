@@ -11,7 +11,7 @@ import { StatCard } from "@/components/shared/stat-card"
 import { LaporanExport } from "@/components/admin/laporan-export"
 import { LaporanCharts } from "@/components/admin/laporan-charts"
 import { LaporanFilter } from "@/components/admin/laporan-filter"
-import { SectionTitle, MutedText } from "@/components/ui/typography"
+import { SectionTitle } from "@/components/ui/typography"
 
 export default async function LaporanPage({
   searchParams,

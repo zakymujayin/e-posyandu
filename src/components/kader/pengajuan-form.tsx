@@ -10,7 +10,7 @@ import { Loader2, Plus, X, Upload, Video } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { FormSection } from "@/components/shared/form-section"
 import { LocationPicker } from "@/components/shared/location-picker"
@@ -36,7 +36,6 @@ interface FormField {
 
 interface Props {
   opdId: string
-  opdName: string
   layananList: LayananJenis[]
 }
 
@@ -51,7 +50,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
-export function PengajuanForm({ opdId, opdName, layananList }: Props) {
+export function PengajuanForm({ opdId, layananList }: Props) {
   const router = useRouter()
   const [kategori, setKategori] = useState<"" | "PENGADUAN" | "PERMOHONAN">("")
   const [selectedLayananId, setSelectedLayananId] = useState("")

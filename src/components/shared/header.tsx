@@ -1,5 +1,7 @@
 "use client"
 
+/* eslint-disable @next/next/no-img-element */
+
 import { useState } from "react"
 import { Menu, X, Heart, LogOut } from "lucide-react"
 import { signOut } from "next-auth/react"

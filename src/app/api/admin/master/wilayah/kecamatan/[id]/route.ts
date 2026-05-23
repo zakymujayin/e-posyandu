@@ -13,8 +13,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (code !== undefined) data.code = code
     const updated = await prisma.kecamatan.update({ where: { id }, data })
     return ok(updated)
-  } catch (e: any) {
-    if (e?.code === "P2002") return err("Kode sudah digunakan", 409)
+  } catch (e: unknown) {
+    if (e && typeof e === "object" && "code" in e && (e as { code: string }).code === "P2002") return err("Kode sudah digunakan", 409)
     return err("Gagal memperbarui kecamatan", 500)
   }
 }

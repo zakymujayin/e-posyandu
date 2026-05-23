@@ -1,5 +1,7 @@
 "use client"
 
+/* eslint-disable @next/next/no-img-element */
+
 import Image from "next/image"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"

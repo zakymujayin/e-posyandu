@@ -4,7 +4,6 @@ import { signOut } from "next-auth/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { MESSAGES } from "@/lib/messages"
 import { NAV_ITEMS } from "@/config/navigation"
 import type { UserRole } from "@/types/next-auth"
 import {

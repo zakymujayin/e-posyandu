@@ -43,7 +43,7 @@ export function NotificationBell({ userRole }: Props) {
   const [unread, setUnread] = useState(0)
   const [confirmClear, setConfirmClear] = useState(false)
 
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => { setMounted(true) }, []) // eslint-disable-line react-hooks/set-state-in-effect
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -59,7 +59,7 @@ export function NotificationBell({ userRole }: Props) {
   }, [])
 
   useEffect(() => {
-    fetchNotifications()
+    fetchNotifications() // eslint-disable-line react-hooks/set-state-in-effect
     const interval = setInterval(fetchNotifications, 60_000)
     return () => clearInterval(interval)
   }, [fetchNotifications])

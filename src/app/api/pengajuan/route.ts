@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
       await Promise.allSettled(
         officers.map((o) => sendNewPengajuanEmail(o.email, o.name, tiketNumber, kader.name ?? "Kader"))
       )
-    } catch (_) {}
+    } catch {}
 
     return ok({ id: pengajuan.id, tiketNumber }, "Pengajuan berhasil dikirim")
   } catch (e) {

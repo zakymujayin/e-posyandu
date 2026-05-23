@@ -58,6 +58,7 @@ export function LocationPicker({ value, onChange }: Props) {
     }
 
     init()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expanded])
 
   function createMarker(L: typeof import("leaflet"), map: L.Map, lat: number, lng: number) {
@@ -173,7 +174,7 @@ export function LocationPicker({ value, onChange }: Props) {
           )}
 
           <MutedText className="italic leading-normal text-xs">
-            * Opsional. Klik peta untuk menandai lokasi, atau gunakan tombol "Gunakan Lokasi Saya" untuk mengisi otomatis.
+            * Opsional. Klik peta untuk menandai lokasi, atau gunakan tombol &ldquo;Gunakan Lokasi Saya&rdquo; untuk mengisi otomatis.
           </MutedText>
         </div>
       )}

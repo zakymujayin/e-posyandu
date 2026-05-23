@@ -1,3 +1,7 @@
+import { config } from "dotenv"
+
+config()
+
 import { PrismaClient } from "@prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
 import { Pool } from "pg"
@@ -156,7 +160,7 @@ async function main() {
       desaId: desa1.id,
     },
   })
-  const posyandu2 = await prisma.posyandu.upsert({
+  await prisma.posyandu.upsert({
     where: { code: "POS_LEBAK_2" },
     update: {},
     create: {
@@ -217,7 +221,7 @@ async function main() {
   })
 
   const petugasKecPassword = await bcrypt.hash("kecamatan123", 12)
-  const petugasKec = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: "kecamatan@example.com" },
     update: { username: "petugas_kec" },
     create: {
@@ -232,7 +236,7 @@ async function main() {
   })
 
   const petugasOpdPassword = await bcrypt.hash("opd123", 12)
-  const petugasOpd = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: "opd@example.com" },
     update: { username: "petugas_opd" },
     create: {
