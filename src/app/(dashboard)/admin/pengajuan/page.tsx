@@ -114,27 +114,29 @@ export default async function AdminPengajuanListPage({
               ))}
             </select>
           </div>
-          <div className="flex flex-col gap-1.5">
-            <FormLabel htmlFor="adm-dari">Dari Tanggal</FormLabel>
-            <input
-              id="adm-dari"
-              type="date"
-              name="dari"
-              defaultValue={dari}
-              className="min-h-[42px] rounded-lg border border-border bg-background px-3 text-xs md:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 hover:bg-muted/40 transition-all cursor-pointer"
-            />
+          <div className="flex gap-3 col-span-1 sm:col-span-2">
+            <div className="flex-1 flex flex-col gap-1.5">
+              <FormLabel htmlFor="adm-dari">Dari Tanggal</FormLabel>
+              <input
+                id="adm-dari"
+                type="date"
+                name="dari"
+                defaultValue={dari}
+                className="min-h-[42px] rounded-lg border border-border bg-background px-3 text-xs md:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 hover:bg-muted/40 transition-all cursor-pointer w-full"
+              />
+            </div>
+            <div className="flex-1 flex flex-col gap-1.5">
+              <FormLabel htmlFor="adm-sampai">Sampai Tanggal</FormLabel>
+              <input
+                id="adm-sampai"
+                type="date"
+                name="sampai"
+                defaultValue={sampai}
+                className="min-h-[42px] rounded-lg border border-border bg-background px-3 text-xs md:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 hover:bg-muted/40 transition-all cursor-pointer w-full"
+              />
+            </div>
           </div>
-          <div className="flex flex-col gap-1.5">
-            <FormLabel htmlFor="adm-sampai">Sampai Tanggal</FormLabel>
-            <input
-              id="adm-sampai"
-              type="date"
-              name="sampai"
-              defaultValue={sampai}
-              className="min-h-[42px] rounded-lg border border-border bg-background px-3 text-xs md:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 hover:bg-muted/40 transition-all cursor-pointer"
-            />
-          </div>
-          <div className="sm:col-span-2 lg:col-span-4 flex gap-2">
+          <div className="col-span-1 sm:col-span-2 lg:col-span-4 flex gap-2">
             <Button variant="outline" size="sm" className="font-bold text-xs md:text-sm" asChild>
               <Link href="/admin/pengajuan">Reset Filter</Link>
             </Button>
