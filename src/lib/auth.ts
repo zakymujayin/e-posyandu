@@ -1,8 +1,15 @@
-import NextAuth from "next-auth"
+import NextAuth, { CredentialsSignin } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 import type { UserRole } from "@/types/next-auth"
+
+class LockoutError extends CredentialsSignin {
+  constructor(minutesLeft: number) {
+    super()
+    this.code = `lockout:${minutesLeft}`
+  }
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -14,7 +21,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) {
-          throw new Error("Username dan password wajib diisi")
+          throw new CredentialsSignin()
         }
 
         const username = credentials.username as string
@@ -23,7 +30,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const user = await prisma.user.findUnique({ where: { username } })
 
         if (!user) {
-          throw new Error("Username atau kata sandi salah")
+          throw new CredentialsSignin()
         }
 
         // Check lockout
@@ -31,9 +38,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const minutesLeft = Math.ceil(
             (user.lockoutUntil.getTime() - Date.now()) / 60000
           )
-          throw new Error(
-            `Terlalu banyak percobaan, coba lagi dalam ${minutesLeft} menit`
-          )
+          throw new LockoutError(minutesLeft)
         }
 
         // Verify password
@@ -48,13 +53,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 lockoutUntil: new Date(Date.now() + 15 * 60 * 1000),
               },
             })
-            throw new Error("Terlalu banyak percobaan, coba lagi dalam 15 menit")
+            throw new LockoutError(15)
           }
           await prisma.user.update({
             where: { id: user.id },
             data: { failedLoginAttempts: attempts },
           })
-          throw new Error("Username atau kata sandi salah")
+          throw new CredentialsSignin()
         }
 
         // Reset lockout state
