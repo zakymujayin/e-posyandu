@@ -62,6 +62,7 @@ export function WilayahManager({
   // Edit/delete state
   const [editingKec, setEditingKec] = useState<Kecamatan | null>(null)
   const [editingDesa, setEditingDesa] = useState<Desa | null>(null)
+  const [editingPos, setEditingPos] = useState<Posyandu | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showImport, setShowImport] = useState<"kecamatan" | "desa" | "posyandu" | null>(null)
 
@@ -119,19 +120,19 @@ export function WilayahManager({
       const res = await fetch(`/api/admin/master/wilayah/kecamatan/${editingKec.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: kecForm.name }),
+        body: JSON.stringify({ name: kecForm.name, code: kecForm.code }),
       })
       const data = await res.json()
       if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
-      const newName = data.data.name
-      setKecamatans((prev) => prev.map((k) => k.id === editingKec.id ? { ...k, name: newName } : k))
+      const updatedKec = data.data
+      setKecamatans((prev) => prev.map((k) => k.id === editingKec.id ? { ...k, name: updatedKec.name, code: updatedKec.code } : k))
       setDesas((prev) => prev.map((d) =>
-        d.kecamatanId === editingKec.id ? { ...d, kecamatan: { name: newName } } : d
+        d.kecamatanId === editingKec.id ? { ...d, kecamatan: { name: updatedKec.name } } : d
       ))
       setPosyandus((prev) => prev.map((p) => {
         const parentDesa = desas.find((d) => d.id === p.desaId)
         if (parentDesa?.kecamatanId !== editingKec.id) return p
-        return { ...p, desa: { ...p.desa, kecamatan: { name: newName } } }
+        return { ...p, desa: { ...p.desa, kecamatan: { name: updatedKec.name } } }
       }))
       setEditingKec(null)
       toast.success("Kecamatan diperbarui")
@@ -186,11 +187,12 @@ export function WilayahManager({
       const res = await fetch(`/api/admin/master/wilayah/desa/${editingDesa.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: desaForm.name }),
+        body: JSON.stringify({ name: desaForm.name, code: desaForm.code }),
       })
       const data = await res.json()
       if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
-      setDesas((prev) => prev.map((d) => d.id === editingDesa.id ? { ...d, name: data.data.name } : d))
+      const updatedDesa = data.data
+      setDesas((prev) => prev.map((d) => d.id === editingDesa.id ? { ...d, name: updatedDesa.name, code: updatedDesa.code } : d))
       setEditingDesa(null)
       toast.success("Desa diperbarui")
     } finally {
@@ -250,6 +252,26 @@ export function WilayahManager({
     if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
     setPosyandus((prev) => prev.map((x) => x.id === p.id ? { ...data.data } : x))
     toast.success(`Posyandu ${p.name} ${!p.isActive ? "diaktifkan" : "dinonaktifkan"}`)
+  }
+
+  async function handleEditPosyandu(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editingPos) return
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/admin/master/posyandu/${editingPos.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: posyanduForm.name, code: posyanduForm.code }),
+      })
+      const data = await res.json()
+      if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
+      setPosyandus((prev) => prev.map((p) => p.id === editingPos.id ? { ...p, name: data.data.name, code: data.data.code } : p))
+      setEditingPos(null)
+      toast.success("Posyandu diperbarui")
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function handleDeletePosyandu(id: string) {
@@ -411,14 +433,23 @@ export function WilayahManager({
                 editingKec?.id === k.id ? (
                   <TableRow key={k.id}>
                     <TableCell colSpan={4} className="px-4 py-3">
-                      <form onSubmit={handleEditKecamatan} className="flex items-center gap-2">
+                      <form onSubmit={handleEditKecamatan} className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-center">
                         <Input
                           type="text"
                           value={kecForm.name}
                           onChange={(e) => setKecForm((f) => ({ ...f, name: e.target.value }))}
-                          className="h-8 text-xs flex-1 max-w-xs"
+                          className="h-8 text-xs w-full min-w-0"
+                          placeholder="Nama"
                           required
                           autoFocus
+                        />
+                        <Input
+                          type="text"
+                          value={kecForm.code}
+                          onChange={(e) => setKecForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))}
+                          className="h-8 text-xs w-36 font-mono"
+                          placeholder="Kode"
+                          required
                         />
                         <Button type="submit" size="sm" disabled={loading} className="font-bold text-xs gap-1 h-8">
                           <Check className="w-3 h-3" /> Simpan
@@ -493,7 +524,7 @@ export function WilayahManager({
             <select
               value={filterDesaPos}
               onChange={(e) => setFilterDesaPos(e.target.value)}
-              className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-64"
+              className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-full sm:w-64"
             >
               <option value="">Semua Desa</option>
               {desas.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -529,7 +560,7 @@ export function WilayahManager({
                     <select
                       value={posyanduForm.desaId}
                       onChange={(e) => setPosyanduForm((f) => ({ ...f, desaId: e.target.value }))}
-                      className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                      className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
                       required
                     >
                       <option value="">Pilih Desa</option>
@@ -582,7 +613,37 @@ export function WilayahManager({
               </TableRow>
             ) : (
               filteredPosyandus.map((p) => (
-                deletingId === p.id ? (
+                editingPos?.id === p.id ? (
+                  <TableRow key={p.id}>
+                    <TableCell colSpan={5} className="px-4 py-3">
+                      <form onSubmit={handleEditPosyandu} className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-center">
+                        <Input
+                          type="text"
+                          value={posyanduForm.name}
+                          onChange={(e) => setPosyanduForm((f) => ({ ...f, name: e.target.value }))}
+                          className="h-8 text-xs w-full min-w-0"
+                          placeholder="Nama"
+                          required
+                          autoFocus
+                        />
+                        <Input
+                          type="text"
+                          value={posyanduForm.code}
+                          onChange={(e) => setPosyanduForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))}
+                          className="h-8 text-xs w-36 font-mono"
+                          placeholder="Kode"
+                          required
+                        />
+                        <Button type="submit" size="sm" disabled={loading} className="font-bold text-xs gap-1 h-8">
+                          <Check className="w-3 h-3" /> Simpan
+                        </Button>
+                        <Button type="button" variant="outline" size="sm" onClick={() => setEditingPos(null)} className="font-bold text-xs gap-1 h-8">
+                          <X className="w-3 h-3" /> Batal
+                        </Button>
+                      </form>
+                    </TableCell>
+                  </TableRow>
+                ) : deletingId === p.id ? (
                   <TableRow key={p.id} className="bg-destructive/5">
                     <TableCell colSpan={5} className="px-4 py-3">
                       <div className="flex items-center gap-3">
@@ -605,7 +666,7 @@ export function WilayahManager({
                         </div>
                         <div>
                           <p className="font-bold text-xs text-foreground">{p.name}</p>
-                          <p className="font-mono text-xs text-muted-foreground mt-0.5">{p.code}</p>
+                          <p className="font-mono text-xs text-muted-foreground font-semibold mt-0.5">{p.code}</p>
                         </div>
                       </div>
                     </TableCell>
@@ -618,7 +679,7 @@ export function WilayahManager({
                     <TableCell className="px-4 py-3.5">
                       <button
                         onClick={() => handleTogglePosyandu(p)}
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all active:scale-95 cursor-pointer ${
+                        className={`px-2.5 py-1 rounded-full text-xs font-bold border transition-all active:scale-95 cursor-pointer ${
                           p.isActive
                             ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/20"
                             : "bg-muted/60 text-muted-foreground border-border/80"
@@ -628,14 +689,23 @@ export function WilayahManager({
                       </button>
                     </TableCell>
                     <TableCell className="px-4 py-3.5">
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => setDeletingId(p.id)}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
+                      <div className="flex items-center gap-1 justify-end">
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => { setEditingPos(p); setPosyanduForm({ desaId: p.desaId, name: p.name, code: p.code }); setShowPosyandu(false) }}
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => setDeletingId(p.id)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 )
@@ -652,7 +722,7 @@ export function WilayahManager({
             <select
               value={filterKec}
               onChange={(e) => setFilterKec(e.target.value)}
-              className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-64"
+              className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-full sm:w-64"
             >
               <option value="">Semua Kecamatan</option>
               {kecamatans.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
@@ -688,7 +758,7 @@ export function WilayahManager({
                     <select
                       value={desaForm.kecamatanId}
                       onChange={(e) => setDesaForm((f) => ({ ...f, kecamatanId: e.target.value }))}
-                      className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                      className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
                       required
                     >
                       <option value="">Pilih Kecamatan</option>
@@ -744,14 +814,23 @@ export function WilayahManager({
                 editingDesa?.id === d.id ? (
                   <TableRow key={d.id}>
                     <TableCell colSpan={4} className="px-4 py-3">
-                      <form onSubmit={handleEditDesa} className="flex items-center gap-2">
+                      <form onSubmit={handleEditDesa} className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-center">
                         <Input
                           type="text"
                           value={desaForm.name}
                           onChange={(e) => setDesaForm((f) => ({ ...f, name: e.target.value }))}
-                          className="h-8 text-xs flex-1 max-w-xs"
+                          className="h-8 text-xs w-full min-w-0"
+                          placeholder="Nama"
                           required
                           autoFocus
+                        />
+                        <Input
+                          type="text"
+                          value={desaForm.code}
+                          onChange={(e) => setDesaForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))}
+                          className="h-8 text-xs w-36 font-mono"
+                          placeholder="Kode"
+                          required
                         />
                         <Button type="submit" size="sm" disabled={loading} className="font-bold text-xs gap-1 h-8">
                           <Check className="w-3 h-3" /> Simpan

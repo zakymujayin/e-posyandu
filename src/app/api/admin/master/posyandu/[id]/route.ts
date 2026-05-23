@@ -28,19 +28,21 @@ export async function PATCH(
 
   try {
     const body = await req.json()
-    const { name, isActive } = body
+    const { name, code, isActive } = body
 
     const posyandu = await prisma.posyandu.update({
       where: { id },
       data: {
         ...(name !== undefined && { name }),
+        ...(code !== undefined && { code }),
         ...(isActive !== undefined && { isActive }),
       },
       include: { desa: { select: { name: true, kecamatan: { select: { name: true } } } } },
     })
 
     return ok(posyandu)
-  } catch {
+  } catch (e: any) {
+    if (e?.code === "P2002") return err("Kode sudah digunakan", 409)
     return err("Gagal memperbarui posyandu", 500)
   }
 }

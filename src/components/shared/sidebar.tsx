@@ -30,8 +30,10 @@ export function Sidebar({ user }: SidebarProps) {
       <div className="h-[72px] px-6 border-b border-sidebar-border/50 flex flex-col justify-center bg-transparent">
         <div className="flex items-center gap-3 relative group cursor-default">
           <div className="absolute -left-2 -top-2 size-14 bg-blue-500/20 dark:bg-blue-500/10 blur-xl rounded-full z-0 pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-70" />
-          <div className="relative z-10 size-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-[0_4px_10px_rgba(37,99,235,0.3),inset_0_1px_rgba(255,255,255,0.4)] shrink-0 transition-transform duration-500 group-hover:scale-105 group-hover:rotate-3">
-            <Heart className="size-5 fill-white stroke-none drop-shadow-sm" />
+          <div className="relative z-10 size-10 rounded-2xl shrink-0 overflow-hidden transition-transform duration-500 group-hover:scale-105 group-hover:rotate-3">
+            <div className="w-full h-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-[0_4px_10px_rgba(37,99,235,0.3),inset_0_1px_rgba(255,255,255,0.4)]">
+              <Heart className="size-5 fill-white stroke-none drop-shadow-sm" />
+            </div>
           </div>
           <div className="relative z-10">
             <div className="flex items-center gap-1.5">

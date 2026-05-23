@@ -6,9 +6,10 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { User, Lock } from "lucide-react"
 
-export function ProfilForms({ initialName }: { initialName: string }) {
+export function ProfilForms({ initialName, initialEmail }: { initialName: string; initialEmail: string }) {
   const router = useRouter()
   const nameRef = useRef<HTMLInputElement>(null)
+  const emailRef = useRef<HTMLInputElement>(null)
   const [savingName, setSavingName] = useState(false)
   const [savingPw, setSavingPw] = useState(false)
   const [pw, setPw] = useState({ current: "", new: "", confirm: "" })
@@ -22,7 +23,10 @@ export function ProfilForms({ initialName }: { initialName: string }) {
       const res = await fetch("/api/profil", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({
+          name,
+          email: emailRef.current?.value.trim(),
+        }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? "Gagal menyimpan")
@@ -56,6 +60,7 @@ export function ProfilForms({ initialName }: { initialName: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: nameRef.current?.value.trim() || initialName,
+          email: emailRef.current?.value.trim() || initialEmail,
           currentPassword: pw.current,
           newPassword: pw.new,
         }),
@@ -85,6 +90,16 @@ export function ProfilForms({ initialName }: { initialName: string }) {
             ref={nameRef}
             type="text"
             defaultValue={initialName}
+            required
+            className="w-full h-9 rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-gray-500">Alamat Email</label>
+          <input
+            ref={emailRef}
+            type="email"
+            defaultValue={initialEmail}
             required
             className="w-full h-9 rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />

@@ -13,7 +13,7 @@ export default async function ProfilPage() {
         <h1 className="text-2xl font-bold text-gray-900">Profil Saya</h1>
         <p className="text-sm text-gray-500 mt-0.5">{session.user.email}</p>
       </div>
-      <ProfilForms initialName={session.user.name ?? ""} />
+      <ProfilForms initialName={session.user.name ?? ""} initialEmail={session.user.email ?? ""} />
     </PageContainer>
   )
 }

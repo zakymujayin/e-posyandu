@@ -57,11 +57,11 @@ async function uploadCloudinary(file: File, config: { cloudName: string; apiKey:
 }
 
 export async function uploadFile(file: File): Promise<UploadResult> {
-  const allowedTypes = ["image/jpeg", "image/png", "application/pdf"]
+  const allowedTypes = ["image/jpeg", "image/png", "image/svg+xml", "image/webp", "application/pdf"]
   const maxSize = 5 * 1024 * 1024
 
   if (!allowedTypes.includes(file.type)) {
-    throw new Error(`Tipe file tidak diizinkan. Gunakan JPG, PNG, atau PDF.`)
+    throw new Error(`Tipe file tidak diizinkan. Gunakan JPG, PNG, SVG, WebP, atau PDF.`)
   }
 
   if (file.size > maxSize) {

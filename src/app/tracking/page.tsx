@@ -103,7 +103,7 @@ export default function TrackingPage() {
               <Input
                 value={tiket}
                 onChange={(e) => setTiket(e.target.value)}
-                placeholder="Contoh: KES/2026/00001"
+                placeholder="Contoh: DINKES-2026-0001"
                 className="pl-11 min-h-[48px] rounded-xl border border-border uppercase font-semibold bg-background text-xs md:text-sm focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60 transition-all"
               />
             </div>

@@ -2,7 +2,8 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
-import { Building2, List, FileQuestion, MapPin, Users, CalendarDays, ArrowRight } from "lucide-react"
+import type React from "react"
+import { Building2, List, FileQuestion, MapPin, Users, CalendarDays, Settings2, ArrowRight } from "lucide-react"
 import { PageHeader } from "@/components/shared/page-header"
 import { PageContainer } from "@/components/layout/page-container"
 
@@ -20,7 +21,7 @@ export default async function MasterDataPage() {
     prisma.publicHoliday.count(),
   ])
 
-  const cards = [
+  const cards: { href: string; icon: React.ElementType; label: string; count: number | null; description: string; color: string }[] = [
     {
       href: "/admin/master/opd",
       icon: Building2,
@@ -69,6 +70,14 @@ export default async function MasterDataPage() {
       description: "Kelola hari libur nasional untuk kalkulasi SOP",
       color: "bg-orange-500/10 text-orange-700 border-orange-500/20",
     },
+    {
+      href: "/admin/master/pengaturan",
+      icon: Settings2,
+      label: "Pengaturan Aplikasi",
+      count: null,
+      description: "Upload logo dan konfigurasi tampilan aplikasi",
+      color: "bg-slate-500/10 text-slate-700 border-slate-500/20",
+    },
   ]
 
   return (
@@ -97,9 +106,11 @@ export default async function MasterDataPage() {
                     <h3 className="font-bold text-base text-foreground group-hover:text-primary transition-colors">
                       {card.label}
                     </h3>
-                    <span className="font-bold text-foreground font-mono bg-muted/40 px-2 py-0.5 rounded-lg border border-border/50 text-sm">
-                      {card.count}
-                    </span>
+                    {card.count !== null && (
+                      <span className="font-bold text-foreground font-mono bg-muted/40 px-2 py-0.5 rounded-lg border border-border/50 text-sm">
+                        {card.count}
+                      </span>
+                    )}
                   </div>
                   <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed font-semibold">
                     {card.description}

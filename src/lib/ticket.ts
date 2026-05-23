@@ -30,6 +30,6 @@ export async function generateTicketNumber(opdId: string): Promise<string> {
     return { ...record, lastSequence: newSequence }
   })
 
-  const sequenceStr = String(counter.lastSequence).padStart(5, "0")
-  return `${opd.tiketPrefix}/${year}/${sequenceStr}`
+  const sequenceStr = String(counter.lastSequence).padStart(4, "0")
+  return `${opd.tiketPrefix}-${year}-${sequenceStr}`
 }

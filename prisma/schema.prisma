@@ -377,3 +377,15 @@ model PublicHoliday {
 
   @@map("public_holidays")
 }
+
+// =============================================
+// APP SETTINGS
+// =============================================
+
+model AppSetting {
+  key       String   @id @map("key")
+  value     String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("app_settings")
+}

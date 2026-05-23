@@ -69,7 +69,7 @@ export function HolidaysManager({ initialHolidays }: { initialHolidays: Holiday[
         <select
           value={filterYear}
           onChange={(e) => setFilterYear(e.target.value)}
-          className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-40"
+          className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-full sm:w-40"
         >
           {years.map((y) => <option key={y} value={y}>{y}</option>)}
         </select>

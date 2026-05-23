@@ -5,12 +5,16 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const { user, response } = await requireAuth(["ADMIN_DPMD"])
   if (!user) return response!
   const { id } = await params
-  const { name } = await req.json()
+  const json = await req.json()
+  const { name, code } = json
   if (!name?.trim()) return err("Nama wajib diisi", 400)
   try {
-    const updated = await prisma.desa.update({ where: { id }, data: { name: name.trim() } })
+    const data: Record<string, string> = { name: name.trim() }
+    if (code !== undefined) data.code = code
+    const updated = await prisma.desa.update({ where: { id }, data })
     return ok(updated)
-  } catch {
+  } catch (e: any) {
+    if (e?.code === "P2002") return err("Kode sudah digunakan", 409)
     return err("Gagal memperbarui desa", 500)
   }
 }

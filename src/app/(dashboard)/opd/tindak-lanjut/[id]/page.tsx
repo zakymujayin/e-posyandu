@@ -10,7 +10,6 @@ import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { PageHeader } from "@/components/shared/page-header"
 import { PageContainer } from "@/components/layout/page-container"
-
 import { CardTitle, MutedText, BodyText } from "@/components/ui/typography"
 
 export default async function TindakLanjutDetailPage({
@@ -58,7 +57,6 @@ export default async function TindakLanjutDetailPage({
   const canAct = pengajuan.status === "DALAM_PROSES_OPD"
   const isWaitingApproval = pengajuan.status === "MENUNGGU_APPROVAL_DPMD"
 
-  // Cari catatan revisi terbaru
   const latestRevisionNote = pengajuan.adminActions.find((a) => a.actionType === "REVISION_REQUEST")?.catatan
 
   return (
@@ -69,55 +67,61 @@ export default async function TindakLanjutDetailPage({
         backHref="/opd/tindak-lanjut"
       />
 
-      <div className="space-y-6">
-        <PengajuanDetail
-          pengajuan={pengajuan}
-          sopInfo={sopInfo ? { remainingDays: sopInfo.remainingDays, sopStatus: sopInfo.sopStatus } : null}
-        />
-
-        {/* Riwayat tindak lanjut sebelumnya */}
-        {pengajuan.tindakLanjuts.length > 0 && (
-          <div className="bg-card border border-border rounded-lg p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-4 bg-primary rounded-full"></span>
-              <CardTitle>Riwayat Tindak Lanjut</CardTitle>
-            </div>
-            <div className="space-y-4">
-              {pengajuan.tindakLanjuts.map((tl) => (
-                <div key={tl.id} className="border border-border/60 bg-muted/20 rounded-lg p-4 space-y-3 transition-colors hover:bg-muted/35">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <MutedText>
-                      {tl.petugasOpd.name} · {format(new Date(tl.submittedAt), "d MMM yyyy HH:mm", { locale: localeId })}
-                    </MutedText>
-                    <StatusBadge status={tl.status as PengajuanStatus} />
-                  </div>
-                  <BodyText className="text-sm">{tl.deskripsi}</BodyText>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {isWaitingApproval && (
-          <div className="bg-primary/5 border border-primary/15 rounded-lg p-5 shadow-xs flex items-start gap-3">
-            <span className="w-2 h-2 rounded-full bg-primary mt-1.5 animate-pulse shrink-0"></span>
-            <div>
-              <p className="text-xs md:text-sm text-primary font-semibold">
-                Tindak Lanjut Dikirim
-              </p>
-              <MutedText className="mt-1">
-                Tindak lanjut Anda sedang direview oleh Dinas Pemberdayaan Masyarakat dan Desa (DPMD). Silakan tunggu verifikasi selanjutnya.
-              </MutedText>
-            </div>
-          </div>
-        )}
-
-        {canAct && (
-          <TindakLanjutForm
-            pengajuanId={id}
-            hasRevisionNote={latestRevisionNote}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <PengajuanDetail
+            pengajuan={pengajuan}
+            sopInfo={sopInfo ? { remainingDays: sopInfo.remainingDays, sopStatus: sopInfo.sopStatus } : null}
           />
-        )}
+
+          {/* Riwayat tindak lanjut sebelumnya */}
+          {pengajuan.tindakLanjuts.length > 0 && (
+            <div className="bg-card border border-border rounded-lg p-6 shadow-xs space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-4 bg-primary rounded-full"></span>
+                <CardTitle>Riwayat Tindak Lanjut</CardTitle>
+              </div>
+              <div className="space-y-4">
+                {pengajuan.tindakLanjuts.map((tl) => (
+                  <div key={tl.id} className="border border-border/60 bg-muted/20 rounded-lg p-4 space-y-3 transition-colors hover:bg-muted/35">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <MutedText>
+                        {tl.petugasOpd.name} · {format(new Date(tl.submittedAt), "d MMM yyyy HH:mm", { locale: localeId })}
+                      </MutedText>
+                      <StatusBadge status={tl.status as PengajuanStatus} />
+                    </div>
+                    <BodyText className="text-xs md:text-sm">{tl.deskripsi}</BodyText>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="lg:col-span-1">
+          <div className="lg:sticky lg:top-6 space-y-6">
+            {isWaitingApproval && (
+              <div className="bg-primary/5 border border-primary/15 rounded-lg p-5 shadow-xs flex items-start gap-3">
+                <span className="w-2 h-2 rounded-full bg-primary mt-1.5 animate-pulse shrink-0"></span>
+                <div>
+                  <p className="text-xs md:text-sm text-primary font-semibold">
+                    Tindak Lanjut Dikirim
+                  </p>
+                  <MutedText className="mt-1">
+                    Tindak lanjut Anda sedang direview oleh Dinas Pemberdayaan Masyarakat dan Desa (DPMD). Silakan tunggu verifikasi selanjutnya.
+                  </MutedText>
+                </div>
+              </div>
+            )}
+
+            {canAct && (
+              <TindakLanjutForm
+                pengajuanId={id}
+                hasRevisionNote={latestRevisionNote}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </PageContainer>
   )

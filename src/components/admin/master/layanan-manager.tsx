@@ -121,7 +121,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
         <select
           value={filterOpd}
           onChange={(e) => setFilterOpd(e.target.value)}
-          className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-64"
+          className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-full sm:w-64"
         >
           <option value="">Semua Dinas/OPD</option>
           {opds.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
@@ -159,7 +159,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
                   value={form.opdId}
                   onChange={(e) => setForm((f) => ({ ...f, opdId: e.target.value }))}
                   disabled={!!editing}
-                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
+                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
                   required
                 >
                   <option value="">Pilih OPD</option>

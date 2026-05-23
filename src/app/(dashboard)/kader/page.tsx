@@ -58,7 +58,7 @@ export default async function KaderPage() {
         description={description}
       />
 
-      <div className="flex">
+      <div className="flex justify-end">
         <Button asChild className="gap-2 font-bold">
           <Link href="/kader/layanan">
             <Plus className="w-4 h-4" />

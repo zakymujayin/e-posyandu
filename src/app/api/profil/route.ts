@@ -7,13 +7,27 @@ export async function PATCH(req: Request) {
   if (!user) return response!
 
   const body = await req.json()
-  const { name, currentPassword, newPassword } = body as {
-    name?: string
+  const { name, email, currentPassword, newPassword } = body as {
+    name: string
+    email?: string
     currentPassword?: string
     newPassword?: string
   }
 
   if (!name?.trim()) return err("Nama tidak boleh kosong", 400)
+
+  if (email !== undefined) {
+    if (!email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return err("Format email tidak valid", 400)
+    }
+    const existing = await prisma.user.findUnique({ where: { email: email.trim() } })
+    if (existing && existing.id !== user.id) {
+      return err("Email sudah digunakan pengguna lain", 409)
+    }
+  }
+
+  const updateData: Record<string, string> = { name: name.trim() }
+  if (email !== undefined) updateData.email = email.trim()
 
   if (newPassword) {
     if (!currentPassword) return err("Password lama wajib diisi", 400)
@@ -28,12 +42,12 @@ export async function PATCH(req: Request) {
     const hash = await bcrypt.hash(newPassword, 12)
     await prisma.user.update({
       where: { id: user.id },
-      data: { name: name.trim(), password: hash },
+      data: { ...updateData, password: hash },
     })
   } else {
     await prisma.user.update({
       where: { id: user.id },
-      data: { name: name.trim() },
+      data: updateData,
     })
   }
 

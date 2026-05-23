@@ -146,3 +146,8 @@
 .animate-on-scroll-delay-2 { transition-delay: 0.2s; }
 .animate-on-scroll-delay-3 { transition-delay: 0.3s; }
 .animate-on-scroll-delay-4 { transition-delay: 0.4s; }
+
+@keyframes float-3d {
+  0%, 100% { transform: perspective(800px) rotateY(-5deg) translateY(0); }
+  50% { transform: perspective(800px) rotateY(-3deg) translateY(-8px); }
+}

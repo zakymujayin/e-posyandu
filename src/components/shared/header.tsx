@@ -14,9 +14,10 @@ import { Breadcrumbs } from "@/components/shared/breadcrumbs"
 
 interface HeaderProps {
   user: { name: string; role: UserRole }
+  logoUrl?: string | null
 }
 
-export function Header({ user }: HeaderProps) {
+export function Header({ user, logoUrl }: HeaderProps) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const pathname = usePathname()
   const items = NAV_ITEMS[user.role] ?? []
@@ -69,8 +70,14 @@ export function Header({ user }: HeaderProps) {
             {/* Drawer Header */}
             <div className="px-6 py-5.5 border-b border-border flex items-center justify-between bg-card/50">
               <div className="flex items-center gap-3">
-                <div className="size-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/10 shrink-0">
-                  <Heart className="size-4.5 fill-white stroke-none" />
+                <div className="size-9 rounded-xl shrink-0 overflow-hidden">
+                  {logoUrl ? (
+                    <img src={logoUrl} alt="Logo" className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/10">
+                      <Heart className="size-4.5 fill-white stroke-none" />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">

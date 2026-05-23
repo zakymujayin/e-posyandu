@@ -153,7 +153,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
           <select
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value)}
-            className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
+            className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
           >
             <option value="">Semua Peran/Role</option>
             {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
@@ -249,7 +249,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                   id="users-role"
                   value={form.role}
                   onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
-                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
                   required
                 >
                   {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
@@ -262,7 +262,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                     id="users-desaId"
                     value={form.desaId}
                     onChange={(e) => setForm((f) => ({ ...f, desaId: e.target.value }))}
-                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
                   >
                     <option value="">Pilih Desa</option>
                     {desas.map((d) => <option key={d.id} value={d.id}>{d.name} ({d.kecamatan.name})</option>)}
@@ -276,7 +276,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                     id="users-kecamatanId"
                     value={form.kecamatanId}
                     onChange={(e) => setForm((f) => ({ ...f, kecamatanId: e.target.value }))}
-                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
                   >
                     <option value="">Pilih Kecamatan</option>
                     {kecamatans.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
@@ -290,7 +290,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                     id="users-opdId"
                     value={form.opdId}
                     onChange={(e) => setForm((f) => ({ ...f, opdId: e.target.value }))}
-                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
                   >
                     <option value="">Pilih OPD</option>
                     {opds.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
@@ -304,7 +304,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                     id="users-posyanduId"
                     value={form.posyanduId}
                     onChange={(e) => setForm((f) => ({ ...f, posyanduId: e.target.value }))}
-                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground"
+                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
                   >
                     <option value="">Pilih Posyandu</option>
                     {posyandus.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -366,8 +366,8 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                 </TableCell>
                 <TableCell className="px-4 py-3.5">
                   {u.username
-                    ? <span className="font-mono text-[11px] text-blue-600 font-semibold">{u.username}</span>
-                    : <SubText className="italic !text-[10px] text-muted-foreground/50">Belum diset</SubText>
+                    ? <SubText className="font-mono text-blue-600">{u.username}</SubText>
+                    : <SubText className="italic text-muted-foreground/50">Belum diset</SubText>
                   }
                 </TableCell>
                 <TableCell className="px-4 py-3.5 font-semibold text-xs text-foreground">

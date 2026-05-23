@@ -140,7 +140,7 @@ export function FieldsManager({
           <select
             value={filterOpd}
             onChange={(e) => { setFilterOpd(e.target.value); setFilterLayanan("") }}
-            className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
+            className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
           >
             <option value="">Semua OPD</option>
             {opds.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
@@ -148,7 +148,7 @@ export function FieldsManager({
           <select
             value={filterLayanan}
             onChange={(e) => setFilterLayanan(e.target.value)}
-            className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
+            className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
           >
             <option value="">Semua Layanan</option>
             {filteredLayanans.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
@@ -176,7 +176,7 @@ export function FieldsManager({
                   value={form.layananJenisId}
                   onChange={(e) => setForm((f) => ({ ...f, layananJenisId: e.target.value }))}
                   disabled={!!editing}
-                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
+                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
                   required
                 >
                   <option value="">Pilih Layanan</option>
@@ -211,7 +211,7 @@ export function FieldsManager({
                   value={form.fieldType}
                   onChange={(e) => setForm((f) => ({ ...f, fieldType: e.target.value }))}
                   disabled={!!editing}
-                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-semibold focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
+                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
                 >
                   {FIELD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
@@ -264,9 +264,9 @@ export function FieldsManager({
                   onChange={(e) => setForm((f) => ({ ...f, isRequired: e.target.checked }))}
                   className="w-4 h-4 rounded-sm border-border accent-primary focus:ring-transparent cursor-pointer"
                 />
-                <label htmlFor="isRequired" className="text-xs font-bold text-foreground cursor-pointer">
+                <FormLabel htmlFor="isRequired" className="cursor-pointer">
                   Wajib Diisi (Required Field)
-                </label>
+                </FormLabel>
               </div>
             </div>
 
@@ -316,13 +316,13 @@ export function FieldsManager({
                   </div>
                   <div>
                     <p className="font-bold text-xs text-foreground">{f.fieldLabel}</p>
-                    <SubText className="font-mono !text-[10px]">{f.fieldName}</SubText>
+                    <SubText className="font-mono">{f.fieldName}</SubText>
                   </div>
                 </div>
               </TableCell>
               <TableCell className="px-4 py-3.5">
                 <p className="text-xs text-foreground font-semibold">{f.layananJenis.name}</p>
-                <SubText className="!text-[10px]">{f.layananJenis.opd.name}</SubText>
+                <SubText>{f.layananJenis.opd.name}</SubText>
               </TableCell>
               <TableCell className="px-4 py-3.5 font-mono text-xs font-bold uppercase tracking-wider text-primary">
                 {f.fieldType}
