@@ -1,26 +1,8 @@
-"use client"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Search, Ticket } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 
 export function TicketCheckerSection() {
-  const [ticket, setTicket] = useState("")
-  const [error, setError] = useState("")
-  const router = useRouter()
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const trimmed = ticket.trim().toUpperCase()
-    if (!trimmed) {
-      setError("Nomor tiket tidak boleh kosong")
-      return
-    }
-    router.push(`/tracking?ticket=${encodeURIComponent(trimmed)}`)
-  }
-
   return (
     <section id="cek-tiket" className="bg-blue-600 py-16 lg:py-20 relative overflow-hidden">
       {/* Background decoration */}
@@ -45,30 +27,19 @@ export function TicketCheckerSection() {
           Sudah Punya Nomor Tiket?
         </h2>
         <p className="text-blue-100 text-[14px] mb-8 leading-relaxed" style={{ fontFamily: "var(--font-jakarta)" }}>
-          Masukkan nomor tiket yang diberikan oleh kader posyandu untuk melihat status pengajuan Anda tanpa perlu login.
+          Gunakan nomor tiket yang diberikan oleh kader posyandu untuk melihat status pengajuan Anda tanpa perlu login.
         </p>
 
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-          <div className="flex-1">
-            <Input
-              value={ticket}
-              onChange={(e) => { setTicket(e.target.value); setError("") }}
-              placeholder="Contoh: TKT-2025-001234"
-              className="bg-white/95 border-white/20 text-slate-800 placeholder:text-slate-400 rounded-xl h-12 text-[14px] font-medium focus:ring-2 focus:ring-white/50"
-            />
-            {error && (
-              <p className="text-blue-200 text-xs mt-1.5 text-left font-medium">{error}</p>
-            )}
-          </div>
-          <Button
-            type="submit"
-            size="lg"
-            className="bg-white text-blue-700 hover:bg-blue-50 font-bold min-h-[48px] rounded-xl shadow-md gap-2 shrink-0"
-          >
+        <Button
+          asChild
+          size="lg"
+          className="bg-white text-blue-700 hover:bg-blue-50 font-bold min-h-[48px] rounded-xl shadow-md gap-2"
+        >
+          <Link href="/tracking">
             <Search className="size-4" />
-            Cek Status
-          </Button>
-        </form>
+            Cek Status Tiket
+          </Link>
+        </Button>
       </div>
     </section>
   )
