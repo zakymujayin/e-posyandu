@@ -23,7 +23,7 @@ export function Header({ user, logoUrl }: HeaderProps) {
   const items = NAV_ITEMS[user.role] ?? []
   return (
     <>
-      <header className="sticky top-0 z-30 flex items-center justify-between px-4 md:px-6 h-16 md:h-[72px] bg-white/80 dark:bg-card/80 backdrop-blur-2xl border-b border-white/60 shadow-[0_4px_30px_rgba(0,0,0,0.03),inset_0_-1px_0_rgba(255,255,255,1)] transition-all duration-300">
+      <header className="fixed top-0 left-0 right-0 md:left-64 z-30 flex items-center justify-between px-4 md:px-6 h-16 md:h-[72px] bg-white/80 dark:bg-card/80 backdrop-blur-2xl border-b border-white/60 shadow-[0_4px_30px_rgba(0,0,0,0.03),inset_0_-1px_0_rgba(255,255,255,1)] transition-all duration-300">
         {/* Left Side: Mobile Menu Button and Breadcrumbs */}
         <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
           <button
