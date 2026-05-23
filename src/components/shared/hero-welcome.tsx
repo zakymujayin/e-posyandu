@@ -18,7 +18,7 @@ export function HeroWelcome({ userName, roleLabel, description }: HeroWelcomePro
   const logoUrl = useLogoUrl()
 
   return (
-    <div className="relative rounded-lg bg-gradient-to-br from-primary via-primary to-primary/75 text-primary-foreground p-5 md:p-6 lg:p-7 shadow-[0_8px_30px_rgba(37,99,235,0.12)] border border-primary/20 mb-5 mt-5">
+    <div className="relative rounded-lg bg-gradient-to-br from-primary via-primary to-primary/75 text-primary-foreground p-5 md:p-6 lg:p-7 shadow-[0_8px_30px_rgba(37,99,235,0.12)] border border-primary/20 mb-5 mt-10">
       {/* Decorative elements — clipped to border-radius */}
       <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.07)_1px,transparent_1px)] bg-[size:18px_18px]" />
