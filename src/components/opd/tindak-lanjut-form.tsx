@@ -34,6 +34,7 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
   const [showTolakModal, setShowTolakModal] = useState(false)
   const [alasanTolak, setAlasanTolak] = useState("")
   const [loading, setLoading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -54,6 +55,7 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
         const res = await fetch("/api/upload", { method: "POST", body: fd })
         const json = await res.json()
         if (!json.success) throw new Error(json.error)
+        setUploadError(null)
         setUploadedFiles((prev) => [...prev, { path: json.data.url, name: json.data.fileName, size: json.data.size, mime: json.data.mimeType }])
       }
       toast.success("File berhasil diunggah")
@@ -66,6 +68,11 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
   }
 
   function onSubmit() {
+    if (uploadedFiles.length === 0) {
+      setUploadError("Wajib upload minimal 1 file bukti tindak lanjut")
+      return
+    }
+    setUploadError(null)
     setShowSubmitModal(true)
   }
 
@@ -135,8 +142,8 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
           title="Formulir Tindak Lanjut"
           description="Lengkapi deskripsi tindak lanjut beserta file dan video pendukung sebagai bukti penyelesaian berkas."
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left Column: Deskripsi */}
+          <div className="space-y-6">
+            {/* Deskripsi */}
             <div className="space-y-2">
               <FormLabel htmlFor="tindaklanjut-deskripsi">
                 Deskripsi Tindak Lanjut <span className="text-destructive">*</span>
@@ -144,8 +151,8 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
               <Textarea
                 id="tindaklanjut-deskripsi"
                 placeholder="Jelaskan langkah-langkah konkret yang telah dilakukan oleh dinas/OPD terkait..."
-                rows={9}
-                className="resize-none h-[calc(100%-2rem)] min-h-[220px]"
+                rows={6}
+                className="resize-none min-h-[140px]"
                 {...register("deskripsi")}
               />
               {errors.deskripsi && (
@@ -153,63 +160,70 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
               )}
             </div>
 
-            {/* Right Column: Upload & Video Links */}
-            <div className="space-y-4">
-              {/* File Upload */}
-              <div className="space-y-3">
-                <FormLabel htmlFor="tindaklanjut-file">Upload Bukti Dokumen/Foto (Maksimal 5)</FormLabel>
-                <label htmlFor="tindaklanjut-file" className="group relative flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border/80 rounded-lg p-6 cursor-pointer text-center transition-all hover:bg-muted/30 hover:border-primary/50">
-                  <div className="p-3 bg-muted group-hover:bg-primary/5 group-hover:text-primary rounded-lg transition-colors">
-                    <Upload className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  <div>
-                    <span className="text-sm font-bold text-foreground block">
-                      {uploading ? "Sedang Mengupload..." : "Klik untuk Pilih File"}
-                    </span>
-                    <MutedText className="mt-0.5 text-xs font-medium">
-                      Mendukung format JPG, PNG, atau PDF (Maksimal 10MB)
-                    </MutedText>
-                  </div>
-                  <input
-                    id="tindaklanjut-file"
-                    type="file"
-                    className="hidden"
-                    accept=".jpg,.jpeg,.png,.pdf"
-                    multiple
-                    onChange={handleFileChange}
-                    disabled={uploading || uploadedFiles.length >= 5}
-                  />
-                </label>
+            {/* File Upload */}
+            <div className="space-y-3">
+              <FormLabel htmlFor="tindaklanjut-file">
+                Upload Bukti Dokumen/Foto <span className="text-destructive">*</span> (Maksimal 5)
+              </FormLabel>
+              <label htmlFor="tindaklanjut-file" className="group relative flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border/80 rounded-lg p-8 cursor-pointer text-center transition-all hover:bg-muted/30 hover:border-primary/50">
+                <div className="p-3 bg-muted group-hover:bg-primary/5 group-hover:text-primary rounded-lg transition-colors">
+                  <Upload className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+                <div>
+                  <span className="text-sm font-bold text-foreground block">
+                    {uploading ? "Sedang Mengupload..." : "Klik untuk Pilih File"}
+                  </span>
+                  <MutedText className="mt-0.5 text-xs font-medium">
+                    Mendukung format JPG, PNG, atau PDF (Maksimal 10MB)
+                  </MutedText>
+                </div>
+                <input
+                  id="tindaklanjut-file"
+                  type="file"
+                  className="hidden"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  multiple
+                  onChange={handleFileChange}
+                  disabled={uploading || uploadedFiles.length >= 5}
+                />
+              </label>
 
-                {uploadedFiles.length > 0 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
-                    {uploadedFiles.map((f, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between text-xs bg-muted/40 border border-border/50 px-3 py-2.5 rounded-lg transition-all hover:bg-muted/65"
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <FileText className="w-4 h-4 text-primary shrink-0" />
-                          <span className="truncate font-semibold text-foreground text-xs">{f.name}</span>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => setUploadedFiles((p) => p.filter((_, idx) => idx !== i))}
-                          className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
-                          aria-label={`Hapus ${f.name}`}
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </Button>
+              {uploadError && (
+                <p className="text-xs font-semibold text-destructive">{uploadError}</p>
+              )}
+
+              {uploadedFiles.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                  {uploadedFiles.map((f, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between text-xs bg-muted/40 border border-border/50 px-3 py-2.5 rounded-lg transition-all hover:bg-muted/65"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileText className="w-4 h-4 text-primary shrink-0" />
+                        <span className="truncate font-semibold text-foreground text-xs">{f.name}</span>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                          onClick={() => {
+                            setUploadError(null)
+                            setUploadedFiles((p) => p.filter((_, idx) => idx !== i))
+                          }}
+                        className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                        aria-label={`Hapus ${f.name}`}
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-              {/* Video Links */}
-              <div className="space-y-3 pt-2">
+            {/* Video Links */}
+            <div className="space-y-3">
               <FormLabel htmlFor="tindaklanjut-video-0">Tautan Link Video Bukti (Opsional)</FormLabel>
               <div className="space-y-2">
                 {fields.map((field, index) => (
@@ -220,29 +234,28 @@ export function TindakLanjutForm({ pengajuanId, hasRevisionNote }: Props) {
                       {...register(`videoLinks.${index}.url`)}
                       className="flex-1"
                     />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => remove(index)}
-                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 shrink-0"
-                        aria-label="Hapus tautan video"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => append({ url: "" })}
-                  className="text-xs font-bold gap-1 px-3 mt-1"
-                >
-                  <Plus className="w-3.5 h-3.5" /> Tambah Tautan Video
-                </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => remove(index)}
+                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 shrink-0"
+                      aria-label="Hapus tautan video"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
               </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => append({ url: "" })}
+                className="text-xs font-bold gap-1 px-3 mt-1"
+              >
+                <Plus className="w-3.5 h-3.5" /> Tambah Tautan Video
+              </Button>
             </div>
           </div>
         </FormSection>

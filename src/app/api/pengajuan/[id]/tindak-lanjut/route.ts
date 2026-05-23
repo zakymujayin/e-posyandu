@@ -14,7 +14,7 @@ const schema = z.object({
     mimeType: z.string().optional(),
     videoUrl: z.string().optional(),
     videoPlatform: z.string().optional(),
-  })).optional().default([]),
+  })).refine((arr) => arr.some((a) => a.attachmentType === "FILE"), "Wajib upload minimal 1 file bukti"),
 })
 
 export async function POST(

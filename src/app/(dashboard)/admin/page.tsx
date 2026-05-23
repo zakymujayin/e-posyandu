@@ -87,7 +87,7 @@ export default async function AdminPage({
       <HeroWelcome
         userName={session.user.name || "Administrator"}
         roleLabel={MESSAGES.roles[session.user.role]}
-        description="Pantau, verifikasi, dan lakukan pengawasan terhadap seluruh pengajuan posyandu tingkat kabupaten."
+        description="Pantau dan verifikasi pengajuan posyandu tingkat kabupaten."
       />
 
       {/* Summary Cards */}
