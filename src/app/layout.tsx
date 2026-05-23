@@ -1,9 +1,7 @@
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
-
-const inter = Inter({ subsets: ["latin"] })
+import { inter, dmSerifDisplay, plusJakartaSans } from "@/lib/fonts"
 
 export const metadata: Metadata = {
   title: "E-Posyandu — DPMD Kabupaten Lebak",
@@ -21,7 +19,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="id">
+    <html
+      lang="id"
+      className={`${inter.variable} ${dmSerifDisplay.variable} ${plusJakartaSans.variable}`}
+    >
       <body className={inter.className}>
         <a
           href="#main-content"
