@@ -24,7 +24,7 @@ export function LandingNavbar({ logoUrl }: Props) {
             )}
           </div>
           <div className="leading-none">
-            <span className="block text-[15px] font-bold text-slate-800 tracking-tight group-hover:text-green-700 transition-colors">
+            <span className="block text-[15px] font-bold text-slate-800 tracking-tight group-hover:text-blue-700 transition-colors">
               E-Posyandu
             </span>
             <span className="block text-[10px] text-slate-400 font-medium uppercase tracking-widest mt-0.5">
