@@ -53,6 +53,12 @@ CLAUDE.md
 AGENTS.md
 docs/superpowers/
 
+# env files (never commit)
+.env
+
+# local uploads (dev/test only)
+public/uploads/
+
 # database
 *.db
 *.db-journal
