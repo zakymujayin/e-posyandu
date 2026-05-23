@@ -60,6 +60,8 @@ docs/
 
 # env files (never commit)
 .env
+.env.production
+!.env.production.example
 
 # local uploads (dev/test only)
 public/uploads/
