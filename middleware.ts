@@ -1,4 +1,4 @@
-import { auth } from "@/auth"
+import { auth } from "@/lib/auth-edge"
 import { NextResponse } from "next/server"
 
 const PUBLIC_PATHS = ["/login", "/api/auth", "/tracking", "/api/tracking"]

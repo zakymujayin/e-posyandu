@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 })
 
-const from = process.env.EMAIL_FROM ?? "noreply@example.com"
+const from = process.env.SMTP_FROM ?? "noreply@resend.dev"
 const appUrl = process.env.APP_URL ?? "http://localhost:3000"
 
 function roleBasePath(role: string) {

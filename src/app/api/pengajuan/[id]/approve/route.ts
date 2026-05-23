@@ -70,7 +70,7 @@ export async function POST(
     pengajuanId: id,
   })
 
-  sendStatusChangeEmail(
+  await sendStatusChangeEmail(
     pengajuan.kader.email,
     pengajuan.kader.name,
     pengajuan.tiketNumber,

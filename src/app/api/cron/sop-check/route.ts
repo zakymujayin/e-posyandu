@@ -46,16 +46,17 @@ export async function POST(req: Request) {
       })
       await prisma.pengajuan.update({ where: { id: p.id }, data: { notifiedH2: true } })
 
-      // Email to handlers (fire-and-forget)
+      // Email to handlers
       if (p.status === "DALAM_PROSES_OPD") {
-        prisma.user.findMany({
-          where: { role: "PETUGAS_OPD", opdId: p.opdId, isActive: true },
-          select: { email: true, name: true },
-        }).then((officers) => {
-          officers.forEach((o) => {
-            sendDeadlineReminderEmail(o.email, o.name, p.tiketNumber, remaining, p.id).catch(() => {})
+        try {
+          const officers = await prisma.user.findMany({
+            where: { role: "PETUGAS_OPD", opdId: p.opdId, isActive: true },
+            select: { email: true, name: true },
           })
-        }).catch(() => {})
+          await Promise.allSettled(
+            officers.map((o) => sendDeadlineReminderEmail(o.email, o.name, p.tiketNumber, remaining, p.id))
+          )
+        } catch (_) {}
       }
     }
 

@@ -1,9 +1,15 @@
-import "dotenv/config";
+import { config } from "dotenv";
 import { defineConfig } from "prisma/config";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-const connectionString = process.env["DATABASE_URL"]!;
+config(); // loads .env
+config({ path: ".env.local", override: true }); // .env.local overrides
+
+const connectionString = process.env["DATABASE_URL"];
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not set. Create .env or .env.local file.");
+}
 
 export default defineConfig({
   schema: "prisma/schema.prisma",

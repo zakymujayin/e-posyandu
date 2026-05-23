@@ -2,6 +2,7 @@ import NextAuth, { CredentialsSignin } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
+import { authConfig } from "./auth.config"
 import type { UserRole } from "@/types/next-auth"
 
 class LockoutError extends CredentialsSignin {
@@ -12,6 +13,7 @@ class LockoutError extends CredentialsSignin {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       name: "credentials",
@@ -33,7 +35,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new CredentialsSignin()
         }
 
-        // Check lockout
         if (user.lockoutUntil && user.lockoutUntil > new Date()) {
           const minutesLeft = Math.ceil(
             (user.lockoutUntil.getTime() - Date.now()) / 60000
@@ -41,7 +42,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new LockoutError(minutesLeft)
         }
 
-        // Verify password
         const isValid = await bcrypt.compare(password, user.password)
         if (!isValid) {
           const attempts = user.failedLoginAttempts + 1
@@ -62,7 +62,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new CredentialsSignin()
         }
 
-        // Reset lockout state
         await prisma.user.update({
           where: { id: user.id },
           data: {
@@ -81,25 +80,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-        token.role = (user as { role: UserRole }).role
-      }
-      return token
-    },
-    session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string
-        session.user.role = token.role as UserRole
-      }
-      return session
-    },
-  },
-  pages: {
-    signIn: "/login",
-    error: "/login",
-  },
-  session: { strategy: "jwt" },
 })

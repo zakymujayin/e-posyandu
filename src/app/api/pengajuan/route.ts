@@ -112,15 +112,16 @@ export async function POST(req: NextRequest) {
 
     await notifyPengajuanBaru(user.id, pengajuan.id, tiketNumber)
 
-    // Send email to Petugas Desa (fire-and-forget)
-    prisma.user.findMany({
-      where: { role: "PETUGAS_DESA", desaId: kader.posyandu!.desaId, isActive: true },
-      select: { email: true, name: true },
-    }).then((officers) => {
-      officers.forEach((o) => {
-        sendNewPengajuanEmail(o.email, o.name, tiketNumber, kader.name ?? "Kader").catch(() => {})
+    // Send email to Petugas Desa
+    try {
+      const officers = await prisma.user.findMany({
+        where: { role: "PETUGAS_DESA", desaId: kader.posyandu!.desaId, isActive: true },
+        select: { email: true, name: true },
       })
-    }).catch(() => {})
+      await Promise.allSettled(
+        officers.map((o) => sendNewPengajuanEmail(o.email, o.name, tiketNumber, kader.name ?? "Kader"))
+      )
+    } catch (_) {}
 
     return ok({ id: pengajuan.id, tiketNumber }, "Pengajuan berhasil dikirim")
   } catch (e) {

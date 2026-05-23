@@ -1,5 +1,6 @@
 import { writeFile, mkdir } from "fs/promises"
 import path from "path"
+import crypto from "crypto"
 
 export interface UploadResult {
   url: string
@@ -30,13 +31,25 @@ async function uploadLocal(file: File): Promise<UploadResult> {
   }
 }
 
+function generateSignature(params: Record<string, string>, apiSecret: string): string {
+  const sortedKeys = Object.keys(params).sort()
+  const str = sortedKeys.map((key) => `${key}=${params[key]}`).join("&")
+  return crypto.createHash("sha1").update(str + apiSecret).digest("hex")
+}
+
 async function uploadCloudinary(file: File, config: { cloudName: string; apiKey: string; apiSecret: string }): Promise<UploadResult> {
   const bytes = await file.arrayBuffer()
   const buffer = Buffer.from(bytes)
 
+  const timestamp = Math.round(Date.now() / 1000)
+  const params = { timestamp: String(timestamp) }
+  const signature = generateSignature(params, config.apiSecret)
+
   const formData = new FormData()
   formData.append("file", new Blob([buffer], { type: file.type }), file.name)
-  formData.append("upload_preset", "e-posyandu")
+  formData.append("api_key", config.apiKey)
+  formData.append("timestamp", String(timestamp))
+  formData.append("signature", signature)
 
   const response = await fetch(
     `https://api.cloudinary.com/v1_1/${config.cloudName}/auto/upload`,
@@ -44,7 +57,8 @@ async function uploadCloudinary(file: File, config: { cloudName: string; apiKey:
   )
 
   if (!response.ok) {
-    throw new Error(`Cloudinary upload failed: ${response.statusText}`)
+    const errBody = await response.text()
+    throw new Error(`Cloudinary upload failed: ${errBody}`)
   }
 
   const data = (await response.json()) as { secure_url: string; original_filename: string }
@@ -70,12 +84,13 @@ export async function uploadFile(file: File): Promise<UploadResult> {
 
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME
   const apiKey = process.env.CLOUDINARY_API_KEY
+  const apiSecret = process.env.CLOUDINARY_API_SECRET
 
-  if (cloudName && apiKey) {
+  if (cloudName && apiKey && apiSecret) {
     return uploadCloudinary(file, {
       cloudName,
       apiKey,
-      apiSecret: process.env.CLOUDINARY_API_SECRET ?? "",
+      apiSecret,
     })
   }
 
