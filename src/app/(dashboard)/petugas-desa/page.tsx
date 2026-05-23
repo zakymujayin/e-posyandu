@@ -20,13 +20,15 @@ import { SectionTitle, MutedText } from "@/components/ui/typography"
 export default async function PetugasDesaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>
+  searchParams: Promise<{ tab?: string; page?: string }>
 }) {
   const session = await auth()
   if (!session?.user) redirect("/login")
 
   const params = await searchParams
   const tab = params.tab === "sudah" ? "sudah" : "perlu"
+  const page = Math.max(1, parseInt(params.page ?? "1"))
+  const limit = 15
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
@@ -58,15 +60,21 @@ export default async function PetugasDesaPage({
     status: { notIn: ["MENUNGGU_VERIFIKASI"] },
   }
 
-  const pengajuans = await prisma.pengajuan.findMany({
-    where: tab === "perlu" ? wherePerlu : whereSudah,
-    orderBy: { submittedAt: "desc" },
-    take: 20,
-    include: {
-      opd: { select: { name: true } },
-      layananJenis: { select: { name: true } },
-    },
-  })
+  const where = tab === "perlu" ? wherePerlu : whereSudah
+  const [pengajuans, totalFiltered] = await Promise.all([
+    prisma.pengajuan.findMany({
+      where,
+      orderBy: { submittedAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+      include: {
+        opd: { select: { name: true } },
+        layananJenis: { select: { name: true } },
+      },
+    }),
+    prisma.pengajuan.count({ where }),
+  ])
+  const totalPages = Math.ceil(totalFiltered / limit)
 
   return (
     <PageContainer className="space-y-6">
@@ -142,39 +150,55 @@ export default async function PetugasDesaPage({
             }
           />
         ) : (
-          <DataTable
-            columns={["No. Tiket", "Nama Pelapor", "OPD Tujuan", "Status", "Tanggal", "Aksi"]}
-            dataLength={pengajuans.length}
-          >
-            {pengajuans.map((p) => (
-              <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
-                <TableCell className="px-4 py-3.5 font-mono text-xs md:text-sm font-semibold">
-                  <Link href={`/petugas-desa/verifikasi/${p.id}`} className="text-primary hover:underline transition-colors">
-                    {p.tiketNumber}
-                  </Link>
-                </TableCell>
-                <TableCell className="px-4 py-3.5 text-xs md:text-sm text-foreground font-semibold">
-                  {p.namaPelapor}
-                </TableCell>
-                <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
-                  {p.opd.name}
-                </TableCell>
-                <TableCell className="px-4 py-3.5">
-                  <StatusBadge status={p.status as PengajuanStatus} />
-                </TableCell>
-                <TableCell className="px-4 py-3.5 text-xs md:text-sm font-semibold text-muted-foreground">
-                  {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
-                </TableCell>
-                <TableCell className="px-4 py-3.5">
-                  <Button variant="outline" size="xs" asChild className="font-semibold text-xs md:text-sm">
-                    <Link href={`/petugas-desa/verifikasi/${p.id}`}>
-                      {tab === "perlu" ? "Verifikasi Berkas" : "Lihat Detail"}
+          <>
+            <DataTable
+              columns={["No. Tiket", "Nama Pelapor", "OPD Tujuan", "Status", "Tanggal", "Aksi"]}
+              dataLength={pengajuans.length}
+            >
+              {pengajuans.map((p) => (
+                <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
+                  <TableCell className="px-4 py-3.5 font-mono text-xs md:text-sm font-semibold">
+                    <Link href={`/petugas-desa/verifikasi/${p.id}`} className="text-primary hover:underline transition-colors">
+                      {p.tiketNumber}
                     </Link>
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5 text-xs md:text-sm text-foreground font-semibold">
+                    {p.namaPelapor}
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
+                    {p.opd.name}
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5">
+                    <StatusBadge status={p.status as PengajuanStatus} />
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5 text-xs md:text-sm font-semibold text-muted-foreground">
+                    {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
+                  </TableCell>
+                  <TableCell className="px-4 py-3.5">
+                    <Button variant="outline" size="xs" asChild className="font-semibold text-xs md:text-sm">
+                      <Link href={`/petugas-desa/verifikasi/${p.id}`}>
+                        {tab === "perlu" ? "Verifikasi Berkas" : "Lihat Detail"}
+                      </Link>
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </DataTable>
+
+            {totalPages > 1 && (
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-card border border-border rounded-lg p-4">
+                <MutedText>Halaman {page} dari {totalPages} ({totalFiltered} data)</MutedText>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" disabled={page <= 1} asChild={page > 1} className="font-semibold text-xs md:text-sm">
+                    {page > 1 ? <Link href={`?tab=${tab}&page=${page - 1}`}>&larr; Sebelumnya</Link> : <span>&larr; Sebelumnya</span>}
                   </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </DataTable>
+                  <Button variant="outline" size="sm" disabled={page >= totalPages} asChild={page < totalPages} className="font-semibold text-xs md:text-sm">
+                    {page < totalPages ? <Link href={`?tab=${tab}&page=${page + 1}`}>Selanjutnya &rarr;</Link> : <span>Selanjutnya &rarr;</span>}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </PageContainer>

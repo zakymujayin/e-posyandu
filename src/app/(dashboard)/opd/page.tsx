@@ -15,7 +15,7 @@ import { MESSAGES, type PengajuanStatus } from "@/lib/messages"
 import { FileSpreadsheet, Clock, CheckCircle2, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { PageContainer } from "@/components/layout/page-container"
-import { SectionTitle } from "@/components/ui/typography"
+import { SectionTitle, MutedText } from "@/components/ui/typography"
 
 const TABS = [
   { value: "proses", label: "Perlu Ditindaklanjuti", status: "DALAM_PROSES_OPD", icon: FileSpreadsheet, variant: "primary" as const },
@@ -26,13 +26,15 @@ const TABS = [
 export default async function OpdPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>
+  searchParams: Promise<{ tab?: string; page?: string }>
 }) {
   const session = await auth()
   if (!session?.user) redirect("/login")
 
   const params = await searchParams
   const tab = TABS.find((t) => t.value === params.tab) ?? TABS[0]
+  const page = Math.max(1, parseInt(params.page ?? "1"))
+  const limit = 15
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
@@ -56,15 +58,21 @@ export default async function OpdPage({
     TABS.map((t) => prisma.pengajuan.count({ where: { opdId: user.opdId!, status: t.status } }))
   )
 
-  const pengajuans = await prisma.pengajuan.findMany({
-    where: { opdId: user.opdId, status: tab.status },
-    orderBy: { submittedAt: "desc" },
-    take: 20,
-    include: {
-      layananJenis: { select: { name: true } },
-      desa: { select: { name: true } },
-    },
-  })
+  const where = { opdId: user.opdId, status: tab.status }
+  const [pengajuans, totalFiltered] = await Promise.all([
+    prisma.pengajuan.findMany({
+      where,
+      orderBy: { submittedAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+      include: {
+        layananJenis: { select: { name: true } },
+        desa: { select: { name: true } },
+      },
+    }),
+    prisma.pengajuan.count({ where }),
+  ])
+  const totalPages = Math.ceil(totalFiltered / limit)
 
   return (
     <PageContainer className="space-y-6">
@@ -120,6 +128,7 @@ export default async function OpdPage({
           description="Berkas pengajuan akan otomatis muncul setelah kader mengirimkan usulan baru dan disetujui pihak desa."
         />
       ) : (
+        <>
           <DataTable
             columns={["No. Tiket", "Nama Pelapor", "Jenis Layanan", "Status", "Tanggal", "Aksi"]}
             dataLength={pengajuans.length}
@@ -153,7 +162,22 @@ export default async function OpdPage({
               </TableRow>
             ))}
           </DataTable>
-        )}
+
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-card border border-border rounded-lg p-4">
+              <MutedText>Halaman {page} dari {totalPages} ({totalFiltered} data)</MutedText>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" disabled={page <= 1} asChild={page > 1} className="font-semibold text-xs md:text-sm">
+                  {page > 1 ? <Link href={`?tab=${tab.value}&page=${page - 1}`}>&larr; Sebelumnya</Link> : <span>&larr; Sebelumnya</span>}
+                </Button>
+                <Button variant="outline" size="sm" disabled={page >= totalPages} asChild={page < totalPages} className="font-semibold text-xs md:text-sm">
+                  {page < totalPages ? <Link href={`?tab=${tab.value}&page=${page + 1}`}>Selanjutnya &rarr;</Link> : <span>Selanjutnya &rarr;</span>}
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
       </div>
     </PageContainer>
   )
