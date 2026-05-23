@@ -69,6 +69,9 @@ deploy/
 # local uploads (dev/test only)
 public/uploads/
 
+# pm2 logs
+logs/
+
 # database
 *.db
 *.db-journal
