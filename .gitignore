@@ -64,7 +64,7 @@ deploy/
 # env files (never commit)
 .env
 .env.production
-!.env.production.example
+.env.production.example
 
 # local uploads (dev/test only)
 public/uploads/
