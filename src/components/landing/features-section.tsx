@@ -4,9 +4,9 @@ import { AnimateOnScroll } from "./animate-on-scroll"
 const features = [
   {
     icon: FileText,
-    color: "text-green-600",
-    bg: "bg-green-50",
-    border: "border-green-100",
+    color: "text-blue-700",
+    bg: "bg-blue-50",
+    border: "border-blue-100",
     title: "Pengajuan Digital",
     description: "Kader ajukan layanan dan pengaduan langsung dari smartphone tanpa perlu ke kantor.",
   },
@@ -28,9 +28,9 @@ const features = [
   },
   {
     icon: BarChart2,
-    color: "text-purple-600",
-    bg: "bg-purple-50",
-    border: "border-purple-100",
+    color: "text-slate-600",
+    bg: "bg-slate-50",
+    border: "border-slate-200",
     title: "Laporan & Analitik",
     description: "Admin DPMD pantau seluruh data kinerja posyandu dalam satu dashboard terintegrasi.",
   },
@@ -42,7 +42,7 @@ export function FeaturesSection() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <AnimateOnScroll>
           <div className="text-center mb-14">
-            <span className="text-xs font-bold uppercase tracking-widest text-green-600 mb-3 block">
+            <span className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-3 block">
               Fitur Unggulan
             </span>
             <h2
@@ -50,7 +50,7 @@ export function FeaturesSection() {
               style={{ fontFamily: "var(--font-display)" }}
             >
               Semua yang Anda Butuhkan,{" "}
-              <span className="text-green-600">dalam Satu Sistem</span>
+              <span className="text-blue-700">dalam Satu Sistem</span>
             </h2>
           </div>
         </AnimateOnScroll>
@@ -58,7 +58,7 @@ export function FeaturesSection() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((f, i) => (
             <AnimateOnScroll key={f.title} delay={(i + 1) as 1 | 2 | 3 | 4}>
-              <div className="group h-full bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+              <div className="group h-full bg-white border border-slate-100 rounded-xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
                 <div className={`size-12 ${f.bg} ${f.border} border rounded-xl flex items-center justify-center mb-4`}>
                   <f.icon className={`size-6 ${f.color}`} />
                 </div>
