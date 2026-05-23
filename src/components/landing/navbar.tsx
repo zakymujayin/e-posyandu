@@ -12,7 +12,7 @@ export function LandingNavbar({ logoUrl }: Props) {
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Logo + nama */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="size-9 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center overflow-hidden shrink-0">
+          <div className="size-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center overflow-hidden shrink-0">
             {logoUrl ? (
               <img
                 src={logoUrl}
@@ -20,7 +20,7 @@ export function LandingNavbar({ logoUrl }: Props) {
                 className="w-full h-full object-contain p-1"
               />
             ) : (
-              <Building2 className="size-5 text-green-600" />
+              <Building2 className="size-5 text-blue-700" />
             )}
           </div>
           <div className="leading-none">
