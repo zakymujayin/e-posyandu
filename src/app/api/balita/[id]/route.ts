@@ -43,6 +43,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       include: {
         penimbangans: { orderBy: [{ tahun: "asc" }, { bulan: "asc" }] },
         imunisasis: { orderBy: { tanggalPemberian: "asc" } },
+        posyandu: {
+          select: {
+            name: true,
+            desa: { select: { name: true, kecamatan: { select: { name: true } } } },
+          },
+        },
       },
     })
 

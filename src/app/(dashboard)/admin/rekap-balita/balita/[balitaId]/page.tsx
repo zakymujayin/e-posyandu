@@ -4,8 +4,6 @@ import { prisma } from "@/lib/prisma"
 import { PageContainer } from "@/components/layout/page-container"
 import { PageHeader } from "@/components/shared/page-header"
 import { BalitaDetailView } from "@/components/admin/balita-detail-view"
-import { differenceInMonths, format } from "date-fns"
-import { id as localeId } from "date-fns/locale"
 
 export default async function AdminBalitaDetailPage({
   params,
@@ -19,7 +17,12 @@ export default async function AdminBalitaDetailPage({
 
   const balita = await prisma.balita.findUnique({
     where: { id: balitaId },
-    select: { namaBalita: true, tanggalLahir: true, jenisKelamin: true },
+    select: {
+      namaBalita: true,
+      posyandu: {
+        select: { name: true, desa: { select: { name: true, kecamatan: { select: { name: true } } } } },
+      },
+    },
   })
   if (!balita) notFound()
 
@@ -27,7 +30,7 @@ export default async function AdminBalitaDetailPage({
     <PageContainer className="space-y-6">
       <PageHeader
         title={balita.namaBalita}
-        description={`${differenceInMonths(new Date(), balita.tanggalLahir)} bulan · ${balita.jenisKelamin === "LAKI_LAKI" ? "Laki-laki" : "Perempuan"} · Lahir ${format(balita.tanggalLahir, "d MMMM yyyy", { locale: localeId })}`}
+        description={`${balita.posyandu.name} · Desa ${balita.posyandu.desa.name} · Kec. ${balita.posyandu.desa.kecamatan.name}`}
         backHref="/admin/rekap-balita"
       />
       <BalitaDetailView balitaId={balitaId} />
