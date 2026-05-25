@@ -11,13 +11,14 @@ const ROLE_REDIRECTS: Record<string, string> = {
   ADMIN_DPMD: "/admin",
 }
 
-const ROLE_ROUTES: Record<string, string[]> = {
-  "/posyandu": ["POSYANDU"],
-  "/petugas-desa": ["PETUGAS_DESA"],
-  "/kecamatan": ["PETUGAS_KECAMATAN"],
-  "/opd": ["PETUGAS_OPD"],
-  "/admin": ["ADMIN_DPMD"],
-}
+const ROLE_ROUTES: [string, string[]][] = [
+  ["/posyandu", ["POSYANDU"]],
+  ["/petugas-desa", ["PETUGAS_DESA"]],
+  ["/kecamatan", ["PETUGAS_KECAMATAN"]],
+  ["/opd", ["PETUGAS_OPD"]],
+  ["/admin/laporan-balita", ["ADMIN_DPMD", "PETUGAS_KECAMATAN", "PETUGAS_DESA"]],
+  ["/admin", ["ADMIN_DPMD"]],
+]
 
 export default auth((req) => {
   const { pathname } = req.nextUrl
@@ -47,7 +48,7 @@ export default auth((req) => {
   }
 
   // For role-protected routes, check if user role is allowed
-  for (const [route, allowedRoles] of Object.entries(ROLE_ROUTES)) {
+  for (const [route, allowedRoles] of ROLE_ROUTES) {
     if (pathname.startsWith(route)) {
       if (!allowedRoles.includes(user.role)) {
         const userDashboard = ROLE_REDIRECTS[user.role] || "/login"
