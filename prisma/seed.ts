@@ -470,6 +470,188 @@ async function main() {
 
   console.log("✅ Sample pengajuan DINDIK-2026-00001 created")
 
+  // =====================
+  // 10. Sample Data Balita — Posyandu Mawar
+  // =====================
+  const tglBalita = new Date("2026-05-25")
+
+  const balita1 = await prisma.balita.upsert({
+    where: { id: "3f8c2e1a-1001-4000-a001-000000000001" },
+    update: {},
+    create: {
+      id: "3f8c2e1a-1001-4000-a001-000000000001",
+      posyanduId: posyandu1.id,
+      posyanduUserId: kader.id,
+      namaBalita: "Bayu Aji",
+      tanggalLahir: new Date("2024-03-10"),
+      jenisKelamin: "LAKI_LAKI",
+      namaOrangTua: "Siti Nurhaliza",
+      nikOrangTua: "3601015203240001",
+      noHpOrangTua: "081234567890",
+      alamat: "Kp. Cikaret RT 02/01",
+      tahunPencatatan: 2026,
+      catatanKesehatan: "Imunisasi lengkap, riwayat sehat",
+    },
+  })
+
+  const balita2 = await prisma.balita.upsert({
+    where: { id: "3f8c2e1a-1001-4000-a001-000000000002" },
+    update: {},
+    create: {
+      id: "3f8c2e1a-1001-4000-a001-000000000002",
+      posyanduId: posyandu1.id,
+      posyanduUserId: kader.id,
+      namaBalita: "Sari Dewi",
+      tanggalLahir: new Date("2024-09-22"),
+      jenisKelamin: "PEREMPUAN",
+      namaOrangTua: "Agus Wijaya",
+      nikOrangTua: "3601015209240002",
+      noHpOrangTua: "081298765432",
+      alamat: "Kp. Pasir Jaya RT 03/02",
+      tahunPencatatan: 2026,
+    },
+  })
+
+  const balita3 = await prisma.balita.upsert({
+    where: { id: "3f8c2e1a-1001-4000-a001-000000000003" },
+    update: {},
+    create: {
+      id: "3f8c2e1a-1001-4000-a001-000000000003",
+      posyanduId: posyandu1.id,
+      posyanduUserId: kader.id,
+      namaBalita: "Putra Aditya",
+      tanggalLahir: new Date("2023-01-15"),
+      jenisKelamin: "LAKI_LAKI",
+      namaOrangTua: "Dewi Sartika",
+      nikOrangTua: "3601015201230003",
+      noHpOrangTua: "087812345678",
+      alamat: "Kp. Babakan RT 01/01",
+      tahunPencatatan: 2026,
+      catatanKesehatan: "Riwayat gizi kurang, dalam pemantauan",
+    },
+  })
+
+  const balita4 = await prisma.balita.upsert({
+    where: { id: "3f8c2e1a-1001-4000-a001-000000000004" },
+    update: {},
+    create: {
+      id: "3f8c2e1a-1001-4000-a001-000000000004",
+      posyanduId: posyandu1.id,
+      posyanduUserId: kader.id,
+      namaBalita: "Maya Sari",
+      tanggalLahir: new Date("2024-06-05"),
+      jenisKelamin: "PEREMPUAN",
+      namaOrangTua: "Rudi Hartono",
+      nikOrangTua: "3601015206240004",
+      noHpOrangTua: "085612345678",
+      alamat: "Kp. Sukamaju RT 04/03",
+      tahunPencatatan: 2026,
+    },
+  })
+  console.log("✅ 4 balita created")
+
+  // Penimbangan Bulan Ini (Mei 2026) — 3 dari 4 balita
+  await prisma.penimbanganBalita.upsert({
+    where: { balitaId_bulan_tahun: { balitaId: balita1.id, bulan: 5, tahun: 2026 } },
+    update: {},
+    create: {
+      id: "4a1b2c3d-2001-5000-b001-000000000001",
+      balitaId: balita1.id,
+      bulan: 5,
+      tahun: 2026,
+      beratBadan: 11.5,
+      tinggiBadan: 85,
+      lingkarKepala: 47,
+      statusGizi: "NORMAL",
+      keluhanKondisi: "Sehat",
+      tindakan: "IMD, vitamin A",
+      namaKader: "Posyandu Mawar",
+    },
+  })
+
+  await prisma.penimbanganBalita.upsert({
+    where: { balitaId_bulan_tahun: { balitaId: balita2.id, bulan: 5, tahun: 2026 } },
+    update: {},
+    create: {
+      id: "4a1b2c3d-2001-5000-b001-000000000002",
+      balitaId: balita2.id,
+      bulan: 5,
+      tahun: 2026,
+      beratBadan: 9.8,
+      tinggiBadan: 78,
+      lingkarKepala: 45,
+      statusGizi: "NORMAL",
+      keluhanKondisi: "Sehat",
+      tindakan: "Vitamin A",
+      namaKader: "Posyandu Mawar",
+    },
+  })
+
+  await prisma.penimbanganBalita.upsert({
+    where: { balitaId_bulan_tahun: { balitaId: balita3.id, bulan: 5, tahun: 2026 } },
+    update: {},
+    create: {
+      id: "4a1b2c3d-2001-5000-b001-000000000003",
+      balitaId: balita3.id,
+      bulan: 5,
+      tahun: 2026,
+      beratBadan: 13.2,
+      tinggiBadan: 92,
+      lingkarKepala: 49,
+      statusGizi: "KURANG",
+      keluhanKondisi: "Nafsu makan kurang",
+      tindakan: "Konseling gizi, PMT",
+      namaKader: "Posyandu Mawar",
+    },
+  })
+
+  // Balita4 (Maya Sari) — tidak ada penimbangan bulan ini (belum ditimbang)
+  console.log("✅ 3 penimbangan balita created")
+
+  // Imunisasi — 2 balita
+  await prisma.imunisasiBalita.upsert({
+    where: { id: "5d6e7f8a-3001-6000-c001-000000000001" },
+    update: {},
+    create: {
+      id: "5d6e7f8a-3001-6000-c001-000000000001",
+      balitaId: balita1.id,
+      jenisImunisasi: "Polio 4",
+      tanggalPemberian: new Date("2026-05-10"),
+      usiaAnak: "26 bulan",
+      namaPetugas: "Bidan Desi",
+      keterangan: "Lengkap",
+    },
+  })
+
+  await prisma.imunisasiBalita.upsert({
+    where: { id: "5d6e7f8a-3001-6000-c001-000000000002" },
+    update: {},
+    create: {
+      id: "5d6e7f8a-3001-6000-c001-000000000002",
+      balitaId: balita1.id,
+      jenisImunisasi: "DPT-HB-Hib 4",
+      tanggalPemberian: new Date("2026-05-10"),
+      usiaAnak: "26 bulan",
+      namaPetugas: "Bidan Desi",
+      keterangan: "Lengkap",
+    },
+  })
+
+  await prisma.imunisasiBalita.upsert({
+    where: { id: "5d6e7f8a-3001-6000-c001-000000000003" },
+    update: {},
+    create: {
+      id: "5d6e7f8a-3001-6000-c001-000000000003",
+      balitaId: balita2.id,
+      jenisImunisasi: "Campak Rubella 1",
+      tanggalPemberian: new Date("2026-04-15"),
+      usiaAnak: "19 bulan",
+      namaPetugas: "Bidan Desi",
+      keterangan: "Tidak ada efek samping",
+    },
+  })
+  console.log("✅ 3 imunisasi balita created")
+
   console.log("🎉 Seeding complete!")
 }
 
