@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
       await Promise.allSettled(
         officers.map((o) => sendNewPengajuanEmail(o.email, o.name, tiketNumber, posyanduUser.name ?? "Posyandu"))
       )
-    } catch {}
+    } catch (e) { console.error("[email] Failed to notify desa officers:", e) }
 
     return ok({ id: pengajuan.id, tiketNumber }, "Pengajuan berhasil dikirim")
   } catch (e) {

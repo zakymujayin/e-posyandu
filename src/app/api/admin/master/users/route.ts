@@ -53,11 +53,14 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(await req.json())
   if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Data tidak valid")
 
-  const existing = await prisma.user.findUnique({ where: { email: parsed.data.email } })
-  if (existing) return err("Email sudah terdaftar")
-
-  const existingUsername = await prisma.user.findUnique({ where: { username: parsed.data.username } })
-  if (existingUsername) return err("Username sudah digunakan")
+  const existing = await prisma.user.findFirst({
+    where: { OR: [{ email: parsed.data.email }, { username: parsed.data.username }] },
+    select: { email: true, username: true }
+  })
+  if (existing) {
+    if (existing.email === parsed.data.email) return err("Email sudah terdaftar", 409)
+    return err("Username sudah digunakan", 409)
+  }
 
   const { password, ...rest } = parsed.data
   const hashed = await bcrypt.hash(password, 12)

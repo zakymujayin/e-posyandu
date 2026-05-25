@@ -103,7 +103,7 @@ export async function PATCH(
     action === "APPROVE" ? "Dalam Proses OPD" : "Ditolak Desa",
     id,
     "POSYANDU"
-  ).catch(() => {})
+  ).catch((e) => console.error("[email] Failed to send status change:", e))
 
   return ok({ status: newStatus }, action === "APPROVE" ? "Pengajuan diverifikasi" : "Pengajuan ditolak")
 }

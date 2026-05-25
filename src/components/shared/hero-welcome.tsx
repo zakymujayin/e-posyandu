@@ -1,12 +1,8 @@
-"use client"
-
-/* eslint-disable @next/next/no-img-element */
-
 import Image from "next/image"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { UserCircle, Heart } from "lucide-react"
-import { useLogoUrl } from "@/lib/app-context"
+import { HeroWelcomeLogo } from "./hero-welcome-logo"
 
 interface HeroWelcomeProps {
   userName: string
@@ -17,7 +13,6 @@ interface HeroWelcomeProps {
 export function HeroWelcome({ userName, roleLabel, description }: HeroWelcomeProps) {
   const now = new Date()
   const dateStr = format(now, "EEEE, d MMMM yyyy", { locale: localeId })
-  const logoUrl = useLogoUrl()
 
   return (
     <div className="relative rounded-lg bg-gradient-to-br from-primary via-primary to-primary/75 text-primary-foreground p-5 md:p-6 lg:p-7 shadow-[0_8px_30px_rgba(37,99,235,0.12)] border border-primary/20 mb-5 mt-10">
@@ -32,14 +27,7 @@ export function HeroWelcome({ userName, roleLabel, description }: HeroWelcomePro
       </div>
 
       <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-3 md:gap-5">
-        {/* Logo */}
-        <div className="size-12 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 shadow-sm overflow-hidden">
-          {logoUrl ? (
-            <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-1" />
-          ) : (
-            <span className="text-white/60 font-bold text-xl">E</span>
-          )}
-        </div>
+        <HeroWelcomeLogo />
 
         {/* Greeting + Role + Description */}
         <div className="flex-1 min-w-0">

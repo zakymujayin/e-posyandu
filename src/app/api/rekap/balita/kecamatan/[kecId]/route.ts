@@ -1,52 +1,88 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { requireAuth } from "@/lib/api-helpers"
+import { requireAuth, ok, err } from "@/lib/api-helpers"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ kecId: string }> }) {
   const { user, response } = await requireAuth(["PETUGAS_KECAMATAN", "ADMIN_DPMD"])
   if (!user) return response!
 
-  const { kecId } = await params
+  try {
+    const { kecId } = await params
 
-  if (user.role === "PETUGAS_KECAMATAN") {
-    const petugas = await prisma.user.findUnique({ where: { id: user.id }, select: { kecamatanId: true } })
-    if (petugas?.kecamatanId !== kecId) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    if (user.role === "PETUGAS_KECAMATAN") {
+      const petugas = await prisma.user.findUnique({ where: { id: user.id }, select: { kecamatanId: true } })
+      if (petugas?.kecamatanId !== kecId) {
+        return err("Akses ditolak", 403)
+      }
     }
-  }
 
-  const now = new Date()
-  const bulanIni = now.getMonth() + 1
-  const tahunIni = now.getFullYear()
+    const now = new Date()
+    const bulanIni = now.getMonth() + 1
+    const tahunIni = now.getFullYear()
 
-  const desas = await prisma.desa.findMany({
-    where: { kecamatanId: kecId },
-    include: {
-      posyandus: {
-        include: {
-          balitas: {
-            where: { isActive: true },
-            include: {
-              penimbangans: { where: { bulan: bulanIni, tahun: tahunIni } },
-            },
-          },
+    // Get desas with their posyandu ids
+    const desas = await prisma.desa.findMany({
+      where: { kecamatanId: kecId },
+      select: { id: true, name: true, posyandus: { select: { id: true } } },
+      orderBy: { name: "asc" },
+    })
+
+    // Build posyanduId → desaId map
+    const posyanduToDesaMap = new Map<string, string>()
+    for (const d of desas) {
+      for (const p of d.posyandus) {
+        posyanduToDesaMap.set(p.id, d.id)
+      }
+    }
+    const allPosyanduIds = Array.from(posyanduToDesaMap.keys())
+
+    // Two parallel aggregate queries
+    const [totalRows, weighedRows] = await Promise.all([
+      prisma.balita.groupBy({
+        by: ["posyanduId"],
+        where: { posyanduId: { in: allPosyanduIds }, isActive: true },
+        _count: { id: true },
+      }),
+      prisma.penimbanganBalita.findMany({
+        where: {
+          bulan: bulanIni,
+          tahun: tahunIni,
+          balita: { posyanduId: { in: allPosyanduIds }, isActive: true },
         },
-      },
-    },
-    orderBy: { name: "asc" },
-  })
+        select: { balitaId: true, balita: { select: { posyanduId: true } } },
+        distinct: ["balitaId"],
+      }),
+    ])
 
-  const rekap = desas.map((d) => {
-    const allBalitas = d.posyandus.flatMap((p) => p.balitas)
-    return {
-      desaId: d.id,
-      desaName: d.name,
-      totalPosyandu: d.posyandus.length,
-      totalBalita: allBalitas.length,
-      ditimbangBulanIni: allBalitas.filter((b) => b.penimbangans.length > 0).length,
-      belumDitimbang: allBalitas.filter((b) => b.penimbangans.length === 0).length,
+    // Aggregate posyandu-level data to desa-level
+    const totalByDesa = new Map<string, number>()
+    for (const row of totalRows) {
+      const desaId = posyanduToDesaMap.get(row.posyanduId)
+      if (desaId) totalByDesa.set(desaId, (totalByDesa.get(desaId) ?? 0) + row._count.id)
     }
-  })
 
-  return NextResponse.json({ data: rekap })
+    const ditimbangByDesa = new Map<string, number>()
+    for (const row of weighedRows) {
+      const desaId = posyanduToDesaMap.get(row.balita.posyanduId)
+      if (desaId) ditimbangByDesa.set(desaId, (ditimbangByDesa.get(desaId) ?? 0) + 1)
+    }
+
+    const rekap = desas.map((d) => {
+      const totalBalita = totalByDesa.get(d.id) ?? 0
+      const ditimbangBulanIni = ditimbangByDesa.get(d.id) ?? 0
+      return {
+        desaId: d.id,
+        desaName: d.name,
+        totalPosyandu: d.posyandus.length,
+        totalBalita,
+        ditimbangBulanIni,
+        belumDitimbang: totalBalita - ditimbangBulanIni,
+      }
+    })
+
+    return ok(rekap)
+  } catch (e) {
+    console.error("[GET /api/rekap/balita/kecamatan/[kecId]]", e)
+    return err("Gagal mengambil data rekap", 500)
+  }
 }

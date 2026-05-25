@@ -32,9 +32,9 @@ export function DataTable({
         <Table>
           <TableHeader className="bg-muted/40">
             <TableRow>
-              {columns.map((column, index) => (
+              {columns.map((column) => (
                 <TableHead
-                  key={index}
+                  key={column}
                   className="h-12 px-4 text-[12px] font-extrabold text-muted-foreground/90 uppercase tracking-widest"
                 >
                   {column}

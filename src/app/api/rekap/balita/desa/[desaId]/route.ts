@@ -1,46 +1,73 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { requireAuth } from "@/lib/api-helpers"
+import { requireAuth, ok, err } from "@/lib/api-helpers"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ desaId: string }> }) {
   const { user, response } = await requireAuth(["PETUGAS_DESA", "ADMIN_DPMD"])
   if (!user) return response!
 
-  const { desaId } = await params
+  try {
+    const { desaId } = await params
 
-  if (user.role === "PETUGAS_DESA") {
-    const petugasDesa = await prisma.user.findUnique({ where: { id: user.id }, select: { desaId: true } })
-    if (petugasDesa?.desaId !== desaId) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    if (user.role === "PETUGAS_DESA") {
+      const petugasDesa = await prisma.user.findUnique({ where: { id: user.id }, select: { desaId: true } })
+      if (petugasDesa?.desaId !== desaId) {
+        return err("Akses ditolak", 403)
+      }
     }
-  }
 
-  const now = new Date()
-  const bulanIni = now.getMonth() + 1
-  const tahunIni = now.getFullYear()
+    const now = new Date()
+    const bulanIni = now.getMonth() + 1
+    const tahunIni = now.getFullYear()
 
-  const posyandus = await prisma.posyandu.findMany({
-    where: { desaId },
-    include: {
-      balitas: {
-        where: { isActive: true },
-        include: {
-          penimbangans: {
-            where: { bulan: bulanIni, tahun: tahunIni },
-          },
+    const posyandus = await prisma.posyandu.findMany({
+      where: { desaId },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    })
+
+    const posyanduIds = posyandus.map((p) => p.id)
+
+    // Two parallel queries instead of nested includes
+    const [totalRows, weighedRows] = await Promise.all([
+      prisma.balita.groupBy({
+        by: ["posyanduId"],
+        where: { posyanduId: { in: posyanduIds }, isActive: true },
+        _count: { id: true },
+      }),
+      prisma.penimbanganBalita.findMany({
+        where: {
+          bulan: bulanIni,
+          tahun: tahunIni,
+          balita: { posyanduId: { in: posyanduIds }, isActive: true },
         },
-      },
-    },
-    orderBy: { name: "asc" },
-  })
+        select: { balitaId: true, balita: { select: { posyanduId: true } } },
+        distinct: ["balitaId"],
+      }),
+    ])
 
-  const rekap = posyandus.map((p) => ({
-    posyanduId: p.id,
-    posyanduName: p.name,
-    totalBalita: p.balitas.length,
-    ditimbangBulanIni: p.balitas.filter((b) => b.penimbangans.length > 0).length,
-    belumDitimbang: p.balitas.filter((b) => b.penimbangans.length === 0).length,
-  }))
+    const totalMap = new Map(totalRows.map((r) => [r.posyanduId, r._count.id]))
+    const ditimbangMap = new Map<string, number>()
+    for (const row of weighedRows) {
+      const pid = row.balita.posyanduId
+      ditimbangMap.set(pid, (ditimbangMap.get(pid) ?? 0) + 1)
+    }
 
-  return NextResponse.json({ data: rekap })
+    const rekap = posyandus.map((p) => {
+      const totalBalita = totalMap.get(p.id) ?? 0
+      const ditimbangBulanIni = ditimbangMap.get(p.id) ?? 0
+      return {
+        posyanduId: p.id,
+        posyanduName: p.name,
+        totalBalita,
+        ditimbangBulanIni,
+        belumDitimbang: totalBalita - ditimbangBulanIni,
+      }
+    })
+
+    return ok(rekap)
+  } catch (e) {
+    console.error("[GET /api/rekap/balita/desa/[desaId]]", e)
+    return err("Gagal mengambil data rekap", 500)
+  }
 }

@@ -106,7 +106,7 @@ export async function POST(
     "Menunggu Approval DPMD",
     id,
     "POSYANDU"
-  ).catch(() => {})
+  ).catch((e) => console.error("[email] Failed to send status change:", e))
 
   return ok({ id: tindakLanjut.id }, "Tindak lanjut berhasil dikirim")
 }

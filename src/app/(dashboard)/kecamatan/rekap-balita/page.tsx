@@ -36,29 +36,61 @@ export default async function RekapBalitaKecamatanPage() {
 
   const desas = await prisma.desa.findMany({
     where: { kecamatanId: petugas.kecamatanId },
-    include: {
-      posyandus: {
-        include: {
-          balitas: {
-            where: { isActive: true },
-            include: {
-              penimbangans: { where: { bulan: bulanIni, tahun: tahunIni } },
-            },
-          },
-        },
-      },
-    },
+    select: { id: true, name: true, posyandus: { select: { id: true } } },
     orderBy: { name: "asc" },
   })
 
-  const allBalitas = desas.flatMap((d) => d.posyandus.flatMap((p) => p.balitas))
-  const totalDitimbang = allBalitas.filter((b) => b.penimbangans.length > 0).length
+  const posyanduToDesaMap = new Map<string, string>()
+  for (const d of desas) {
+    for (const p of d.posyandus) {
+      posyanduToDesaMap.set(p.id, d.id)
+    }
+  }
+  const allPosyanduIds = Array.from(posyanduToDesaMap.keys())
+
+  const [totalRows, weighedRows] = await Promise.all([
+    prisma.balita.groupBy({
+      by: ["posyanduId"],
+      where: { posyanduId: { in: allPosyanduIds }, isActive: true },
+      _count: { id: true },
+    }),
+    prisma.penimbanganBalita.findMany({
+      where: {
+        bulan: bulanIni,
+        tahun: tahunIni,
+        balita: { posyanduId: { in: allPosyanduIds }, isActive: true },
+      },
+      select: { balitaId: true, balita: { select: { posyanduId: true } } },
+      distinct: ["balitaId"],
+    }),
+  ])
+
+  const totalByDesa = new Map<string, number>()
+  for (const row of totalRows) {
+    const desaId = posyanduToDesaMap.get(row.posyanduId)
+    if (desaId) totalByDesa.set(desaId, (totalByDesa.get(desaId) ?? 0) + row._count.id)
+  }
+
+  const ditimbangByDesa = new Map<string, number>()
+  for (const row of weighedRows) {
+    const desaId = posyanduToDesaMap.get(row.balita.posyanduId)
+    if (desaId) ditimbangByDesa.set(desaId, (ditimbangByDesa.get(desaId) ?? 0) + 1)
+  }
+
+  const rows = desas.map((d) => {
+    const total = totalByDesa.get(d.id) ?? 0
+    const ditimbang = ditimbangByDesa.get(d.id) ?? 0
+    return { ...d, total, ditimbang, belum: total - ditimbang }
+  })
+
+  const totalBalita = rows.reduce((s, r) => s + r.total, 0)
+  const totalDitimbang = rows.reduce((s, r) => s + r.ditimbang, 0)
 
   const stats = [
     { label: "Total Desa", value: desas.length, icon: MapPin, variant: "primary" as const },
-    { label: "Total Balita", value: allBalitas.length, icon: Baby, variant: "accent" as const },
+    { label: "Total Balita", value: totalBalita, icon: Baby, variant: "accent" as const },
     { label: "Ditimbang Bulan Ini", value: totalDitimbang, icon: CheckCircle2, variant: "secondary" as const },
-    { label: "Belum Ditimbang", value: allBalitas.length - totalDitimbang, icon: AlertCircle, variant: "destructive" as const },
+    { label: "Belum Ditimbang", value: totalBalita - totalDitimbang, icon: AlertCircle, variant: "destructive" as const },
   ]
 
   const BULAN_LABEL = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"][bulanIni - 1]
@@ -79,22 +111,18 @@ export default async function RekapBalitaKecamatanPage() {
 
       <DataTable
         columns={["Desa", "Total Posyandu", "Total Balita", "Ditimbang", "Belum", "Status"]}
-        dataLength={desas.length}
+        dataLength={rows.length}
       >
-        {desas.map((d) => {
-          const balitas = d.posyandus.flatMap((p) => p.balitas)
-          const total = balitas.length
-          const ditimbang = balitas.filter((b) => b.penimbangans.length > 0).length
-          const belum = total - ditimbang
-          const pct = total > 0 ? Math.round((ditimbang / total) * 100) : 0
+        {rows.map((r) => {
+          const pct = r.total > 0 ? Math.round((r.ditimbang / r.total) * 100) : 0
           return (
-            <TableRow key={d.id} className="hover:bg-muted/30 transition-colors">
-              <TableCell className="px-4 py-3.5 font-semibold text-sm">{d.name}</TableCell>
-              <TableCell className="px-4 py-3.5 text-sm text-center text-muted-foreground">{d.posyandus.length}</TableCell>
-              <TableCell className="px-4 py-3.5 text-sm text-center">{total}</TableCell>
-              <TableCell className="px-4 py-3.5 text-sm text-center text-emerald-700 font-semibold">{ditimbang}</TableCell>
+            <TableRow key={r.id} className="hover:bg-muted/30 transition-colors">
+              <TableCell className="px-4 py-3.5 font-semibold text-sm">{r.name}</TableCell>
+              <TableCell className="px-4 py-3.5 text-sm text-center text-muted-foreground">{r.posyandus.length}</TableCell>
+              <TableCell className="px-4 py-3.5 text-sm text-center">{r.total}</TableCell>
+              <TableCell className="px-4 py-3.5 text-sm text-center text-emerald-700 font-semibold">{r.ditimbang}</TableCell>
               <TableCell className="px-4 py-3.5 text-sm text-center">
-                <span className={belum > 0 ? "text-amber-700 font-semibold" : "text-muted-foreground"}>{belum}</span>
+                <span className={r.belum > 0 ? "text-amber-700 font-semibold" : "text-muted-foreground"}>{r.belum}</span>
               </TableCell>
               <TableCell className="px-4 py-3.5">
                 <Badge

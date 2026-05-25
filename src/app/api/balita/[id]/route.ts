@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
-import { requireAuth } from "@/lib/api-helpers"
+import { requireAuth, ok, err } from "@/lib/api-helpers"
 
 const updateSchema = z.object({
   namaBalita: z.string().min(1).optional(),
@@ -24,48 +24,63 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const { user, response } = await requireAuth(["POSYANDU"])
   if (!user) return response!
 
-  const { id } = await params
-  const balita = await getBalitaForUser(id, user.id)
-  if (!balita) return NextResponse.json({ error: "Not found" }, { status: 404 })
+  try {
+    const { id } = await params
+    const balita = await getBalitaForUser(id, user.id)
+    if (!balita) return err("Data tidak ditemukan", 404)
 
-  const full = await prisma.balita.findUnique({
-    where: { id },
-    include: {
-      penimbangans: { orderBy: [{ tahun: "asc" }, { bulan: "asc" }] },
-      imunisasis: { orderBy: { tanggalPemberian: "asc" } },
-    },
-  })
+    const full = await prisma.balita.findUnique({
+      where: { id },
+      include: {
+        penimbangans: { orderBy: [{ tahun: "asc" }, { bulan: "asc" }] },
+        imunisasis: { orderBy: { tanggalPemberian: "asc" } },
+      },
+    })
 
-  return NextResponse.json({ data: full })
+    return ok(full)
+  } catch (e) {
+    console.error("[GET /api/balita/[id]]", e)
+    return err("Gagal mengambil data balita", 500)
+  }
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { user, response } = await requireAuth(["POSYANDU"])
   if (!user) return response!
 
-  const { id } = await params
-  const existing = await getBalitaForUser(id, user.id)
-  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
+  try {
+    const { id } = await params
+    const existing = await getBalitaForUser(id, user.id)
+    if (!existing) return err("Data tidak ditemukan", 404)
 
-  const body = await req.json()
-  const parsed = updateSchema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 })
+    const body = await req.json()
+    const parsed = updateSchema.safeParse(body)
+    if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Data tidak valid", 422)
 
-  const data: Record<string, unknown> = { ...parsed.data }
-  if (parsed.data.tanggalLahir) data.tanggalLahir = new Date(parsed.data.tanggalLahir)
+    const data: Record<string, unknown> = { ...parsed.data }
+    if (parsed.data.tanggalLahir) data.tanggalLahir = new Date(parsed.data.tanggalLahir)
 
-  const updated = await prisma.balita.update({ where: { id }, data })
-  return NextResponse.json({ data: updated })
+    const updated = await prisma.balita.update({ where: { id }, data })
+    return ok(updated)
+  } catch (e) {
+    console.error("[PATCH /api/balita/[id]]", e)
+    return err("Gagal memperbarui data balita", 500)
+  }
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { user, response } = await requireAuth(["POSYANDU"])
   if (!user) return response!
 
-  const { id } = await params
-  const existing = await getBalitaForUser(id, user.id)
-  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
+  try {
+    const { id } = await params
+    const existing = await getBalitaForUser(id, user.id)
+    if (!existing) return err("Data tidak ditemukan", 404)
 
-  await prisma.balita.delete({ where: { id } })
-  return NextResponse.json({ success: true })
+    await prisma.balita.delete({ where: { id } })
+    return ok(null, "Data balita berhasil dihapus")
+  } catch (e) {
+    console.error("[DELETE /api/balita/[id]]", e)
+    return err("Gagal menghapus data balita", 500)
+  }
 }

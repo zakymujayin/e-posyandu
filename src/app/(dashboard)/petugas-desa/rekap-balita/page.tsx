@@ -36,29 +36,50 @@ export default async function RekapBalitaDesaPage() {
 
   const posyandus = await prisma.posyandu.findMany({
     where: { desaId: petugasDesa.desaId },
-    include: {
-      balitas: {
-        where: { isActive: true },
-        include: {
-          penimbangans: { where: { bulan: bulanIni, tahun: tahunIni } },
-        },
-      },
-    },
+    select: { id: true, name: true },
     orderBy: { name: "asc" },
   })
 
-  const totalBalita = posyandus.reduce((s, p) => s + p.balitas.length, 0)
-  const totalDitimbang = posyandus.reduce(
-    (s, p) => s + p.balitas.filter((b) => b.penimbangans.length > 0).length,
-    0
-  )
-  const totalBelum = totalBalita - totalDitimbang
+  const posyanduIds = posyandus.map((p) => p.id)
+
+  const [totalRows, weighedRows] = await Promise.all([
+    prisma.balita.groupBy({
+      by: ["posyanduId"],
+      where: { posyanduId: { in: posyanduIds }, isActive: true },
+      _count: { id: true },
+    }),
+    prisma.penimbanganBalita.findMany({
+      where: {
+        bulan: bulanIni,
+        tahun: tahunIni,
+        balita: { posyanduId: { in: posyanduIds }, isActive: true },
+      },
+      select: { balitaId: true, balita: { select: { posyanduId: true } } },
+      distinct: ["balitaId"],
+    }),
+  ])
+
+  const totalMap = new Map(totalRows.map((r) => [r.posyanduId, r._count.id]))
+  const ditimbangMap = new Map<string, number>()
+  for (const row of weighedRows) {
+    const pid = row.balita.posyanduId
+    ditimbangMap.set(pid, (ditimbangMap.get(pid) ?? 0) + 1)
+  }
+
+  const rows = posyandus.map((p) => {
+    const total = totalMap.get(p.id) ?? 0
+    const ditimbang = ditimbangMap.get(p.id) ?? 0
+    return { ...p, total, ditimbang, belum: total - ditimbang }
+  })
+
+  const totalBalita = rows.reduce((s, r) => s + r.total, 0)
+  const totalDitimbang = rows.reduce((s, r) => s + r.ditimbang, 0)
 
   const stats = [
     { label: "Total Posyandu", value: posyandus.length, icon: Scale, variant: "primary" as const },
     { label: "Total Balita", value: totalBalita, icon: Baby, variant: "accent" as const },
     { label: "Ditimbang Bulan Ini", value: totalDitimbang, icon: CheckCircle2, variant: "secondary" as const },
-    { label: "Belum Ditimbang", value: totalBelum, icon: AlertCircle, variant: "destructive" as const },
+    { label: "Belum Ditimbang", value: totalBalita - totalDitimbang, icon: AlertCircle, variant: "destructive" as const },
   ]
 
   const BULAN_LABEL = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"][bulanIni - 1]
@@ -79,20 +100,17 @@ export default async function RekapBalitaDesaPage() {
 
       <DataTable
         columns={["Posyandu", "Total Balita", "Ditimbang", "Belum Ditimbang", "Status"]}
-        dataLength={posyandus.length}
+        dataLength={rows.length}
       >
-        {posyandus.map((p) => {
-          const total = p.balitas.length
-          const ditimbang = p.balitas.filter((b) => b.penimbangans.length > 0).length
-          const belum = total - ditimbang
-          const pct = total > 0 ? Math.round((ditimbang / total) * 100) : 0
+        {rows.map((r) => {
+          const pct = r.total > 0 ? Math.round((r.ditimbang / r.total) * 100) : 0
           return (
-            <TableRow key={p.id} className="hover:bg-muted/30 transition-colors">
-              <TableCell className="px-4 py-3.5 font-semibold text-sm">{p.name}</TableCell>
-              <TableCell className="px-4 py-3.5 text-sm text-center">{total}</TableCell>
-              <TableCell className="px-4 py-3.5 text-sm text-center text-emerald-700 font-semibold">{ditimbang}</TableCell>
+            <TableRow key={r.id} className="hover:bg-muted/30 transition-colors">
+              <TableCell className="px-4 py-3.5 font-semibold text-sm">{r.name}</TableCell>
+              <TableCell className="px-4 py-3.5 text-sm text-center">{r.total}</TableCell>
+              <TableCell className="px-4 py-3.5 text-sm text-center text-emerald-700 font-semibold">{r.ditimbang}</TableCell>
               <TableCell className="px-4 py-3.5 text-sm text-center">
-                <span className={belum > 0 ? "text-amber-700 font-semibold" : "text-muted-foreground"}>{belum}</span>
+                <span className={r.belum > 0 ? "text-amber-700 font-semibold" : "text-muted-foreground"}>{r.belum}</span>
               </TableCell>
               <TableCell className="px-4 py-3.5">
                 <Badge

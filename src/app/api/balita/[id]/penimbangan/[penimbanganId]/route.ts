@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
-import { requireAuth } from "@/lib/api-helpers"
+import { requireAuth, ok, err } from "@/lib/api-helpers"
 
 const updateSchema = z.object({
   beratBadan: z.number().positive().optional().nullable(),
@@ -28,16 +28,21 @@ export async function PATCH(
   const { user, response } = await requireAuth(["POSYANDU"])
   if (!user) return response!
 
-  const { id, penimbanganId } = await params
-  const existing = await checkPenimbanganAccess(id, penimbanganId, user.id)
-  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
+  try {
+    const { id, penimbanganId } = await params
+    const existing = await checkPenimbanganAccess(id, penimbanganId, user.id)
+    if (!existing) return err("Data tidak ditemukan", 404)
 
-  const body = await req.json()
-  const parsed = updateSchema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 })
+    const body = await req.json()
+    const parsed = updateSchema.safeParse(body)
+    if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Data tidak valid", 422)
 
-  const updated = await prisma.penimbanganBalita.update({ where: { id: penimbanganId }, data: parsed.data })
-  return NextResponse.json({ data: updated })
+    const updated = await prisma.penimbanganBalita.update({ where: { id: penimbanganId }, data: parsed.data })
+    return ok(updated)
+  } catch (e) {
+    console.error("[PATCH /api/balita/[id]/penimbangan/[penimbanganId]]", e)
+    return err("Gagal memperbarui data penimbangan", 500)
+  }
 }
 
 export async function DELETE(
@@ -47,10 +52,15 @@ export async function DELETE(
   const { user, response } = await requireAuth(["POSYANDU"])
   if (!user) return response!
 
-  const { id, penimbanganId } = await params
-  const existing = await checkPenimbanganAccess(id, penimbanganId, user.id)
-  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
+  try {
+    const { id, penimbanganId } = await params
+    const existing = await checkPenimbanganAccess(id, penimbanganId, user.id)
+    if (!existing) return err("Data tidak ditemukan", 404)
 
-  await prisma.penimbanganBalita.delete({ where: { id: penimbanganId } })
-  return NextResponse.json({ success: true })
+    await prisma.penimbanganBalita.delete({ where: { id: penimbanganId } })
+    return ok(null, "Data penimbangan berhasil dihapus")
+  } catch (e) {
+    console.error("[DELETE /api/balita/[id]/penimbangan/[penimbanganId]]", e)
+    return err("Gagal menghapus data penimbangan", 500)
+  }
 }

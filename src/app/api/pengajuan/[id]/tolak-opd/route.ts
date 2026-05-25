@@ -65,7 +65,7 @@ export async function POST(
     "Ditolak OPD",
     id,
     "POSYANDU"
-  ).catch(() => {})
+  ).catch((e) => console.error("[email] Failed to send status change:", e))
 
   return ok({ status: "DITOLAK_OPD" }, "Pengajuan berhasil ditolak")
 }

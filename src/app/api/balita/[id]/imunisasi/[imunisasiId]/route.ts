@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
-import { requireAuth } from "@/lib/api-helpers"
+import { requireAuth, ok, err } from "@/lib/api-helpers"
 
 const updateSchema = z.object({
   jenisImunisasi: z.string().min(1).optional(),
@@ -26,19 +26,24 @@ export async function PATCH(
   const { user, response } = await requireAuth(["POSYANDU"])
   if (!user) return response!
 
-  const { id, imunisasiId } = await params
-  const existing = await checkImunisasiAccess(id, imunisasiId, user.id)
-  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
+  try {
+    const { id, imunisasiId } = await params
+    const existing = await checkImunisasiAccess(id, imunisasiId, user.id)
+    if (!existing) return err("Data tidak ditemukan", 404)
 
-  const body = await req.json()
-  const parsed = updateSchema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 })
+    const body = await req.json()
+    const parsed = updateSchema.safeParse(body)
+    if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Data tidak valid", 422)
 
-  const data: Record<string, unknown> = { ...parsed.data }
-  if (parsed.data.tanggalPemberian) data.tanggalPemberian = new Date(parsed.data.tanggalPemberian)
+    const data: Record<string, unknown> = { ...parsed.data }
+    if (parsed.data.tanggalPemberian) data.tanggalPemberian = new Date(parsed.data.tanggalPemberian)
 
-  const updated = await prisma.imunisasiBalita.update({ where: { id: imunisasiId }, data })
-  return NextResponse.json({ data: updated })
+    const updated = await prisma.imunisasiBalita.update({ where: { id: imunisasiId }, data })
+    return ok(updated)
+  } catch (e) {
+    console.error("[PATCH /api/balita/[id]/imunisasi/[imunisasiId]]", e)
+    return err("Gagal memperbarui data imunisasi", 500)
+  }
 }
 
 export async function DELETE(
@@ -48,10 +53,15 @@ export async function DELETE(
   const { user, response } = await requireAuth(["POSYANDU"])
   if (!user) return response!
 
-  const { id, imunisasiId } = await params
-  const existing = await checkImunisasiAccess(id, imunisasiId, user.id)
-  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
+  try {
+    const { id, imunisasiId } = await params
+    const existing = await checkImunisasiAccess(id, imunisasiId, user.id)
+    if (!existing) return err("Data tidak ditemukan", 404)
 
-  await prisma.imunisasiBalita.delete({ where: { id: imunisasiId } })
-  return NextResponse.json({ success: true })
+    await prisma.imunisasiBalita.delete({ where: { id: imunisasiId } })
+    return ok(null, "Data imunisasi berhasil dihapus")
+  } catch (e) {
+    console.error("[DELETE /api/balita/[id]/imunisasi/[imunisasiId]]", e)
+    return err("Gagal menghapus data imunisasi", 500)
+  }
 }
