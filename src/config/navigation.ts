@@ -6,6 +6,7 @@ import {
   Eye,
   FileCheck,
   BarChart3,
+  PieChart,
   Settings,
   LayoutGrid,
   Baby,
@@ -42,7 +43,8 @@ export const NAV_ITEMS: Record<UserRole, NavItem[]> = {
     { href: "/admin", label: "Dashboard", icon: Home },
     { href: "/admin/pengajuan", label: "Pengajuan", icon: FileText },
     { href: "/admin/rekap-balita", label: "Rekap Balita", icon: Baby },
-    { href: "/admin/laporan", label: "Laporan", icon: BarChart3 },
+    { href: "/admin/laporan", label: "Laporan Pengajuan", icon: BarChart3 },
+    { href: "/admin/laporan-balita", label: "Laporan Balita", icon: PieChart },
     { href: "/admin/master", label: "Master Data", icon: Settings },
   ],
 }
