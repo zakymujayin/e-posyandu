@@ -7,11 +7,12 @@ import { Paperclip, Video, AlertTriangle, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const ROLE_LABELS: Record<string, string> = {
-  KADER: "Kader",
+  POSYANDU: "Posyandu",
   PETUGAS_DESA: "Petugas Desa",
   PETUGAS_OPD: "Petugas OPD",
   ADMIN_DPMD: "Admin DPMD",
   SYSTEM: "Sistem",
+  SISTEM: "Sistem",
 }
 
 interface FormField {
@@ -62,7 +63,7 @@ interface PengajuanDetailProps {
     lokasiLng?: number | null
     desa: { name: string; kecamatan?: { name: string } | null }
     posyandu: { name: string }
-    kader: { name: string }
+    posyanduUser: { name: string }
     fieldValues: FieldValue[]
     attachments: Attachment[]
     activityLogs: ActivityLog[]
@@ -164,8 +165,8 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
             <p className="text-foreground/90 mt-0.5">{pengajuan.posyandu.name}</p>
           </div>
           <div>
-            <MutedText>Kader</MutedText>
-            <p className="text-foreground/90 mt-0.5">{pengajuan.kader.name}</p>
+            <MutedText>Akun Posyandu</MutedText>
+            <p className="text-foreground/90 mt-0.5">{pengajuan.posyanduUser.name}</p>
           </div>
         </div>
       </div>
@@ -237,7 +238,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
       {/* Lampiran Kader */}
       {pengajuanAttachments.length > 0 && (
         <div className="bg-white dark:bg-card rounded-lg border border-border p-5 space-y-3">
-          <CardTitle>Lampiran dari Kader</CardTitle>
+          <CardTitle>Lampiran dari Posyandu</CardTitle>
           <div className="flex flex-wrap gap-2">
             {pengajuanAttachments.map((att) => (
               att.attachmentType === "FILE" ? (

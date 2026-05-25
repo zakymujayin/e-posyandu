@@ -109,7 +109,7 @@ export function Header({ user, logoUrl }: HeaderProps) {
                 const isRootPath =
                   item.href === "/" ||
                   item.href === "/admin" ||
-                  item.href === "/kader" ||
+                  item.href === "/posyandu" ||
                   item.href === "/petugas-desa" ||
                   item.href === "/opd"
                 const isActive = isRootPath

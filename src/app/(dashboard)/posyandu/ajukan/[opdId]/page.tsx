@@ -1,7 +1,7 @@
 import { auth } from "@/auth"
 import { redirect, notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { PengajuanForm } from "@/components/kader/pengajuan-form"
+import { PengajuanForm } from "@/components/posyandu/pengajuan-form"
 import { PageHeader } from "@/components/shared/page-header"
 import { PageContainer } from "@/components/layout/page-container"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
@@ -16,7 +16,7 @@ export default async function AjukanPage({
 }) {
   const { opdId } = await params
   const session = await auth()
-  if (!session?.user || session.user.role !== "KADER") redirect("/login")
+  if (!session?.user || session.user.role !== "POSYANDU") redirect("/login")
 
   const [opd, layanans, userWithKader] = await Promise.all([
     prisma.opd.findUnique({ where: { id: opdId } }),
@@ -43,7 +43,7 @@ export default async function AjukanPage({
       <PageHeader
         title={`Pengajuan Layanan ${opd.name}`}
         description="Lengkapi isian data kuesioner dinamis secara lengkap untuk verifikasi petugas."
-        backHref="/kader/layanan"
+        backHref="/posyandu/layanan"
       />
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start mt-6">

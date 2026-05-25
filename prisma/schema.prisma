@@ -52,6 +52,7 @@ model Posyandu {
   desa       Desa        @relation(fields: [desaId], references: [id])
   users      User[]
   pengajuans Pengajuan[]
+  balitas    Balita[]
 
   @@map("posyandus")
 }
@@ -129,6 +130,7 @@ model User {
   username     String?  @unique @map("username")
   password     String
   role         String
+  noRegistrasi String?  @unique @map("no_registrasi") // wajib untuk role POSYANDU
   posyanduId   String?  @map("posyandu_id")
   desaId       String?  @map("desa_id")
   kecamatanId  String?  @map("kecamatan_id")
@@ -146,7 +148,8 @@ model User {
   kecamatan    Kecamatan? @relation(fields: [kecamatanId], references: [id])
   opd          Opd?       @relation(fields: [opdId], references: [id])
 
-  pengajuansAsKader    Pengajuan[]   @relation("KaderPengajuan")
+  pengajuansAsPosyandu Pengajuan[]   @relation("PosyanduPengajuan")
+  balitas              Balita[]      @relation("PosyanduBalita")
   verifikasiDesas      VerifikasiDesa[]
   tindakLanjuts        TindakLanjut[]
   adminActions         AdminAction[]
@@ -178,7 +181,7 @@ model TiketCounter {
 model Pengajuan {
   id              String   @id @default(uuid())
   tiketNumber     String   @unique @map("tiket_number")
-  kaderId         String   @map("kader_id")
+  posyanduUserId  String   @map("kader_id") // kolom DB tetap kader_id, field TS menggunakan posyanduUserId
   posyanduId      String   @map("posyandu_id")
   desaId          String   @map("desa_id")
   opdId           String   @map("opd_id")
@@ -204,7 +207,7 @@ model Pengajuan {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
-  kader           User             @relation("KaderPengajuan", fields: [kaderId], references: [id])
+  posyanduUser    User             @relation("PosyanduPengajuan", fields: [posyanduUserId], references: [id])
   posyandu        Posyandu         @relation(fields: [posyanduId], references: [id])
   desa            Desa             @relation(fields: [desaId], references: [id])
   opd             Opd              @relation(fields: [opdId], references: [id])
@@ -389,4 +392,80 @@ model AppSetting {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("app_settings")
+}
+
+// =============================================
+// MODUL LAYANAN DATA BALITA
+// =============================================
+
+enum JenisKelamin {
+  LAKI_LAKI
+  PEREMPUAN
+}
+
+model Balita {
+  id             String   @id @default(uuid())
+  posyanduId     String   @map("posyandu_id")
+  posyanduUserId String   @map("posyandu_user_id")
+
+  namaBalita     String   @map("nama_balita")
+  tanggalLahir   DateTime @map("tanggal_lahir")
+  jenisKelamin   JenisKelamin @map("jenis_kelamin")
+
+  namaOrangTua   String   @map("nama_orang_tua")
+  nikOrangTua    String?  @map("nik_orang_tua")
+  noHpOrangTua   String?  @map("no_hp_orang_tua")
+  alamat         String?
+
+  tahunPencatatan  Int    @map("tahun_pencatatan")
+  catatanKesehatan String? @map("catatan_kesehatan")
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  posyandu       Posyandu          @relation(fields: [posyanduId], references: [id])
+  posyanduUser   User              @relation("PosyanduBalita", fields: [posyanduUserId], references: [id])
+  penimbangans   PenimbanganBalita[]
+  imunisasis     ImunisasiBalita[]
+
+  @@map("balitas")
+}
+
+model PenimbanganBalita {
+  id             String   @id @default(uuid())
+  balitaId       String   @map("balita_id")
+  bulan          Int
+  tahun          Int
+
+  beratBadan     Float?   @map("berat_badan")
+  tinggiBadan    Float?   @map("tinggi_badan")
+  lingkarKepala  Float?   @map("lingkar_kepala")
+  statusGizi     String?  @map("status_gizi")
+  keluhanKondisi String?  @map("keluhan_kondisi")
+  tindakan       String?
+  namaKader      String?  @map("nama_kader")
+
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  balita         Balita @relation(fields: [balitaId], references: [id], onDelete: Cascade)
+
+  @@unique([balitaId, bulan, tahun])
+  @@map("penimbangan_balitas")
+}
+
+model ImunisasiBalita {
+  id               String   @id @default(uuid())
+  balitaId         String   @map("balita_id")
+  jenisImunisasi   String   @map("jenis_imunisasi")
+  tanggalPemberian DateTime @map("tanggal_pemberian")
+  usiaAnak         String?  @map("usia_anak")
+  namaPetugas      String?  @map("nama_petugas")
+  keterangan       String?
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  balita           Balita @relation(fields: [balitaId], references: [id], onDelete: Cascade)
+
+  @@map("imunisasi_balitas")
 }

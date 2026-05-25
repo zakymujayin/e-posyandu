@@ -18,7 +18,7 @@ export async function POST(
 
   const pengajuan = await prisma.pengajuan.findUnique({
     where: { id },
-    include: { kader: { select: { id: true } } },
+    include: { posyanduUser: { select: { id: true } } },
   })
 
   if (!pengajuan) return err("Pengajuan tidak ditemukan", 404)
@@ -61,8 +61,8 @@ export async function POST(
     })
   })
 
-  // Notif ke kader + petugas terkait
-  const notifyIds = [pengajuan.kaderId]
+  // Notif ke akun posyandu + petugas terkait
+  const notifyIds = [pengajuan.posyanduUserId]
   await createNotificationsForUsers(notifyIds, {
     type: "BYPASS_MANUAL",
     title: "Bypass oleh Admin DPMD",

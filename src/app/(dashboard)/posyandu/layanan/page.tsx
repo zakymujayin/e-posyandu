@@ -27,7 +27,7 @@ const OPD_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export default async function LayananPage() {
   const session = await auth()
-  if (!session?.user || session.user.role !== "KADER") redirect("/login")
+  if (!session?.user || session.user.role !== "POSYANDU") redirect("/login")
 
   const opds = await prisma.opd.findMany({
     where: { isActive: true },
@@ -39,7 +39,7 @@ export default async function LayananPage() {
       <PageHeader
         title="Pilih Layanan"
         description="Pilih OPD yang sesuai dengan jenis layanan atau pengaduan masyarakat yang akan diajukan."
-        backHref="/kader"
+        backHref="/posyandu"
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
@@ -49,7 +49,7 @@ export default async function LayananPage() {
           return (
             <Link
               key={opd.id}
-              href={`/kader/ajukan/${opd.id}`}
+              href={`/posyandu/ajukan/${opd.id}`}
               className="group relative flex flex-col overflow-hidden rounded-xl bg-card border border-border/80 transition-all duration-300 hover:shadow-lg hover:border-primary/25 hover:-translate-y-1"
             >
               {/* Top accent bar */}

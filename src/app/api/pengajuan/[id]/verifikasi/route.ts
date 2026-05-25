@@ -29,7 +29,7 @@ export async function PATCH(
 
   const pengajuan = await prisma.pengajuan.findUnique({
     where: { id },
-    include: { kader: { select: { id: true, email: true, name: true } } },
+    include: { posyanduUser: { select: { id: true, email: true, name: true } } },
   })
 
   if (!pengajuan) return err("Pengajuan tidak ditemukan", 404)
@@ -86,8 +86,8 @@ export async function PATCH(
       }
     )
   } else {
-    // Notif ke kader
-    await createNotificationsForUsers([pengajuan.kaderId], {
+    // Notif ke akun posyandu
+    await createNotificationsForUsers([pengajuan.posyanduUserId], {
       type: "REJECTED_DESA",
       title: "Pengajuan Ditolak",
       message: `Pengajuan ${pengajuan.tiketNumber} ditolak oleh Petugas Desa. Alasan: ${catatan}`,
@@ -95,14 +95,14 @@ export async function PATCH(
     })
   }
 
-  // Email to kader (fire-and-forget)
+  // Email to posyandu (fire-and-forget)
   sendStatusChangeEmail(
-    pengajuan.kader.email,
-    pengajuan.kader.name,
+    pengajuan.posyanduUser.email,
+    pengajuan.posyanduUser.name,
     pengajuan.tiketNumber,
     action === "APPROVE" ? "Dalam Proses OPD" : "Ditolak Desa",
     id,
-    "KADER"
+    "POSYANDU"
   ).catch(() => {})
 
   return ok({ status: newStatus }, action === "APPROVE" ? "Pengajuan diverifikasi" : "Pengajuan ditolak")

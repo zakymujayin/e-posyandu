@@ -54,7 +54,7 @@ export function Sidebar({ user }: SidebarProps) {
           const Icon = item.icon
           const isHomePath =
             item.href === "/admin" ||
-            item.href === "/kader" ||
+            item.href === "/posyandu" ||
             item.href === "/petugas-desa" ||
             item.href === "/opd" ||
             item.href === "/"

@@ -18,7 +18,7 @@ interface Notification {
 }
 
 const ROLE_LINK_MAP: Record<string, string> = {
-  KADER: "/kader/riwayat",
+  POSYANDU: "/posyandu/riwayat",
   PETUGAS_DESA: "/petugas-desa/verifikasi",
   PETUGAS_OPD: "/opd/tindak-lanjut",
   PETUGAS_KECAMATAN: "/kecamatan",

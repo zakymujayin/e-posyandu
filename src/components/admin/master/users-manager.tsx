@@ -16,9 +16,9 @@ import { DataTable } from "@/components/shared/data-table"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
 
-const ROLES = ["KADER", "PETUGAS_DESA", "PETUGAS_KECAMATAN", "PETUGAS_OPD", "ADMIN_DPMD"] as const
+const ROLES = ["POSYANDU", "PETUGAS_DESA", "PETUGAS_KECAMATAN", "PETUGAS_OPD", "ADMIN_DPMD"] as const
 const ROLE_LABELS: Record<string, string> = {
-  KADER: "Kader Posyandu",
+  POSYANDU: "Akun Posyandu",
   PETUGAS_DESA: "Petugas Desa",
   PETUGAS_KECAMATAN: "Petugas Kecamatan",
   PETUGAS_OPD: "Petugas OPD",
@@ -49,8 +49,8 @@ interface Props {
 }
 
 const emptyForm = {
-  name: "", email: "", username: "", password: "", role: "KADER" as string,
-  desaId: "", kecamatanId: "", opdId: "", posyanduId: "", phone: "",
+  name: "", email: "", username: "", password: "", role: "POSYANDU" as string,
+  desaId: "", kecamatanId: "", opdId: "", posyanduId: "", noRegistrasi: "", phone: "",
 }
 
 export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus }: Props) {
@@ -96,6 +96,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
         kecamatanId: form.kecamatanId || null,
         opdId: form.opdId || null,
         posyanduId: form.posyanduId || null,
+        noRegistrasi: !editing && form.role === "POSYANDU" ? (form as typeof form & { noRegistrasi: string }).noRegistrasi || null : undefined,
         phone: form.phone || null,
       }
 
@@ -130,10 +131,11 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
     toast.success(data.data.isActive ? "Akun diaktifkan" : "Akun dinonaktifkan")
   }
 
-  const showDesa = ["KADER", "PETUGAS_DESA"].includes(form.role)
+  const showDesa = ["POSYANDU", "PETUGAS_DESA"].includes(form.role)
   const showKec = form.role === "PETUGAS_KECAMATAN"
   const showOpd = form.role === "PETUGAS_OPD"
-  const showPosyandu = form.role === "KADER"
+  const showPosyandu = form.role === "POSYANDU"
+  const showNoRegistrasi = form.role === "POSYANDU"
 
   return (
     <div className="space-y-6">
@@ -193,13 +195,15 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <FormLabel htmlFor="users-name">Nama Lengkap <span className="text-destructive">*</span></FormLabel>
+                <FormLabel htmlFor="users-name">
+                  {form.role === "POSYANDU" ? "Nama Posyandu" : "Nama Lengkap"} <span className="text-destructive">*</span>
+                </FormLabel>
                 <Input
                   id="users-name"
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="Nama lengkap tanpa gelar..."
+                  placeholder={form.role === "POSYANDU" ? "Contoh: Posyandu Melati" : "Nama lengkap tanpa gelar..."}
                   required
                 />
               </div>
@@ -296,18 +300,17 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                   </select>
                 </div>
               )}
-              {showPosyandu && (
+              {showNoRegistrasi && !editing && (
                 <div className="space-y-1.5">
-                  <FormLabel htmlFor="users-posyanduId">Unit Kerja Posyandu</FormLabel>
-                  <select
-                    id="users-posyanduId"
-                    value={form.posyanduId}
-                    onChange={(e) => setForm((f) => ({ ...f, posyanduId: e.target.value }))}
-                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
-                  >
-                    <option value="">Pilih Posyandu</option>
-                    {posyandus.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                  </select>
+                  <FormLabel htmlFor="users-noreg">No. Registrasi Posyandu <span className="text-destructive">*</span></FormLabel>
+                  <Input
+                    id="users-noreg"
+                    type="text"
+                    value={(form as typeof form & { noRegistrasi: string }).noRegistrasi}
+                    onChange={(e) => setForm((f) => ({ ...f, noRegistrasi: e.target.value }))}
+                    placeholder="Contoh: REG-2026-001"
+                    required
+                  />
                 </div>
               )}
             </div>

@@ -48,18 +48,18 @@ export async function createNotificationsForUsers(
   )
 }
 
-export async function notifyPengajuanBaru(kaderId: string, pengajuanId: string, tiketNumber: string): Promise<void> {
-  const kader = await prisma.user.findUnique({
-    where: { id: kaderId },
+export async function notifyPengajuanBaru(posyanduUserId: string, pengajuanId: string, tiketNumber: string): Promise<void> {
+  const posyanduUser = await prisma.user.findUnique({
+    where: { id: posyanduUserId },
     include: { posyandu: { include: { desa: true } } },
   })
 
-  if (!kader?.posyandu?.desa) return
+  if (!posyanduUser?.posyandu?.desa) return
 
   const petugasDesaIds = await prisma.user.findMany({
     where: {
       role: "PETUGAS_DESA",
-      desaId: kader.posyandu.desa.id,
+      desaId: posyanduUser.posyandu.desa.id,
       isActive: true,
     },
     select: { id: true },

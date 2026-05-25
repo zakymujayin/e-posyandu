@@ -9,7 +9,7 @@ export default async function RootPage() {
   if (session?.user) {
     const role = session.user.role
     const redirects = {
-      KADER: "/kader",
+      POSYANDU: "/posyandu",
       PETUGAS_DESA: "/petugas-desa",
       PETUGAS_KECAMATAN: "/kecamatan",
       PETUGAS_OPD: "/opd",

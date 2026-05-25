@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 
-const ROLES = ["KADER", "PETUGAS_DESA", "PETUGAS_KECAMATAN", "PETUGAS_OPD", "ADMIN_DPMD"] as const
+const ROLES = ["POSYANDU", "PETUGAS_DESA", "PETUGAS_KECAMATAN", "PETUGAS_OPD", "ADMIN_DPMD"] as const
 
 const schema = z.object({
   name: z.string().min(1, "Nama wajib diisi"),
@@ -11,6 +11,7 @@ const schema = z.object({
   username: z.string().min(3, "Username minimal 3 karakter").regex(/^[a-z0-9_]+$/, "Username hanya huruf kecil, angka, dan underscore"),
   password: z.string().min(8, "Password minimal 8 karakter"),
   role: z.enum(ROLES, { message: "Role tidak valid" }),
+  noRegistrasi: z.string().optional().nullable(),
   desaId: z.string().optional().nullable(),
   kecamatanId: z.string().optional().nullable(),
   opdId: z.string().optional().nullable(),

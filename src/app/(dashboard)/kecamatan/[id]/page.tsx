@@ -29,7 +29,7 @@ export default async function KecamatanDetailPage({
       layananJenis: { select: { id: true, name: true } },
       desa: { select: { id: true, name: true, kecamatanId: true } },
       posyandu: { select: { id: true, name: true } },
-      kader: { select: { id: true, name: true } },
+      posyanduUser: { select: { id: true, name: true } },
       fieldValues: {
         include: { formField: { select: { fieldLabel: true, fieldType: true, fieldName: true } } },
       },

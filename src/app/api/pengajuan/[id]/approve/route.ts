@@ -15,7 +15,7 @@ export async function POST(
   const pengajuan = await prisma.pengajuan.findUnique({
     where: { id },
     include: {
-      kader: { select: { id: true, email: true, name: true } },
+      posyanduUser: { select: { id: true, email: true, name: true } },
       tindakLanjuts: { orderBy: { submittedAt: "desc" }, take: 1, select: { id: true, petugasOpdId: true } },
     },
   })
@@ -59,7 +59,7 @@ export async function POST(
     })
   })
 
-  const notifyIds = [pengajuan.kaderId]
+  const notifyIds = [pengajuan.posyanduUserId]
   if (pengajuan.tindakLanjuts[0]?.petugasOpdId) {
     notifyIds.push(pengajuan.tindakLanjuts[0].petugasOpdId)
   }
@@ -71,12 +71,12 @@ export async function POST(
   })
 
   await sendStatusChangeEmail(
-    pengajuan.kader.email,
-    pengajuan.kader.name,
+    pengajuan.posyanduUser.email,
+    pengajuan.posyanduUser.name,
     pengajuan.tiketNumber,
     "Selesai",
     id,
-    "KADER"
+    "POSYANDU"
   ).catch(() => {})
 
   return ok({ status: "SELESAI" }, "Pengajuan berhasil diselesaikan")

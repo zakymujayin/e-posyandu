@@ -18,7 +18,7 @@ export async function GET(
         layananJenis: { select: { id: true, name: true } },
         desa: { select: { id: true, name: true } },
         posyandu: { select: { id: true, name: true } },
-        kader: { select: { id: true, name: true } },
+        posyanduUser: { select: { id: true, name: true } },
         fieldValues: {
           include: { formField: { select: { fieldLabel: true, fieldType: true, fieldName: true } } },
         },
@@ -53,7 +53,7 @@ export async function GET(
 
     // Scope check: non-admin hanya bisa lihat data yang relevan
     const u = await prisma.user.findUnique({ where: { id: user.id } })
-    if (user.role === "KADER" && pengajuan.kaderId !== user.id) return err("Akses ditolak", 403)
+    if (user.role === "POSYANDU" && pengajuan.posyanduUserId !== user.id) return err("Akses ditolak", 403)
     if (user.role === "PETUGAS_DESA" && pengajuan.desaId !== u?.desaId) return err("Akses ditolak", 403)
     if (user.role === "PETUGAS_OPD" && pengajuan.opdId !== u?.opdId) return err("Akses ditolak", 403)
     if (user.role === "PETUGAS_KECAMATAN") {

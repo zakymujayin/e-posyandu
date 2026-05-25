@@ -37,13 +37,13 @@ export async function GET(req: Request) {
       opd: { select: { name: true } },
       layananJenis: { select: { name: true } },
       desa: { select: { name: true } },
-      kader: { select: { name: true } },
+      posyanduUser: { select: { name: true } },
     },
   })
 
   const headers = [
     "No. Tiket", "Tanggal Submit", "Nama Pelapor", "OPD",
-    "Jenis Layanan", "Desa", "Kader", "Status", "Deadline SOP",
+    "Jenis Layanan", "Desa", "Posyandu", "Status", "Deadline SOP",
   ]
 
   const rows = pengajuans.map((p) => [
@@ -53,7 +53,7 @@ export async function GET(req: Request) {
     p.opd.name,
     p.layananJenis?.name ?? "Pengaduan",
     p.desa.name,
-    p.kader.name,
+    p.posyanduUser.name,
     STATUS_LABELS[p.status] ?? p.status,
     format(new Date(p.deadlineAt), "d MMMM yyyy", { locale: localeId }),
   ])

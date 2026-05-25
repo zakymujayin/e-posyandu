@@ -31,7 +31,7 @@ export async function POST(
 
   const pengajuan = await prisma.pengajuan.findUnique({
     where: { id },
-    include: { kader: { select: { id: true, email: true, name: true } } },
+    include: { posyanduUser: { select: { id: true, email: true, name: true } } },
   })
 
   if (!pengajuan) return err("Pengajuan tidak ditemukan", 404)
@@ -98,14 +98,14 @@ export async function POST(
     pengajuanId: id,
   })
 
-  // Email to kader: status now MENUNGGU_APPROVAL_DPMD (fire-and-forget)
+  // Email to posyandu: status now MENUNGGU_APPROVAL_DPMD (fire-and-forget)
   sendStatusChangeEmail(
-    pengajuan.kader.email,
-    pengajuan.kader.name,
+    pengajuan.posyanduUser.email,
+    pengajuan.posyanduUser.name,
     pengajuan.tiketNumber,
     "Menunggu Approval DPMD",
     id,
-    "KADER"
+    "POSYANDU"
   ).catch(() => {})
 
   return ok({ id: tindakLanjut.id }, "Tindak lanjut berhasil dikirim")

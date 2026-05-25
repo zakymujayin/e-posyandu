@@ -25,7 +25,7 @@ const STATUS_OPTIONS = [
   { value: "DITOLAK_OPD", label: "Ditolak OPD" },
 ]
 
-export default async function KaderRiwayatPage({
+export default async function PosyanduRiwayatPage({
   searchParams,
 }: {
   searchParams: Promise<{ status?: string; opdId?: string; dari?: string; sampai?: string; page?: string }>
@@ -45,7 +45,7 @@ export default async function KaderRiwayatPage({
     prisma.opd.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" }, select: { id: true, name: true } }),
   ])
 
-  const where: Record<string, unknown> = { kaderId: session.user.id }
+  const where: Record<string, unknown> = { posyanduUserId: session.user.id }
   if (status) where.status = status
   if (opdId) where.opdId = opdId
   if (dari || sampai) {
@@ -77,7 +77,7 @@ export default async function KaderRiwayatPage({
       <PageHeader
         title="Riwayat Pengajuan"
         description="Pantau progres dan status verifikasi dari seluruh usulan yang Anda kirimkan."
-        backHref="/kader"
+        backHref="/posyandu"
       />
 
       {/* Toolbar Filter */}
@@ -132,7 +132,7 @@ export default async function KaderRiwayatPage({
           </div>
           <div className="sm:col-span-2 lg:col-span-4 flex gap-2">
             <Button variant="outline" size="sm" className="font-bold text-xs md:text-sm" asChild>
-              <Link href="/kader/riwayat">Reset Filter</Link>
+              <Link href="/posyandu/riwayat">Reset Filter</Link>
             </Button>
           </div>
         </ClientFilterForm>
@@ -152,7 +152,7 @@ export default async function KaderRiwayatPage({
             {pengajuans.map((p) => (
               <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
                 <TableCell className="px-4 py-3.5">
-                  <Link href={`/kader/riwayat/${p.id}`} className="font-mono text-xs md:text-sm font-semibold text-primary hover:underline">
+                  <Link href={`/posyandu/riwayat/${p.id}`} className="font-mono text-xs md:text-sm font-semibold text-primary hover:underline">
                     {p.tiketNumber}
                   </Link>
                 </TableCell>

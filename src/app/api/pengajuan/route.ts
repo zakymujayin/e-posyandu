@@ -34,7 +34,7 @@ const createSchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
-  const { user, response } = await requireAuth(["KADER"])
+  const { user, response } = await requireAuth(["POSYANDU"])
   if (!user) return response!
 
   try {
@@ -51,13 +51,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Ambil posyandu dan desa dari user
-    const kader = await prisma.user.findUnique({
+    const posyanduUser = await prisma.user.findUnique({
       where: { id: user.id },
       select: { name: true, posyanduId: true, posyandu: { select: { desaId: true } } },
     })
 
-    if (!kader?.posyanduId || !kader.posyandu?.desaId) {
-      return err("Kader tidak terdaftar di posyandu")
+    if (!posyanduUser?.posyanduId || !posyanduUser.posyandu?.desaId) {
+      return err("Akun posyandu tidak terdaftar di posyandu")
     }
 
     const tiketNumber = await generateTicketNumber(data.opdId)
@@ -66,9 +66,9 @@ export async function POST(req: NextRequest) {
     const pengajuan = await prisma.pengajuan.create({
       data: {
         tiketNumber,
-        kaderId: user.id,
-        posyanduId: kader.posyanduId,
-        desaId: kader.posyandu.desaId,
+        posyanduUserId: user.id,
+        posyanduId: posyanduUser.posyanduId,
+        desaId: posyanduUser.posyandu.desaId,
         opdId: data.opdId,
         kategori: data.kategori,
         layananJenisId: data.layananJenisId ?? null,
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
         activityLogs: {
           create: {
             userId: user.id,
-            userRole: "KADER",
+            userRole: "POSYANDU",
             action: "Pengajuan dibuat",
             newStatus: "MENUNGGU_VERIFIKASI",
           },
@@ -115,11 +115,11 @@ export async function POST(req: NextRequest) {
     // Send email to Petugas Desa
     try {
       const officers = await prisma.user.findMany({
-        where: { role: "PETUGAS_DESA", desaId: kader.posyandu!.desaId, isActive: true },
+        where: { role: "PETUGAS_DESA", desaId: posyanduUser.posyandu!.desaId, isActive: true },
         select: { email: true, name: true },
       })
       await Promise.allSettled(
-        officers.map((o) => sendNewPengajuanEmail(o.email, o.name, tiketNumber, kader.name ?? "Kader"))
+        officers.map((o) => sendNewPengajuanEmail(o.email, o.name, tiketNumber, posyanduUser.name ?? "Posyandu"))
       )
     } catch {}
 
@@ -142,8 +142,8 @@ export async function GET(req: NextRequest) {
 
   // Scope filter by role
   const where: Record<string, unknown> = {}
-  if (user.role === "KADER") {
-    where.kaderId = user.id
+  if (user.role === "POSYANDU") {
+    where.posyanduUserId = user.id
   } else if (user.role === "PETUGAS_DESA") {
     const u = await prisma.user.findUnique({ where: { id: user.id }, select: { desaId: true } })
     if (!u?.desaId) return err("User tidak terdaftar di desa", 400)

@@ -14,7 +14,7 @@ const from = process.env.SMTP_FROM ?? "noreply@resend.dev"
 const appUrl = process.env.APP_URL ?? "http://localhost:3000"
 
 function roleBasePath(role: string) {
-  if (role === "KADER") return "kader/riwayat"
+  if (role === "POSYANDU") return "posyandu/riwayat"
   if (role === "PETUGAS_DESA") return "petugas-desa/verifikasi"
   if (role === "PETUGAS_OPD") return "opd/tindak-lanjut"
   return role.toLowerCase()
@@ -57,7 +57,7 @@ export async function sendNewPengajuanEmail(
     subject: `[E-Posyandu] Pengajuan Baru Menunggu Verifikasi — ${tiketNumber}`,
     html: `
       <p>Halo <strong>${officerName}</strong>,</p>
-      <p>Pengajuan baru <strong>${tiketNumber}</strong> dari kader <strong>${kaderName}</strong> sedang menunggu verifikasi.</p>
+      <p>Pengajuan baru <strong>${tiketNumber}</strong> dari posyandu <strong>${kaderName}</strong> sedang menunggu verifikasi.</p>
       <p><a href="${appUrl}/petugas-desa/verifikasi" style="color:#2563eb">Buka halaman verifikasi →</a></p>
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0"/>
       <p style="color:#9ca3af;font-size:12px">E-Posyandu — DPMD Kabupaten Lebak</p>

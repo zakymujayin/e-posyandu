@@ -67,7 +67,7 @@ export default async function AdminPengajuanListPage({
         opd: { select: { name: true } },
         layananJenis: { select: { name: true } },
         desa: { select: { name: true } },
-        kader: { select: { name: true } },
+        posyanduUser: { select: { name: true } },
       },
     }),
     prisma.pengajuan.count({ where }),

@@ -29,7 +29,7 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
           const isRootPath =
             item.href === "/" ||
             item.href === "/admin" ||
-            item.href === "/kader" ||
+            item.href === "/posyandu" ||
             item.href === "/petugas-desa" ||
             item.href === "/opd"
 

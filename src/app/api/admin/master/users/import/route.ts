@@ -2,11 +2,13 @@ import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import bcrypt from "bcryptjs"
 
-const VALID_ROLES = ["KADER", "PETUGAS_DESA", "PETUGAS_KECAMATAN", "PETUGAS_OPD"] as const
+const VALID_ROLES = ["POSYANDU", "PETUGAS_DESA", "PETUGAS_KECAMATAN", "PETUGAS_OPD"] as const
 type ImportRole = (typeof VALID_ROLES)[number]
 
 interface CsvRow {
-  nama: string
+  nama_posyandu?: string
+  nama?: string
+  no_registrasi?: string
   email: string
   password: string
   posyandu_id?: string
@@ -41,7 +43,8 @@ export async function POST(req: Request) {
       const rowNum = i + 1
 
       // Validasi field wajib
-      if (!row.nama?.trim()) {
+      const nama = role === "POSYANDU" ? row.nama_posyandu?.trim() : row.nama?.trim()
+      if (!nama) {
         results.push({ row: rowNum, status: "error", email: row.email ?? "", message: "Nama wajib diisi" })
         continue
       }
@@ -77,11 +80,11 @@ export async function POST(req: Request) {
 
       // Validasi ID referensi sesuai role
       let refError: string | null = null
-      if (role === "KADER") {
-        if (!row.posyandu_id) { refError = "posyandu_id wajib untuk KADER" }
+      if (role === "POSYANDU") {
+        if (!row.desa_id) { refError = "desa_id wajib untuk POSYANDU" }
         else {
-          const found = await prisma.posyandu.findUnique({ where: { id: row.posyandu_id } })
-          if (!found) refError = `posyandu_id "${row.posyandu_id}" tidak ditemukan`
+          const found = await prisma.desa.findUnique({ where: { id: row.desa_id } })
+          if (!found) refError = `desa_id "${row.desa_id}" tidak ditemukan`
         }
       } else if (role === "PETUGAS_DESA") {
         if (!row.desa_id) { refError = "desa_id wajib untuk PETUGAS_DESA" }
@@ -126,13 +129,35 @@ export async function POST(req: Request) {
       if (results[i].status !== "ok") continue
       const row = rows[i]
       const hashed = await bcrypt.hash(row.password.trim(), 12)
+      const rowNama = role === "POSYANDU" ? row.nama_posyandu!.trim() : row.nama!.trim()
+      // Untuk POSYANDU, ambil desaId dan cari/create posyandu
+      let posyanduId: string | undefined
+      let desaId: string | undefined
+      let kecamatanId: string | undefined
+      if (role === "POSYANDU" && row.desa_id) {
+        const desa = await prisma.desa.findUnique({ where: { id: row.desa_id }, select: { id: true, kecamatanId: true } })
+        if (desa) {
+          desaId = desa.id
+          kecamatanId = desa.kecamatanId
+          // Cari posyandu berdasarkan nama + desa, buat jika belum ada
+          const existingPosyandu = await prisma.posyandu.findFirst({ where: { name: rowNama, desaId: desa.id } })
+          if (existingPosyandu) {
+            posyanduId = existingPosyandu.id
+          } else {
+            const newPosyandu = await prisma.posyandu.create({
+              data: { name: rowNama, desaId: desa.id, code: `${rowNama.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}` }
+            })
+            posyanduId = newPosyandu.id
+          }
+        }
+      }
       await prisma.user.create({
         data: {
-          name: row.nama.trim(),
+          name: rowNama,
           email: row.email.trim().toLowerCase(),
           password: hashed,
           role,
-          ...(role === "KADER" && { posyanduId: row.posyandu_id }),
+          ...(role === "POSYANDU" && { posyanduId, desaId, kecamatanId, noRegistrasi: row.no_registrasi?.trim() }),
           ...(role === "PETUGAS_DESA" && { desaId: row.desa_id }),
           ...(role === "PETUGAS_KECAMATAN" && { kecamatanId: row.kecamatan_id }),
           ...(role === "PETUGAS_OPD" && { opdId: row.opd_id }),

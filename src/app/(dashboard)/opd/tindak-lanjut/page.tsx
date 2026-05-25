@@ -67,7 +67,7 @@ export default async function TindakLanjutListPage({
       include: {
         layananJenis: { select: { name: true } },
         desa: { select: { name: true } },
-        kader: { select: { name: true } },
+        posyanduUser: { select: { name: true } },
       },
     }),
     prisma.pengajuan.count({ where }),
@@ -153,7 +153,7 @@ export default async function TindakLanjutListPage({
                   {p.desa.name}
                 </TableCell>
                 <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
-                  {p.kader.name}
+                  {p.posyanduUser.name}
                 </TableCell>
                 <TableCell className="px-4 py-3.5">
                   <StatusBadge status={p.status as PengajuanStatus} />

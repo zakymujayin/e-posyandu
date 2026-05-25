@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   const pengajuans = await prisma.pengajuan.findMany({
     where: { status: { in: ACTIVE_STATUSES } },
     include: {
-      kader: { select: { id: true } },
+      posyanduUser: { select: { id: true } },
       desa: { select: { id: true } },
     },
   })
@@ -94,7 +94,7 @@ export async function POST(req: Request) {
         })
       })
 
-      const notifyIds = [p.kaderId, ...adminIds]
+      const notifyIds = [p.posyanduUserId, ...adminIds]
       await createNotificationsForUsers(notifyIds, {
         type: "AUTO_BYPASS",
         title: "Auto-Bypass Sistem",

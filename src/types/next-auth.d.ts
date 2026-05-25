@@ -1,4 +1,4 @@
-export type UserRole = "KADER" | "PETUGAS_DESA" | "PETUGAS_KECAMATAN" | "PETUGAS_OPD" | "ADMIN_DPMD"
+export type UserRole = "POSYANDU" | "PETUGAS_DESA" | "PETUGAS_KECAMATAN" | "PETUGAS_OPD" | "ADMIN_DPMD"
 
 declare module "next-auth" {
   interface Session {

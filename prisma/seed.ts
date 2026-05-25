@@ -190,18 +190,21 @@ async function main() {
   })
   console.log("✅ Admin created:", admin.email)
 
-  const kaderPassword = await bcrypt.hash("kader123", 12)
+  const posyanduPassword = await bcrypt.hash("posyandu123", 12)
   const kader = await prisma.user.upsert({
-    where: { email: "kader@example.com" },
-    update: { username: "kader" },
+    where: { email: "posyandu-mawar@example.com" },
+    update: { username: "posyandu-mawar" },
     create: {
       id: "b71ddd56-615a-46b8-8b82-c03b4484f13f",
-      name: "Siti Aminah",
-      email: "kader@example.com",
-      username: "kader",
-      password: kaderPassword,
-      role: "KADER",
+      name: "Posyandu Mawar",
+      email: "posyandu-mawar@example.com",
+      username: "posyandu-mawar",
+      password: posyanduPassword,
+      role: "POSYANDU",
+      noRegistrasi: "REG-2026-001",
       posyanduId: posyandu1.id,
+      desaId: desa1.id,
+      kecamatanId: kecamatan.id,
     },
   })
 
@@ -250,7 +253,7 @@ async function main() {
     },
   })
 
-  console.log("✅ 5 users created (admin, kader, petugas desa, petugas kec, petugas OPD)")
+  console.log("✅ 5 users created (admin, posyandu, petugas desa, petugas kec, petugas OPD)")
 
   // =====================
   // 6. Layanan Jenis
@@ -318,7 +321,7 @@ async function main() {
     create: {
       id: "dfbd549b-6b24-42f3-aa68-ea60731b0d8f",
       tiketNumber: "DINKES-2026-00001",
-      kaderId: kader.id,
+      posyanduUserId: kader.id,
       posyanduId: posyandu1.id,
       desaId: desa1.id,
       opdId: opdKesehatan.id,
@@ -356,7 +359,7 @@ async function main() {
       id: "1400113b-1229-4c99-bb92-13644f6a4700",
       pengajuanId: pengajuan1.id,
       userId: kader.id,
-      userRole: "KADER",
+      userRole: "POSYANDU",
       action: "Pengajuan dibuat",
       newStatus: "MENUNGGU_VERIFIKASI",
       createdAt: tglKes,
@@ -399,7 +402,7 @@ async function main() {
     create: {
       id: "7e4f51a1-7808-482e-9aab-983c4eff7a9c",
       tiketNumber: "DINDIK-2026-00001",
-      kaderId: kader.id,
+      posyanduUserId: kader.id,
       posyanduId: posyandu1.id,
       desaId: desa1.id,
       opdId: opdPend.id,
@@ -437,7 +440,7 @@ async function main() {
       id: "899eb956-50fa-4621-9bc0-739e99f7856a",
       pengajuanId: pengajuan2.id,
       userId: kader.id,
-      userRole: "KADER",
+      userRole: "POSYANDU",
       action: "Pengajuan dibuat",
       newStatus: "MENUNGGU_VERIFIKASI",
       createdAt: tglPend,

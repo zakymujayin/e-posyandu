@@ -42,7 +42,7 @@ function SuksesContent() {
       </p>
 
       <Button asChild className="w-full min-h-[44px]">
-        <Link href="/kader">Kembali ke Beranda</Link>
+        <Link href="/posyandu">Kembali ke Beranda</Link>
       </Button>
     </PageContainer>
   )

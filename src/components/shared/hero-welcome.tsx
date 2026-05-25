@@ -60,7 +60,7 @@ export function HeroWelcome({ userName, roleLabel, description }: HeroWelcomePro
         </div>
 
         {/* Date */}
-        <div className="shrink-0 sm:text-right self-start sm:self-center sm:mr-[140px] md:mr-[180px] lg:mr-[210px]">
+        <div className="shrink-0 sm:text-right self-start sm:self-center sm:mr-[120px] md:mr-[160px] lg:mr-[190px]">
           <p className="text-[10px] md:text-[11px] font-bold text-blue-200/70 uppercase tracking-wider leading-none">
             Hari ini
           </p>
@@ -72,7 +72,7 @@ export function HeroWelcome({ userName, roleLabel, description }: HeroWelcomePro
 
       {/* Kader posyandu illustration — pops out from top-right */}
       <div
-        className="absolute z-0 -top-8 right-5 drop-shadow-2xl select-none hidden sm:block w-[120px] md:w-[160px] lg:w-[190px] hover:animate-float-3d"
+        className="absolute z-0 -top-8 right-5 drop-shadow-2xl pointer-events-none select-none hidden sm:block w-[120px] md:w-[160px] lg:w-[190px] hover:animate-float-3d"
         aria-hidden="true"
       >
         <Image

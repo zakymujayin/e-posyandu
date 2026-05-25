@@ -28,7 +28,7 @@ export const MESSAGES = {
     DITOLAK_OPD: "red",
   } as Record<PengajuanStatus, string>,
   roles: {
-    KADER: "Kader Posyandu",
+    POSYANDU: "Akun Posyandu",
     PETUGAS_DESA: "Petugas Desa",
     PETUGAS_KECAMATAN: "Petugas Kecamatan",
     PETUGAS_OPD: "Petugas OPD",

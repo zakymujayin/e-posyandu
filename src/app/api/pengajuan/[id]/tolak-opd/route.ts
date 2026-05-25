@@ -22,7 +22,7 @@ export async function POST(
 
   const pengajuan = await prisma.pengajuan.findUnique({
     where: { id },
-    include: { kader: { select: { id: true, email: true, name: true } } },
+    include: { posyanduUser: { select: { id: true, email: true, name: true } } },
   })
 
   if (!pengajuan) return err("Pengajuan tidak ditemukan", 404)
@@ -51,7 +51,7 @@ export async function POST(
     })
   })
 
-  await createNotificationsForUsers([pengajuan.kaderId], {
+  await createNotificationsForUsers([pengajuan.posyanduUserId], {
     type: "REJECTED_OPD",
     title: "Pengajuan Ditolak OPD",
     message: `Pengajuan ${pengajuan.tiketNumber} ditolak oleh OPD. Alasan: ${parsed.data.catatan}`,
@@ -59,12 +59,12 @@ export async function POST(
   })
 
   sendStatusChangeEmail(
-    pengajuan.kader.email,
-    pengajuan.kader.name,
+    pengajuan.posyanduUser.email,
+    pengajuan.posyanduUser.name,
     pengajuan.tiketNumber,
     "Ditolak OPD",
     id,
-    "KADER"
+    "POSYANDU"
   ).catch(() => {})
 
   return ok({ status: "DITOLAK_OPD" }, "Pengajuan berhasil ditolak")

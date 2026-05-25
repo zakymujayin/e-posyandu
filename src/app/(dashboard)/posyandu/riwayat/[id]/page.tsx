@@ -6,7 +6,7 @@ import { getSopInfo } from "@/lib/sop"
 import { PageHeader } from "@/components/shared/page-header"
 import { PageContainer } from "@/components/layout/page-container"
 
-export default async function KaderRiwayatDetailPage({
+export default async function PosyanduRiwayatDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>
@@ -23,7 +23,7 @@ export default async function KaderRiwayatDetailPage({
       layananJenis: { select: { id: true, name: true } },
       desa: { select: { id: true, name: true, kecamatan: { select: { name: true } } } },
       posyandu: { select: { id: true, name: true } },
-      kader: { select: { id: true, name: true } },
+      posyanduUser: { select: { id: true, name: true } },
       fieldValues: {
         include: { formField: { select: { fieldLabel: true, fieldType: true, fieldName: true } } },
       },
@@ -42,7 +42,7 @@ export default async function KaderRiwayatDetailPage({
   })
 
   if (!pengajuan) notFound()
-  if (pengajuan.kaderId !== session.user.id) redirect("/kader/riwayat")
+  if (pengajuan.posyanduUserId !== session.user.id) redirect("/posyandu/riwayat")
 
   const sopInfo = await getSopInfo(id)
 
@@ -51,7 +51,7 @@ export default async function KaderRiwayatDetailPage({
       <PageHeader
         title={`Tiket #${pengajuan.tiketNumber}`}
         description="Detail pengajuan dan progres penanganan"
-        backHref="/kader/riwayat"
+        backHref="/posyandu/riwayat"
       />
       <PengajuanDetail
         pengajuan={pengajuan}

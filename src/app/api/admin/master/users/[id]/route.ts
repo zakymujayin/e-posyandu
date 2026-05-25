@@ -8,7 +8,7 @@ const schema = z.object({
   phone: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
   password: z.string().min(8).optional(),
-  role: z.enum(["KADER", "PETUGAS_DESA", "PETUGAS_KECAMATAN", "PETUGAS_OPD", "ADMIN_DPMD"]).optional(),
+  role: z.enum(["POSYANDU", "PETUGAS_DESA", "PETUGAS_KECAMATAN", "PETUGAS_OPD", "ADMIN_DPMD"]).optional(),
   desaId: z.string().optional().nullable(),
   kecamatanId: z.string().optional().nullable(),
   opdId: z.string().optional().nullable(),

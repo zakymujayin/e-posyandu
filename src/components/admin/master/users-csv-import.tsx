@@ -6,7 +6,7 @@ import { Upload, Download, X, CheckCircle2, AlertCircle, FileText, Loader2 } fro
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 
-type ImportRole = "KADER" | "PETUGAS_DESA" | "PETUGAS_KECAMATAN" | "PETUGAS_OPD"
+type ImportRole = "POSYANDU" | "PETUGAS_DESA" | "PETUGAS_KECAMATAN" | "PETUGAS_OPD"
 
 interface ParsedRow {
   [key: string]: string
@@ -20,16 +20,16 @@ interface ImportResult {
 }
 
 const ROLE_LABELS: Record<ImportRole, string> = {
-  KADER: "Kader Posyandu",
+  POSYANDU: "Akun Posyandu",
   PETUGAS_DESA: "Petugas Desa",
   PETUGAS_KECAMATAN: "Petugas Kecamatan",
   PETUGAS_OPD: "Petugas OPD",
 }
 
 const TEMPLATES: Record<ImportRole, { headers: string[]; example: string[] }> = {
-  KADER: {
-    headers: ["nama", "email", "password", "posyandu_id"],
-    example: ["Siti Aminah", "siti@example.com", "password123", "uuid-posyandu"],
+  POSYANDU: {
+    headers: ["nama_posyandu", "no_registrasi", "email", "password", "desa_id"],
+    example: ["Posyandu Melati", "REG-2026-001", "melati001", "password123", "uuid-desa"],
   },
   PETUGAS_DESA: {
     headers: ["nama", "email", "password", "desa_id"],
@@ -70,7 +70,7 @@ function downloadTemplate(role: ImportRole) {
 }
 
 export function UsersCsvImport({ onClose }: { onClose: () => void }) {
-  const [role, setRole] = useState<ImportRole>("KADER")
+  const [role, setRole] = useState<ImportRole>("POSYANDU")
   const [parsedRows, setParsedRows] = useState<ParsedRow[]>([])
   const [fileName, setFileName] = useState("")
   const [results, setResults] = useState<ImportResult[] | null>(null)
