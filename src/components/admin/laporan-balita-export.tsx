@@ -3,9 +3,14 @@
 import { Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export function LaporanBalitaExport() {
+export function LaporanBalitaExport({ kecId, desaId, posyanduId }: { kecId?: string; desaId?: string; posyanduId?: string }) {
   function handleExportCsv() {
-    window.open("/api/admin/laporan/balita/export", "_blank")
+    const params = new URLSearchParams()
+    if (kecId) params.set("kecId", kecId)
+    if (desaId) params.set("desaId", desaId)
+    if (posyanduId) params.set("posyanduId", posyanduId)
+    const qs = params.toString()
+    window.open(`/api/admin/laporan/balita/export${qs ? `?${qs}` : ""}`, "_blank")
   }
 
   return (

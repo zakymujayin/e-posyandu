@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { PageContainer } from "@/components/layout/page-container"
 import { PageHeader } from "@/components/shared/page-header"
 import { BalitaDetail } from "@/components/posyandu/balita-detail"
-import { differenceInMonths, format } from "date-fns"
+import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 
 export default async function BalitaDetailPage({
@@ -29,6 +29,9 @@ export default async function BalitaDetailPage({
     include: {
       penimbangans: { orderBy: [{ tahun: "asc" }, { bulan: "asc" }] },
       imunisasis: { orderBy: { tanggalPemberian: "asc" } },
+      posyandu: {
+        select: { name: true, desa: { select: { name: true, kecamatan: { select: { name: true } } } } },
+      },
     },
   })
 
@@ -38,7 +41,7 @@ export default async function BalitaDetailPage({
     <PageContainer className="space-y-6">
       <PageHeader
         title={balita.namaBalita}
-        description={`${differenceInMonths(new Date(), balita.tanggalLahir)} bulan · ${balita.jenisKelamin === "LAKI_LAKI" ? "Laki-laki" : "Perempuan"} · Lahir ${format(balita.tanggalLahir, "d MMMM yyyy", { locale: localeId })}`}
+        description={`${balita.posyandu.name} · Desa ${balita.posyandu.desa.name} · Kec. ${balita.posyandu.desa.kecamatan.name}`}
         backHref="/posyandu/balita"
       />
       <BalitaDetail balita={JSON.parse(JSON.stringify(balita))} />

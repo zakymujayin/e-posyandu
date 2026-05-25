@@ -12,37 +12,41 @@ import { Baby, CheckCircle2, AlertCircle, Scale } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle as AlertCircleIcon } from "lucide-react"
 
-export default async function RekapBalitaDesaPage() {
+export default async function RekapBalitaKecDesaPage({
+  params,
+}: {
+  params: Promise<{ desaId: string }>
+}) {
   const session = await auth()
-  if (!session?.user || session.user.role !== "PETUGAS_DESA") redirect("/login")
+  if (!session?.user || session.user.role !== "PETUGAS_KECAMATAN") redirect("/login")
 
-  const petugasDesa = await prisma.user.findUnique({
+  const { desaId } = await params
+
+  const petugas = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { desaId: true },
+    select: { kecamatanId: true },
   })
 
-  if (!petugasDesa?.desaId) {
+  if (!petugas?.kecamatanId) {
     return (
       <PageContainer>
-        <Alert variant="destructive">
-          <AlertCircleIcon className="h-4 w-4" />
-          <AlertDescription>Akun belum dihubungkan ke desa. Hubungi admin.</AlertDescription>
-        </Alert>
+        <Alert variant="destructive"><AlertCircleIcon className="h-4 w-4" /><AlertDescription>Akun belum dihubungkan ke kecamatan.</AlertDescription></Alert>
       </PageContainer>
     )
   }
 
   const desa = await prisma.desa.findUnique({
-    where: { id: petugasDesa.desaId },
-    select: { name: true },
+    where: { id: desaId },
+    select: { name: true, kecamatanId: true },
   })
+  if (!desa || desa.kecamatanId !== petugas.kecamatanId) redirect("/kecamatan/rekap-balita")
 
   const now = new Date()
   const bulanIni = now.getMonth() + 1
   const tahunIni = now.getFullYear()
 
   const posyandus = await prisma.posyandu.findMany({
-    where: { desaId: petugasDesa.desaId },
+    where: { desaId },
     select: { id: true, name: true },
     orderBy: { name: "asc" },
   })
@@ -94,9 +98,9 @@ export default async function RekapBalitaDesaPage() {
   return (
     <PageContainer className="space-y-6">
       <PageHeader
-        title={desa?.name ?? "Desa"}
+        title={desa.name}
         description={`Status penimbangan balita per posyandu — ${BULAN_LABEL} ${tahunIni}`}
-        backHref="/petugas-desa"
+        backHref="/kecamatan/rekap-balita"
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -114,7 +118,7 @@ export default async function RekapBalitaDesaPage() {
           return (
             <TableRow key={r.id} className="hover:bg-muted/30 transition-colors">
               <TableCell className="px-4 py-3.5 font-semibold text-sm">
-                <Link href={`/petugas-desa/rekap-balita/${r.id}`} className="hover:text-blue-600 hover:underline transition-colors">
+                <Link href={`/kecamatan/rekap-balita/${desaId}/${r.id}`} className="hover:text-blue-600 hover:underline transition-colors">
                   {r.name}
                 </Link>
               </TableCell>

@@ -12,15 +12,20 @@ interface StatData {
 
 const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#3b82f6"]
 
-export function LaporanBalitaCharts() {
+export function LaporanBalitaCharts({ kecId, desaId, posyanduId }: { kecId?: string; desaId?: string; posyanduId?: string }) {
   const [data, setData] = useState<StatData | null>(null)
 
   useEffect(() => {
-    fetch("/api/admin/laporan/balita/statistik")
+    const params = new URLSearchParams()
+    if (kecId) params.set("kecId", kecId)
+    if (desaId) params.set("desaId", desaId)
+    if (posyanduId) params.set("posyanduId", posyanduId)
+    const qs = params.toString()
+    fetch(`/api/admin/laporan/balita/statistik${qs ? `?${qs}` : ""}`)
       .then((r) => r.json())
       .then((d) => { if (d.data) setData(d.data) })
       .catch(console.error)
-  }, [])
+  }, [kecId, desaId, posyanduId])
 
   if (!data) {
     return (

@@ -1,5 +1,6 @@
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
+import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { PageContainer } from "@/components/layout/page-container"
 import { PageHeader } from "@/components/shared/page-header"
@@ -9,6 +10,7 @@ import { StatCard } from "@/components/shared/stat-card"
 import { Badge } from "@/components/ui/badge"
 import { Baby, CheckCircle2, AlertCircle, MapPin } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle as AlertCircleIcon } from "lucide-react"
 
 export default async function RekapBalitaKecamatanPage() {
   const session = await auth()
@@ -23,12 +25,17 @@ export default async function RekapBalitaKecamatanPage() {
     return (
       <PageContainer>
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircleIcon className="h-4 w-4" />
           <AlertDescription>Akun belum dihubungkan ke kecamatan. Hubungi admin.</AlertDescription>
         </Alert>
       </PageContainer>
     )
   }
+
+  const kecamatan = await prisma.kecamatan.findUnique({
+    where: { id: petugas.kecamatanId },
+    select: { name: true },
+  })
 
   const now = new Date()
   const bulanIni = now.getMonth() + 1
@@ -42,9 +49,7 @@ export default async function RekapBalitaKecamatanPage() {
 
   const posyanduToDesaMap = new Map<string, string>()
   for (const d of desas) {
-    for (const p of d.posyandus) {
-      posyanduToDesaMap.set(p.id, d.id)
-    }
+    for (const p of d.posyandus) posyanduToDesaMap.set(p.id, d.id)
   }
   const allPosyanduIds = Array.from(posyanduToDesaMap.keys())
 
@@ -98,7 +103,7 @@ export default async function RekapBalitaKecamatanPage() {
   return (
     <PageContainer className="space-y-6">
       <PageHeader
-        title="Rekap Data Balita"
+        title={kecamatan?.name ?? "Kecamatan"}
         description={`Status penimbangan balita per desa — ${BULAN_LABEL} ${tahunIni}`}
         backHref="/kecamatan"
       />
@@ -117,7 +122,11 @@ export default async function RekapBalitaKecamatanPage() {
           const pct = r.total > 0 ? Math.round((r.ditimbang / r.total) * 100) : 0
           return (
             <TableRow key={r.id} className="hover:bg-muted/30 transition-colors">
-              <TableCell className="px-4 py-3.5 font-semibold text-sm">{r.name}</TableCell>
+              <TableCell className="px-4 py-3.5 font-semibold text-sm">
+                <Link href={`/kecamatan/rekap-balita/${r.id}`} className="hover:text-blue-600 hover:underline transition-colors">
+                  {r.name}
+                </Link>
+              </TableCell>
               <TableCell className="px-4 py-3.5 text-sm text-center text-muted-foreground">{r.posyandus.length}</TableCell>
               <TableCell className="px-4 py-3.5 text-sm text-center">{r.total}</TableCell>
               <TableCell className="px-4 py-3.5 text-sm text-center text-emerald-700 font-semibold">{r.ditimbang}</TableCell>

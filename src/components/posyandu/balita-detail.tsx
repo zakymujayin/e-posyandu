@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
-import { format } from "date-fns"
+import { format, differenceInMonths } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { Scale, Syringe, CheckCircle2, Plus, Pencil, Trash2, Loader2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -47,6 +47,10 @@ interface Balita {
   catatanKesehatan: string | null
   penimbangans: Penimbangan[]
   imunisasis: Imunisasi[]
+  posyandu?: {
+    name: string
+    desa: { name: string; kecamatan: { name: string } }
+  } | null
 }
 
 function PenimbanganModal({
@@ -335,6 +339,7 @@ export function BalitaDetail({ balita: initialBalita }: { balita: Balita }) {
   const [savingCatatan, setSavingCatatan] = useState(false)
 
   const now = new Date()
+  const usiaBln = differenceInMonths(now, new Date(balita.tanggalLahir))
   const penimbanganTahunIni = balita.penimbangans.filter((p) => p.tahun === tahun)
 
   function penimbanganForBulan(bulan: number) {
@@ -403,29 +408,51 @@ export function BalitaDetail({ balita: initialBalita }: { balita: Balita }) {
   return (
     <>
       {/* Info Card */}
-      <div className="rounded-xl border border-border bg-card p-5 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-        <div>
-          <p className="text-xs text-muted-foreground">Nama Orang Tua / Wali</p>
-          <p className="font-semibold mt-0.5">{balita.namaOrangTua}</p>
+      <div className="rounded-xl border border-border bg-card p-5 space-y-3 text-sm">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <p className="text-xs text-muted-foreground">Posyandu</p>
+            <p className="font-semibold mt-0.5">{balita.posyandu?.name ?? "—"}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Desa / Kelurahan</p>
+            <p className="font-semibold mt-0.5">{balita.posyandu?.desa.name ?? "—"}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Kecamatan</p>
+            <p className="font-semibold mt-0.5">{balita.posyandu?.desa.kecamatan.name ?? "—"}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Usia / Jenis Kelamin</p>
+            <p className="font-semibold mt-0.5">{usiaBln} bulan · {balita.jenisKelamin === "LAKI_LAKI" ? "Laki-laki" : "Perempuan"}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Lahir {format(new Date(balita.tanggalLahir), "d MMMM yyyy", { locale: localeId })}</p>
+          </div>
         </div>
-        {balita.nikOrangTua && (
+        <hr className="border-border/50" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <p className="text-xs text-muted-foreground">NIK</p>
-            <p className="font-semibold mt-0.5 font-mono">{balita.nikOrangTua}</p>
+            <p className="text-xs text-muted-foreground">Nama Orang Tua / Wali</p>
+            <p className="font-semibold mt-0.5">{balita.namaOrangTua}</p>
           </div>
-        )}
-        {balita.noHpOrangTua && (
-          <div>
-            <p className="text-xs text-muted-foreground">No. HP</p>
-            <p className="font-semibold mt-0.5">{balita.noHpOrangTua}</p>
-          </div>
-        )}
-        {balita.alamat && (
-          <div>
-            <p className="text-xs text-muted-foreground">Alamat</p>
-            <p className="font-semibold mt-0.5">{balita.alamat}</p>
-          </div>
-        )}
+          {balita.nikOrangTua && (
+            <div>
+              <p className="text-xs text-muted-foreground">NIK</p>
+              <p className="font-semibold mt-0.5 font-mono">{balita.nikOrangTua}</p>
+            </div>
+          )}
+          {balita.noHpOrangTua && (
+            <div>
+              <p className="text-xs text-muted-foreground">No. HP</p>
+              <p className="font-semibold mt-0.5">{balita.noHpOrangTua}</p>
+            </div>
+          )}
+          {balita.alamat && (
+            <div>
+              <p className="text-xs text-muted-foreground">Alamat</p>
+              <p className="font-semibold mt-0.5">{balita.alamat}</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Catatan Kesehatan */}

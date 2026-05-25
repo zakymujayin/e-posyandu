@@ -5,24 +5,53 @@ import { requireAuth, ok, err } from "@/lib/api-helpers"
 const BULAN_NAMES = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
 
 export async function GET(req: NextRequest) {
-  const { user, response } = await requireAuth(["ADMIN_DPMD"])
+  const { user, response } = await requireAuth(["ADMIN_DPMD", "PETUGAS_KECAMATAN", "PETUGAS_DESA"])
   if (!user) return response!
 
   try {
     const { searchParams } = new URL(req.url)
     const kecId = searchParams.get("kecId")
     const desaId = searchParams.get("desaId")
+    const posyanduId = searchParams.get("posyanduId")
     const tahun = parseInt(searchParams.get("tahun") ?? String(new Date().getFullYear()))
 
     const now = new Date()
     const bulanIni = now.getMonth() + 1
     const tahunIni = now.getFullYear()
 
-    // Build posyandu filter
+    // Build posyandu filter based on role + params
     const posyanduFilter: Record<string, unknown> = {}
-    if (desaId) {
+
+    if (user.role === "PETUGAS_DESA") {
+      const petugas = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { desaId: true },
+      })
+      if (!petugas?.desaId) return err("Akun belum dihubungkan ke desa", 400)
+      posyanduFilter.desaId = petugas.desaId
+    } else if (user.role === "PETUGAS_KECAMATAN") {
+      const petugas = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { kecamatanId: true },
+      })
+      if (!petugas?.kecamatanId) return err("Akun belum dihubungkan ke kecamatan", 400)
+      posyanduFilter.desa = { kecamatanId: petugas.kecamatanId }
+    }
+
+    // Apply query params on top of role filter
+    if (posyanduId) {
+      posyanduFilter.id = posyanduId
+    } else if (desaId) {
+      if (user.role === "PETUGAS_DESA") {
+        const petugas = await prisma.user.findUnique({ where: { id: user.id }, select: { desaId: true } })
+        if (petugas?.desaId !== desaId) return err("Akses ditolak", 403)
+      }
       posyanduFilter.desaId = desaId
     } else if (kecId) {
+      if (user.role === "PETUGAS_KECAMATAN") {
+        const petugas = await prisma.user.findUnique({ where: { id: user.id }, select: { kecamatanId: true } })
+        if (petugas?.kecamatanId !== kecId) return err("Akses ditolak", 403)
+      }
       posyanduFilter.desa = { kecamatanId: kecId }
     }
 

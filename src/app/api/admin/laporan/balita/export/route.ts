@@ -5,7 +5,7 @@ import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 
 export async function GET(req: NextRequest) {
-  const { user, response } = await requireAuth(["ADMIN_DPMD"])
+  const { user, response } = await requireAuth(["ADMIN_DPMD", "PETUGAS_KECAMATAN", "PETUGAS_DESA"])
   if (!user) return response!
 
   const { searchParams } = new URL(req.url)
@@ -16,6 +16,18 @@ export async function GET(req: NextRequest) {
   const tahun = parseInt(searchParams.get("tahun") ?? String(new Date().getFullYear()))
 
   const posyanduFilter: Record<string, unknown> = {}
+
+  // Role-based scoping
+  if (user.role === "PETUGAS_DESA") {
+    const p = await prisma.user.findUnique({ where: { id: user.id }, select: { desaId: true } })
+    if (!p?.desaId) return new Response("Akun belum dihubungkan ke desa", { status: 400 })
+    posyanduFilter.desaId = p.desaId
+  } else if (user.role === "PETUGAS_KECAMATAN") {
+    const p = await prisma.user.findUnique({ where: { id: user.id }, select: { kecamatanId: true } })
+    if (!p?.kecamatanId) return new Response("Akun belum dihubungkan ke kecamatan", { status: 400 })
+    posyanduFilter.desa = { kecamatanId: p.kecamatanId }
+  }
+
   if (posyanduId) {
     posyanduFilter.id = posyanduId
   } else if (desaId) {

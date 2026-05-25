@@ -30,10 +30,12 @@ export const NAV_ITEMS: Record<UserRole, NavItem[]> = {
     { href: "/petugas-desa", label: "Beranda", icon: Home },
     { href: "/petugas-desa/verifikasi", label: "Verifikasi", icon: CheckCircle },
     { href: "/petugas-desa/rekap-balita", label: "Rekap Balita", icon: Baby },
+    { href: "/admin/laporan-balita", label: "Laporan Balita", icon: PieChart },
   ],
   PETUGAS_KECAMATAN: [
     { href: "/kecamatan", label: "Monitoring", icon: Eye },
     { href: "/kecamatan/rekap-balita", label: "Rekap Balita", icon: Baby },
+    { href: "/admin/laporan-balita", label: "Laporan Balita", icon: PieChart },
   ],
   PETUGAS_OPD: [
     { href: "/opd", label: "Beranda", icon: Home },
