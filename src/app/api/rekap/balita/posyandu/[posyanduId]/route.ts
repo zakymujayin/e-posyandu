@@ -11,10 +11,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ posy
 
     if (user.role === "PETUGAS_DESA") {
       const petugas = await prisma.user.findUnique({ where: { id: user.id }, select: { desaId: true } })
-      if (petugas?.desaId) {
-        const posyandu = await prisma.posyandu.findUnique({ where: { id: posyanduId }, select: { desaId: true } })
-        if (!posyandu || posyandu.desaId !== petugas.desaId) return err("Akses ditolak", 403)
-      }
+      const posyandu = await prisma.posyandu.findUnique({ where: { id: posyanduId }, select: { desaId: true } })
+      if (!posyandu || posyandu.desaId !== petugas?.desaId) return err("Akses ditolak", 403)
     }
 
     const now = new Date()
