@@ -96,7 +96,7 @@ export default async function BalitaListPage({
             name="search"
             defaultValue={search}
             placeholder="Cari nama anak..."
-            className="w-full h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="w-full h-9 rounded-lg border border-border bg-card shadow-xs px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </form>
         <Button asChild className="gap-2 font-bold">
