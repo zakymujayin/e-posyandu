@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
@@ -127,7 +128,11 @@ export default async function RekapBalitaAdminPage() {
           const pct = kec.totalBalita > 0 ? Math.round((kec.ditimbang / kec.totalBalita) * 100) : 0
           return (
             <TableRow key={kec.id} className="hover:bg-muted/30 transition-colors">
-              <TableCell className="px-4 py-3.5 font-semibold text-sm">{kec.name}</TableCell>
+              <TableCell className="px-4 py-3.5 font-semibold text-sm">
+                <Link href={`/admin/rekap-balita/${kec.id}`} className="hover:text-blue-600 hover:underline transition-colors">
+                  {kec.name}
+                </Link>
+              </TableCell>
               <TableCell className="px-4 py-3.5 text-sm text-center text-muted-foreground">{kec.desaCount}</TableCell>
               <TableCell className="px-4 py-3.5 text-sm text-center text-muted-foreground">{kec.posyanduCount}</TableCell>
               <TableCell className="px-4 py-3.5 text-sm text-center">{kec.totalBalita}</TableCell>
