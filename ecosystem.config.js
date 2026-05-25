@@ -2,8 +2,7 @@ module.exports = {
   apps: [
     {
       name: "e-posyandu",
-      script: "node_modules/next/dist/bin/next",
-      args: "start",
+      script: "start.js",
       env: {
         NODE_ENV: "production",
         PORT: 3000,
