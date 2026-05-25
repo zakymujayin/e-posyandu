@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { withCache } from "@/lib/cache"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ kecId: string }> }) {
   const { user, response } = await requireAuth(["PETUGAS_KECAMATAN", "ADMIN_DPMD"])
@@ -20,6 +21,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ kecI
     const bulanIni = now.getMonth() + 1
     const tahunIni = now.getFullYear()
 
+    const rekap = await withCache(`rekap:kec:${kecId}:${bulanIni}:${tahunIni}`, 3600, async () => {
     // Get desas with their posyandu ids
     const desas = await prisma.desa.findMany({
       where: { kecamatanId: kecId },
@@ -67,7 +69,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ kecI
       if (desaId) ditimbangByDesa.set(desaId, (ditimbangByDesa.get(desaId) ?? 0) + 1)
     }
 
-    const rekap = desas.map((d) => {
+    return desas.map((d) => {
       const totalBalita = totalByDesa.get(d.id) ?? 0
       const ditimbangBulanIni = ditimbangByDesa.get(d.id) ?? 0
       return {
@@ -78,6 +80,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ kecI
         ditimbangBulanIni,
         belumDitimbang: totalBalita - ditimbangBulanIni,
       }
+    })
     })
 
     return ok(rekap)

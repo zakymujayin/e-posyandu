@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
+import { withCache } from "@/lib/cache"
 import { PageContainer } from "@/components/layout/page-container"
 import { PageHeader } from "@/components/shared/page-header"
 import { DataTable } from "@/components/shared/data-table"
@@ -37,53 +38,56 @@ export default async function RekapBalitaDesaPage() {
     select: { name: true },
   })
 
+  const desaId = petugasDesa.desaId
   const now = new Date()
   const bulanIni = now.getMonth() + 1
   const tahunIni = now.getFullYear()
 
-  const posyandus = await prisma.posyandu.findMany({
-    where: { desaId: petugasDesa.desaId },
-    select: { id: true, name: true },
-    orderBy: { name: "asc" },
-  })
+  const rows = await withCache(`rekap:desa:${desaId}:${bulanIni}:${tahunIni}`, 3600, async () => {
+    const posyandus = await prisma.posyandu.findMany({
+      where: { desaId },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    })
 
-  const posyanduIds = posyandus.map((p) => p.id)
+    const posyanduIds = posyandus.map((p) => p.id)
 
-  const [totalRows, weighedRows] = await Promise.all([
-    prisma.balita.groupBy({
-      by: ["posyanduId"],
-      where: { posyanduId: { in: posyanduIds }, isActive: true },
-      _count: { id: true },
-    }),
-    prisma.penimbanganBalita.findMany({
-      where: {
-        bulan: bulanIni,
-        tahun: tahunIni,
-        balita: { posyanduId: { in: posyanduIds }, isActive: true },
-      },
-      select: { balitaId: true, balita: { select: { posyanduId: true } } },
-      distinct: ["balitaId"],
-    }),
-  ])
+    const [totalRows, weighedRows] = await Promise.all([
+      prisma.balita.groupBy({
+        by: ["posyanduId"],
+        where: { posyanduId: { in: posyanduIds }, isActive: true },
+        _count: { id: true },
+      }),
+      prisma.penimbanganBalita.findMany({
+        where: {
+          bulan: bulanIni,
+          tahun: tahunIni,
+          balita: { posyanduId: { in: posyanduIds }, isActive: true },
+        },
+        select: { balitaId: true, balita: { select: { posyanduId: true } } },
+        distinct: ["balitaId"],
+      }),
+    ])
 
-  const totalMap = new Map(totalRows.map((r) => [r.posyanduId, r._count.id]))
-  const ditimbangMap = new Map<string, number>()
-  for (const row of weighedRows) {
-    const pid = row.balita.posyanduId
-    ditimbangMap.set(pid, (ditimbangMap.get(pid) ?? 0) + 1)
-  }
+    const totalMap = new Map(totalRows.map((r) => [r.posyanduId, r._count.id]))
+    const ditimbangMap = new Map<string, number>()
+    for (const row of weighedRows) {
+      const pid = row.balita.posyanduId
+      ditimbangMap.set(pid, (ditimbangMap.get(pid) ?? 0) + 1)
+    }
 
-  const rows = posyandus.map((p) => {
-    const total = totalMap.get(p.id) ?? 0
-    const ditimbang = ditimbangMap.get(p.id) ?? 0
-    return { ...p, total, ditimbang, belum: total - ditimbang }
+    return posyandus.map((p) => {
+      const total = totalMap.get(p.id) ?? 0
+      const ditimbang = ditimbangMap.get(p.id) ?? 0
+      return { ...p, total, ditimbang, belum: total - ditimbang }
+    })
   })
 
   const totalBalita = rows.reduce((s, r) => s + r.total, 0)
   const totalDitimbang = rows.reduce((s, r) => s + r.ditimbang, 0)
 
   const stats = [
-    { label: "Total Posyandu", value: posyandus.length, icon: Scale, variant: "primary" as const },
+    { label: "Total Posyandu", value: rows.length, icon: Scale, variant: "primary" as const },
     { label: "Total Balita", value: totalBalita, icon: Baby, variant: "accent" as const },
     { label: "Ditimbang Bulan Ini", value: totalDitimbang, icon: CheckCircle2, variant: "secondary" as const },
     { label: "Belum Ditimbang", value: totalBalita - totalDitimbang, icon: AlertCircle, variant: "destructive" as const },

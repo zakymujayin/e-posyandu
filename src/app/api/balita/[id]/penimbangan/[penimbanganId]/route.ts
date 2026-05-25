@@ -2,6 +2,7 @@ import { NextRequest } from "next/server"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { invalidateRekap } from "@/lib/cache"
 
 const updateSchema = z.object({
   beratBadan: z.number().positive().optional().nullable(),
@@ -38,6 +39,7 @@ export async function PATCH(
     if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Data tidak valid", 422)
 
     const updated = await prisma.penimbanganBalita.update({ where: { id: penimbanganId }, data: parsed.data })
+    invalidateRekap(existing.bulan, existing.tahun).catch(() => {})
     return ok(updated)
   } catch (e) {
     console.error("[PATCH /api/balita/[id]/penimbangan/[penimbanganId]]", e)
@@ -58,6 +60,7 @@ export async function DELETE(
     if (!existing) return err("Data tidak ditemukan", 404)
 
     await prisma.penimbanganBalita.delete({ where: { id: penimbanganId } })
+    invalidateRekap(existing.bulan, existing.tahun).catch(() => {})
     return ok(null, "Data penimbangan berhasil dihapus")
   } catch (e) {
     console.error("[DELETE /api/balita/[id]/penimbangan/[penimbanganId]]", e)

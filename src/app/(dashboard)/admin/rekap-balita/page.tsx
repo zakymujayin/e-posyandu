@@ -2,6 +2,7 @@ import Link from "next/link"
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
+import { withCache } from "@/lib/cache"
 import { PageContainer } from "@/components/layout/page-container"
 import { PageHeader } from "@/components/shared/page-header"
 import { DataTable } from "@/components/shared/data-table"
@@ -18,87 +19,87 @@ export default async function RekapBalitaAdminPage() {
   const bulanIni = now.getMonth() + 1
   const tahunIni = now.getFullYear()
 
-  const kecamatans = await prisma.kecamatan.findMany({
-    select: {
-      id: true,
-      name: true,
-      desas: {
-        select: {
-          id: true,
-          posyandus: { select: { id: true } },
+  const kecamatanRows = await withCache(`rekap:all:${bulanIni}:${tahunIni}`, 3600, async () => {
+    const kecamatans = await prisma.kecamatan.findMany({
+      select: {
+        id: true,
+        name: true,
+        desas: {
+          select: {
+            id: true,
+            posyandus: { select: { id: true } },
+          },
         },
       },
-    },
-    orderBy: { name: "asc" },
-  })
+      orderBy: { name: "asc" },
+    })
 
-  const posyanduToDesaMap = new Map<string, string>()
-  let totalPosyanduCount = 0
-  for (const k of kecamatans) {
-    for (const d of k.desas) {
-      for (const p of d.posyandus) {
-        posyanduToDesaMap.set(p.id, d.id)
-        totalPosyanduCount++
+    const posyanduToDesaMap = new Map<string, string>()
+    for (const k of kecamatans) {
+      for (const d of k.desas) {
+        for (const p of d.posyandus) {
+          posyanduToDesaMap.set(p.id, d.id)
+        }
       }
     }
-  }
 
-  const allPosyanduIds = Array.from(posyanduToDesaMap.keys())
+    const allPosyanduIds = Array.from(posyanduToDesaMap.keys())
 
-  const [totalRows, weighedRows] = await Promise.all([
-    prisma.balita.groupBy({
-      by: ["posyanduId"],
-      where: { posyanduId: { in: allPosyanduIds }, isActive: true },
-      _count: { id: true },
-    }),
-    prisma.penimbanganBalita.findMany({
-      where: {
-        bulan: bulanIni,
-        tahun: tahunIni,
-        balita: { posyanduId: { in: allPosyanduIds }, isActive: true },
-      },
-      select: { balitaId: true, balita: { select: { posyanduId: true } } },
-      distinct: ["balitaId"],
-    }),
-  ])
+    const [totalRows, weighedRows] = await Promise.all([
+      prisma.balita.groupBy({
+        by: ["posyanduId"],
+        where: { posyanduId: { in: allPosyanduIds }, isActive: true },
+        _count: { id: true },
+      }),
+      prisma.penimbanganBalita.findMany({
+        where: {
+          bulan: bulanIni,
+          tahun: tahunIni,
+          balita: { posyanduId: { in: allPosyanduIds }, isActive: true },
+        },
+        select: { balitaId: true, balita: { select: { posyanduId: true } } },
+        distinct: ["balitaId"],
+      }),
+    ])
 
-  const totalByDesa = new Map<string, number>()
-  for (const row of totalRows) {
-    const desaId = posyanduToDesaMap.get(row.posyanduId)
-    if (desaId) totalByDesa.set(desaId, (totalByDesa.get(desaId) ?? 0) + row._count.id)
-  }
-
-  const ditimbangByDesa = new Map<string, number>()
-  for (const row of weighedRows) {
-    const desaId = posyanduToDesaMap.get(row.balita.posyanduId)
-    if (desaId) ditimbangByDesa.set(desaId, (ditimbangByDesa.get(desaId) ?? 0) + 1)
-  }
-
-  const kecamatanRows = kecamatans.map((k) => {
-    let totalBalita = 0
-    let totalDitimbang = 0
-    let posyanduCount = 0
-    for (const d of k.desas) {
-      posyanduCount += d.posyandus.length
-      totalBalita += totalByDesa.get(d.id) ?? 0
-      totalDitimbang += ditimbangByDesa.get(d.id) ?? 0
+    const totalByDesa = new Map<string, number>()
+    for (const row of totalRows) {
+      const desaId = posyanduToDesaMap.get(row.posyanduId)
+      if (desaId) totalByDesa.set(desaId, (totalByDesa.get(desaId) ?? 0) + row._count.id)
     }
-    return {
-      id: k.id,
-      name: k.name,
-      desaCount: k.desas.length,
-      posyanduCount,
-      totalBalita,
-      ditimbang: totalDitimbang,
-      belum: totalBalita - totalDitimbang,
+
+    const ditimbangByDesa = new Map<string, number>()
+    for (const row of weighedRows) {
+      const desaId = posyanduToDesaMap.get(row.balita.posyanduId)
+      if (desaId) ditimbangByDesa.set(desaId, (ditimbangByDesa.get(desaId) ?? 0) + 1)
     }
+
+    return kecamatans.map((k) => {
+      let totalBalita = 0
+      let totalDitimbang = 0
+      let posyanduCount = 0
+      for (const d of k.desas) {
+        posyanduCount += d.posyandus.length
+        totalBalita += totalByDesa.get(d.id) ?? 0
+        totalDitimbang += ditimbangByDesa.get(d.id) ?? 0
+      }
+      return {
+        id: k.id,
+        name: k.name,
+        desaCount: k.desas.length,
+        posyanduCount,
+        totalBalita,
+        ditimbang: totalDitimbang,
+        belum: totalBalita - totalDitimbang,
+      }
+    })
   })
 
   const totalBalita = kecamatanRows.reduce((s, r) => s + r.totalBalita, 0)
   const totalDitimbang = kecamatanRows.reduce((s, r) => s + r.ditimbang, 0)
 
   const stats = [
-    { label: "Total Kecamatan", value: kecamatans.length, icon: Building2, variant: "primary" as const },
+    { label: "Total Kecamatan", value: kecamatanRows.length, icon: Building2, variant: "primary" as const },
     { label: "Total Balita", value: totalBalita, icon: Baby, variant: "accent" as const },
     { label: "Ditimbang Bulan Ini", value: totalDitimbang, icon: CheckCircle2, variant: "secondary" as const },
     { label: "Belum Ditimbang", value: totalBalita - totalDitimbang, icon: AlertCircle, variant: "destructive" as const },

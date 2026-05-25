@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { withCache } from "@/lib/cache"
 
 export async function GET(req: NextRequest) {
   const { user, response } = await requireAuth(["ADMIN_DPMD"])
@@ -11,6 +12,7 @@ export async function GET(req: NextRequest) {
     const bulanIni = now.getMonth() + 1
     const tahunIni = now.getFullYear()
 
+    const rekap = await withCache(`rekap:all:${bulanIni}:${tahunIni}`, 3600, async () => {
     // Get kecamatans with desas and posyandu ids only
     const kecamatans = await prisma.kecamatan.findMany({
       select: {
@@ -76,7 +78,7 @@ export async function GET(req: NextRequest) {
       if (kecId) ditimbangByKec.set(kecId, (ditimbangByKec.get(kecId) ?? 0) + 1)
     }
 
-    const rekap = kecamatans.map((kec) => {
+    return kecamatans.map((kec) => {
       const totalBalita = totalByKec.get(kec.id) ?? 0
       const ditimbangBulanIni = ditimbangByKec.get(kec.id) ?? 0
       return {
@@ -88,6 +90,7 @@ export async function GET(req: NextRequest) {
         ditimbangBulanIni,
         belumDitimbang: totalBalita - ditimbangBulanIni,
       }
+    })
     })
 
     return ok(rekap)

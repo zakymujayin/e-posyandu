@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { withCache } from "@/lib/cache"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ desaId: string }> }) {
   const { user, response } = await requireAuth(["PETUGAS_DESA", "ADMIN_DPMD"])
@@ -20,6 +21,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ desa
     const bulanIni = now.getMonth() + 1
     const tahunIni = now.getFullYear()
 
+    const rekap = await withCache(`rekap:desa:${desaId}:${bulanIni}:${tahunIni}`, 3600, async () => {
     const posyandus = await prisma.posyandu.findMany({
       where: { desaId },
       select: { id: true, name: true },
@@ -53,7 +55,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ desa
       ditimbangMap.set(pid, (ditimbangMap.get(pid) ?? 0) + 1)
     }
 
-    const rekap = posyandus.map((p) => {
+    return posyandus.map((p) => {
       const totalBalita = totalMap.get(p.id) ?? 0
       const ditimbangBulanIni = ditimbangMap.get(p.id) ?? 0
       return {
@@ -63,6 +65,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ desa
         ditimbangBulanIni,
         belumDitimbang: totalBalita - ditimbangBulanIni,
       }
+    })
     })
 
     return ok(rekap)

@@ -6,6 +6,7 @@ import { generateTicketNumber } from "@/lib/ticket"
 import { calculateDeadline } from "@/lib/working-days"
 import { notifyPengajuanBaru } from "@/lib/notifications"
 import { sendNewPengajuanEmail } from "@/lib/email"
+import { rateLimit } from "@/lib/cache"
 
 const createSchema = z.object({
   opdId: z.string().min(1, "OPD wajib dipilih"),
@@ -38,6 +39,9 @@ export async function POST(req: NextRequest) {
   if (!user) return response!
 
   try {
+    const allowed = await rateLimit(`rl:pengajuan:${user.id}`, 5, 600)
+    if (!allowed) return err("Terlalu banyak pengajuan. Coba lagi dalam beberapa menit.", 429)
+
     const body = await req.json()
     const parsed = createSchema.safeParse(body)
     if (!parsed.success) {
