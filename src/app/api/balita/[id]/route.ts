@@ -21,13 +21,22 @@ async function getBalitaForUser(balitaId: string, userId: string) {
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { user, response } = await requireAuth(["POSYANDU"])
+  const { user, response } = await requireAuth(["POSYANDU", "ADMIN_DPMD"])
   if (!user) return response!
 
   try {
     const { id } = await params
-    const balita = await getBalitaForUser(id, user.id)
-    if (!balita) return err("Data tidak ditemukan", 404)
+
+    if (user.role === "ADMIN_DPMD") {
+      const balita = await prisma.balita.findUnique({
+        where: { id },
+        select: { id: true, posyanduId: true },
+      })
+      if (!balita) return err("Data tidak ditemukan", 404)
+    } else {
+      const balita = await getBalitaForUser(id, user.id)
+      if (!balita) return err("Data tidak ditemukan", 404)
+    }
 
     const full = await prisma.balita.findUnique({
       where: { id },
