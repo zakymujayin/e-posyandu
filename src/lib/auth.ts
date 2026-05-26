@@ -12,8 +12,14 @@ class LockoutError extends CredentialsSignin {
   }
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+const nextAuth = NextAuth({
   ...authConfig,
+  logger: {
+    error(error) {
+      if (error.name === "JWTSessionError") return
+      console.error("[auth]", error)
+    },
+  },
   providers: [
     Credentials({
       name: "credentials",
@@ -81,3 +87,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
 })
+
+export const { handlers, signIn, signOut } = nextAuth
+
+const _rawAuth = nextAuth.auth
+
+async function safeAuth() {
+  try {
+    return await _rawAuth()
+  } catch {
+    return null
+  }
+}
+
+export { safeAuth as auth }

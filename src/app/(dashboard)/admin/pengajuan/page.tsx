@@ -28,7 +28,7 @@ const STATUS_OPTIONS = [
 export default async function AdminPengajuanListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; opdId?: string; dari?: string; sampai?: string; page?: string }>
+  searchParams: Promise<{ status?: string; opdId?: string; dari?: string; sampai?: string; page?: string; selesaiOleh?: string }>
 }) {
   const session = await auth()
   if (!session?.user || session.user.role !== "ADMIN_DPMD") redirect("/login")
@@ -38,6 +38,7 @@ export default async function AdminPengajuanListPage({
   const opdId = params.opdId ?? ""
   const dari = params.dari ?? ""
   const sampai = params.sampai ?? ""
+  const selesaiOleh = params.selesaiOleh ?? ""
   const page = Math.max(1, parseInt(params.page ?? "1"))
   const limit = 15
 
@@ -50,6 +51,7 @@ export default async function AdminPengajuanListPage({
   const where: Record<string, unknown> = {}
   if (status) where.status = status
   if (opdId) where.opdId = opdId
+  if (selesaiOleh) where.selesaiOleh = selesaiOleh
   if (dari || sampai) {
     where.submittedAt = {
       ...(dari ? { gte: new Date(dari) } : {}),
@@ -74,7 +76,7 @@ export default async function AdminPengajuanListPage({
   ])
 
   const totalPages = Math.ceil(total / limit)
-  const filterQuery = `status=${status}&opdId=${opdId}&dari=${dari}&sampai=${sampai}`
+  const filterQuery = `status=${status}&opdId=${opdId}&dari=${dari}&sampai=${sampai}&selesaiOleh=${selesaiOleh}`
 
   return (
     <PageContainer className="space-y-6">
@@ -112,6 +114,19 @@ export default async function AdminPengajuanListPage({
               {opds.map((o) => (
                 <option key={o.id} value={o.id}>{o.name}</option>
               ))}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <FormLabel htmlFor="adm-selesai-oleh">Diselesaikan Oleh</FormLabel>
+            <select
+              id="adm-selesai-oleh"
+              name="selesaiOleh"
+              defaultValue={selesaiOleh}
+              className="min-h-[42px] rounded-lg border border-border bg-background px-3 text-xs md:text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 hover:bg-muted/40 transition-all cursor-pointer"
+            >
+              <option value="">Semua</option>
+              <option value="DESA">Diselesaikan Desa</option>
+              <option value="OPD">Diselesaikan OPD</option>
             </select>
           </div>
           <div className="flex gap-3 col-span-1 sm:col-span-2">
@@ -166,7 +181,7 @@ export default async function AdminPengajuanListPage({
                   {p.namaPelapor}
                 </TableCell>
                 <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
-                  {p.opd.name}
+                  {p.opd?.name ?? <span className="italic text-muted-foreground/60">Layanan Desa</span>}
                 </TableCell>
                 <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
                   {p.desa.name}

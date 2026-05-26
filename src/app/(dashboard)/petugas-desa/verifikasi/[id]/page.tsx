@@ -33,7 +33,7 @@ export default async function VerifikasiDetailPage({
     where: { id },
     include: {
       opd: { select: { id: true, name: true, color: true, icon: true } },
-      layananJenis: { select: { id: true, name: true } },
+      layananJenis: { select: { id: true, name: true, isDesa: true } },
       desa: { select: { id: true, name: true, kecamatan: { select: { name: true } } } },
       posyandu: { select: { id: true, name: true } },
       posyanduUser: { select: { id: true, name: true } },
@@ -128,7 +128,12 @@ export default async function VerifikasiDetailPage({
 
         <div className="lg:col-span-1">
           <div className="lg:sticky lg:top-6">
-            {canVerify && <VerifikasiActions pengajuanId={id} />}
+            {canVerify && (
+            <VerifikasiActions
+              pengajuanId={id}
+              isDesa={pengajuan.layananJenis?.isDesa ?? false}
+            />
+          )}
           </div>
         </div>
       </div>

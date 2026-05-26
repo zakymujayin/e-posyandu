@@ -100,7 +100,7 @@ export default async function LaporanPage({
     ),
   ])
 
-  const opdIds = byOpd.map((r) => r.opdId)
+  const opdIds = byOpd.map((r) => r.opdId).filter(Boolean) as string[]
   const layananIds = byLayanan.map((r) => r.layananJenisId).filter(Boolean) as string[]
 
   const [opdNames, layananNames] = await Promise.all([
@@ -165,7 +165,7 @@ export default async function LaporanPage({
       <LaporanCharts
         monthlyData={monthlyData}
         byStatus={byStatus.map((r) => ({ status: STATUS_LABELS[r.status] ?? r.status, count: r._count.id }))}
-        byOpd={byOpd.map((r) => ({ name: opdMap[r.opdId] ?? r.opdId, count: r._count.id }))}
+        byOpd={byOpd.map((r) => ({ name: r.opdId ? (opdMap[r.opdId] ?? r.opdId) : "Layanan Desa", count: r._count.id }))}
       />
 
       {/* By Layanan */}

@@ -1,13 +1,42 @@
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
-import { createNotificationsForUsers } from "@/lib/notifications"
+import { createNotificationsForUsers, notifySelesaiDesa } from "@/lib/notifications"
 import { sendStatusChangeEmail } from "@/lib/email"
 
-const schema = z.object({
-  action: z.enum(["APPROVE", "REJECT"]),
-  catatan: z.string().optional(),
+const attachmentSchema = z.object({
+  attachmentType: z.enum(["FILE", "VIDEO_LINK"]),
+  filePath: z.string().optional(),
+  fileName: z.string().optional(),
+  fileSize: z.number().optional(),
+  mimeType: z.string().optional(),
+  videoUrl: z.string().optional(),
+  videoPlatform: z.string().optional(),
 })
+
+const schema = z.discriminatedUnion("action", [
+  z.object({
+    action: z.literal("APPROVE"),
+    catatan: z.string().optional(),
+  }),
+  z.object({
+    action: z.literal("REJECT"),
+    catatan: z.string().min(1, "Alasan penolakan wajib diisi"),
+  }),
+  z.object({
+    action: z.literal("SELESAI_DESA"),
+    catatan: z.string().optional(),
+    attachments: z
+      .array(attachmentSchema)
+      .min(1, "Wajib upload minimal 1 file bukti")
+      .refine((arr) => arr.some((a) => a.attachmentType === "FILE"), "Wajib upload minimal 1 file bukti"),
+  }),
+  z.object({
+    action: z.literal("ESKALASI_OPD"),
+    opdId: z.string().min(1, "OPD tujuan wajib dipilih"),
+    catatan: z.string().optional(),
+  }),
+])
 
 export async function PATCH(
   req: Request,
@@ -19,13 +48,9 @@ export async function PATCH(
   const { id } = await params
   const body = await req.json()
   const parsed = schema.safeParse(body)
-  if (!parsed.success) return err("Data tidak valid")
+  if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Data tidak valid")
 
-  const { action, catatan } = parsed.data
-
-  if (action === "REJECT" && !catatan?.trim()) {
-    return err("Alasan penolakan wajib diisi")
-  }
+  const { action } = parsed.data
 
   const pengajuan = await prisma.pengajuan.findUnique({
     where: { id },
@@ -40,38 +65,34 @@ export async function PATCH(
   const petugasDesa = await prisma.user.findUnique({ where: { id: user.id } })
   if (petugasDesa?.desaId !== pengajuan.desaId) return err("Akses ditolak", 403)
 
-  const newStatus = action === "APPROVE" ? "DALAM_PROSES_OPD" : "DITOLAK_DESA"
-
-  await prisma.$transaction(async (tx) => {
-    await tx.pengajuan.update({
-      where: { id },
-      data: { status: newStatus },
-    })
-
-    await tx.verifikasiDesa.create({
-      data: {
-        pengajuanId: id,
-        petugasDesaId: user.id,
-        status: action,
-        catatan,
-      },
-    })
-
-    await tx.activityLog.create({
-      data: {
-        pengajuanId: id,
-        userId: user.id,
-        userRole: "PETUGAS_DESA",
-        action: action === "APPROVE" ? "Pengajuan diverifikasi" : "Pengajuan ditolak oleh Desa",
-        oldStatus: "MENUNGGU_VERIFIKASI",
-        newStatus,
-        catatan,
-      },
-    })
-  })
-
   if (action === "APPROVE") {
-    // Notif ke OPD terkait
+    await prisma.$transaction(async (tx) => {
+      await tx.pengajuan.update({
+        where: { id },
+        data: { status: "DALAM_PROSES_OPD" },
+      })
+      await tx.verifikasiDesa.create({
+        data: {
+          pengajuanId: id,
+          petugasDesaId: user.id,
+          status: "APPROVE",
+          penyelesaian: "LANJUT_OPD",
+          catatan: parsed.data.catatan,
+        },
+      })
+      await tx.activityLog.create({
+        data: {
+          pengajuanId: id,
+          userId: user.id,
+          userRole: "PETUGAS_DESA",
+          action: "Pengajuan diverifikasi",
+          oldStatus: "MENUNGGU_VERIFIKASI",
+          newStatus: "DALAM_PROSES_OPD",
+          catatan: parsed.data.catatan,
+        },
+      })
+    })
+
     const opdUsers = await prisma.user.findMany({
       where: { role: "PETUGAS_OPD", opdId: pengajuan.opdId, isActive: true },
       select: { id: true },
@@ -85,25 +106,190 @@ export async function PATCH(
         pengajuanId: id,
       }
     )
-  } else {
-    // Notif ke akun posyandu
+
+    sendStatusChangeEmail(
+      pengajuan.posyanduUser.email,
+      pengajuan.posyanduUser.name,
+      pengajuan.tiketNumber,
+      "Dalam Proses OPD",
+      id,
+      "POSYANDU"
+    ).catch((e) => console.error("[email] Failed to send status change:", e))
+
+    return ok({ status: "DALAM_PROSES_OPD" }, "Pengajuan diverifikasi")
+  }
+
+  if (action === "REJECT") {
+    await prisma.$transaction(async (tx) => {
+      await tx.pengajuan.update({
+        where: { id },
+        data: { status: "DITOLAK_DESA" },
+      })
+      await tx.verifikasiDesa.create({
+        data: {
+          pengajuanId: id,
+          petugasDesaId: user.id,
+          status: "REJECT",
+          penyelesaian: "TOLAK",
+          catatan: parsed.data.catatan,
+        },
+      })
+      await tx.activityLog.create({
+        data: {
+          pengajuanId: id,
+          userId: user.id,
+          userRole: "PETUGAS_DESA",
+          action: "Pengajuan ditolak oleh Desa",
+          oldStatus: "MENUNGGU_VERIFIKASI",
+          newStatus: "DITOLAK_DESA",
+          catatan: parsed.data.catatan,
+        },
+      })
+    })
+
     await createNotificationsForUsers([pengajuan.posyanduUserId], {
       type: "REJECTED_DESA",
       title: "Pengajuan Ditolak",
-      message: `Pengajuan ${pengajuan.tiketNumber} ditolak oleh Petugas Desa. Alasan: ${catatan}`,
+      message: `Pengajuan ${pengajuan.tiketNumber} ditolak oleh Petugas Desa. Alasan: ${parsed.data.catatan}`,
       pengajuanId: id,
     })
+
+    sendStatusChangeEmail(
+      pengajuan.posyanduUser.email,
+      pengajuan.posyanduUser.name,
+      pengajuan.tiketNumber,
+      "Ditolak Desa",
+      id,
+      "POSYANDU"
+    ).catch((e) => console.error("[email] Failed to send status change:", e))
+
+    return ok({ status: "DITOLAK_DESA" }, "Pengajuan ditolak")
   }
 
-  // Email to posyandu (fire-and-forget)
-  sendStatusChangeEmail(
-    pengajuan.posyanduUser.email,
-    pengajuan.posyanduUser.name,
-    pengajuan.tiketNumber,
-    action === "APPROVE" ? "Dalam Proses OPD" : "Ditolak Desa",
-    id,
-    "POSYANDU"
-  ).catch((e) => console.error("[email] Failed to send status change:", e))
+  if (action === "SELESAI_DESA") {
+    const { attachments, catatan } = parsed.data
 
-  return ok({ status: newStatus }, action === "APPROVE" ? "Pengajuan diverifikasi" : "Pengajuan ditolak")
+    await prisma.$transaction(async (tx) => {
+      await tx.pengajuan.update({
+        where: { id },
+        data: {
+          status: "SELESAI",
+          selesaiOleh: "DESA",
+          completedAt: new Date(),
+        },
+      })
+      await tx.verifikasiDesa.create({
+        data: {
+          pengajuanId: id,
+          petugasDesaId: user.id,
+          status: "SELESAI_DESA",
+          penyelesaian: "SELESAI_DESA",
+          catatan,
+        },
+      })
+      await tx.pengajuanAttachment.createMany({
+        data: attachments.map((att) => ({
+          pengajuanId: id,
+          uploadedById: user.id,
+          attachmentContext: "VERIFIKASI_DESA",
+          attachmentType: att.attachmentType,
+          filePath: att.filePath ?? null,
+          fileName: att.fileName ?? null,
+          fileSize: att.fileSize ?? null,
+          mimeType: att.mimeType ?? null,
+          videoUrl: att.videoUrl ?? null,
+          videoPlatform: att.videoPlatform ?? null,
+        })),
+      })
+      await tx.activityLog.create({
+        data: {
+          pengajuanId: id,
+          userId: user.id,
+          userRole: "PETUGAS_DESA",
+          action: "Pengajuan diselesaikan di tingkat desa",
+          oldStatus: "MENUNGGU_VERIFIKASI",
+          newStatus: "SELESAI",
+          catatan,
+        },
+      })
+    })
+
+    await notifySelesaiDesa(pengajuan.posyanduUserId, id, pengajuan.tiketNumber)
+
+    sendStatusChangeEmail(
+      pengajuan.posyanduUser.email,
+      pengajuan.posyanduUser.name,
+      pengajuan.tiketNumber,
+      "Selesai (Diselesaikan Desa)",
+      id,
+      "POSYANDU"
+    ).catch((e) => console.error("[email] Failed to send status change:", e))
+
+    return ok({ status: "SELESAI" }, "Pengajuan berhasil diselesaikan di tingkat desa")
+  }
+
+  if (action === "ESKALASI_OPD") {
+    const { opdId, catatan } = parsed.data
+
+    const opd = await prisma.opd.findUnique({ where: { id: opdId } })
+    if (!opd) return err("OPD tidak ditemukan", 404)
+
+    await prisma.$transaction(async (tx) => {
+      await tx.pengajuan.update({
+        where: { id },
+        data: {
+          status: "DALAM_PROSES_OPD",
+          opdId,
+        },
+      })
+      await tx.verifikasiDesa.create({
+        data: {
+          pengajuanId: id,
+          petugasDesaId: user.id,
+          status: "ESKALASI_OPD",
+          penyelesaian: "ESKALASI_OPD",
+          opdEskalasiId: opdId,
+          catatan,
+        },
+      })
+      await tx.activityLog.create({
+        data: {
+          pengajuanId: id,
+          userId: user.id,
+          userRole: "PETUGAS_DESA",
+          action: `Pengajuan dieskalasikan ke OPD: ${opd.name}`,
+          oldStatus: "MENUNGGU_VERIFIKASI",
+          newStatus: "DALAM_PROSES_OPD",
+          catatan,
+        },
+      })
+    })
+
+    const opdUsers = await prisma.user.findMany({
+      where: { role: "PETUGAS_OPD", opdId, isActive: true },
+      select: { id: true },
+    })
+    await createNotificationsForUsers(
+      opdUsers.map((u) => u.id),
+      {
+        type: "OPD_RECEIVED",
+        title: "Pengajuan Baru Masuk (Eskalasi Desa)",
+        message: `Pengajuan ${pengajuan.tiketNumber} dieskalasikan dari desa dan menunggu tindak lanjut.`,
+        pengajuanId: id,
+      }
+    )
+
+    sendStatusChangeEmail(
+      pengajuan.posyanduUser.email,
+      pengajuan.posyanduUser.name,
+      pengajuan.tiketNumber,
+      "Dalam Proses OPD",
+      id,
+      "POSYANDU"
+    ).catch((e) => console.error("[email] Failed to send status change:", e))
+
+    return ok({ status: "DALAM_PROSES_OPD" }, "Pengajuan berhasil dieskalasikan ke OPD")
+  }
+
+  return err("Action tidak valid")
 }

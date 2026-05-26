@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import { redirect, notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { PengajuanDetail } from "@/components/shared/pengajuan-detail"
+import { PenyelesaianDesaSection } from "@/components/shared/penyelesaian-desa-section"
 import { PageHeader } from "@/components/shared/page-header"
 import { PageContainer } from "@/components/layout/page-container"
 
@@ -58,6 +59,11 @@ export default async function KecamatanDetailPage({
         backHref="/kecamatan"
       />
       <PengajuanDetail pengajuan={pengajuan} sopInfo={null} />
+      <PenyelesaianDesaSection
+        selesaiOleh={pengajuan.selesaiOleh}
+        verifikasiDesa={pengajuan.verifikasiDesa}
+        attachments={pengajuan.attachments}
+      />
     </PageContainer>
   )
 }

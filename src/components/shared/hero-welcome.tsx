@@ -64,7 +64,7 @@ export function HeroWelcome({ userName, roleLabel, description }: HeroWelcomePro
         aria-hidden="true"
       >
         <Image
-          src="/images/kader-posyandu.png"
+          src="/images/kader-posyandu.webp"
           alt=""
           width={160}
           height={240}

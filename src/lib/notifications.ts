@@ -14,6 +14,7 @@ export type NotificationType =
   | "ADMIN_WARNING"
   | "BYPASS_MANUAL"
   | "AUTO_BYPASS"
+  | "SELESAI_DESA"
 
 interface CreateNotificationParams {
   userId: string
@@ -46,6 +47,16 @@ export async function createNotificationsForUsers(
       createNotification({ ...params, userId })
     )
   )
+}
+
+export async function notifySelesaiDesa(posyanduUserId: string, pengajuanId: string, tiketNumber: string): Promise<void> {
+  await createNotification({
+    userId: posyanduUserId,
+    type: "SELESAI_DESA",
+    title: "Pengajuan Diselesaikan oleh Desa",
+    message: `Pengajuan ${tiketNumber} telah diselesaikan oleh Petugas Desa. Mohon sampaikan informasi ini kepada pelapor.`,
+    pengajuanId,
+  })
 }
 
 export async function notifyPengajuanBaru(posyanduUserId: string, pengajuanId: string, tiketNumber: string): Promise<void> {

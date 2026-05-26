@@ -210,7 +210,7 @@ export default async function KecamatanPage({
                     {p.namaPelapor}
                   </TableCell>
                   <TableCell className="px-4 py-3.5 text-muted-foreground text-xs md:text-sm font-medium">
-                    {p.opd.name}
+                    {p.opd?.name ?? "Layanan Desa"}
                   </TableCell>
                   <TableCell className="px-4 py-3.5 text-muted-foreground text-xs md:text-sm">
                     {p.desa.name}
