@@ -2,14 +2,14 @@ import { NextRequest } from "next/server"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
-import { generateTicketNumber } from "@/lib/ticket"
+import { generateTicketNumber, generateDesaTicketNumber } from "@/lib/ticket"
 import { calculateDeadline } from "@/lib/working-days"
 import { notifyPengajuanBaru } from "@/lib/notifications"
 import { sendNewPengajuanEmail } from "@/lib/email"
 import { rateLimit } from "@/lib/cache"
 
 const createSchema = z.object({
-  opdId: z.string().min(1, "OPD wajib dipilih"),
+  opdId: z.string().optional(),
   kategori: z.enum(["PENGADUAN", "PERMOHONAN"]).default("PENGADUAN"),
   layananJenisId: z.string().optional(),
   namaPelapor: z.string().min(1, "Nama pelapor wajib diisi"),
@@ -50,6 +50,19 @@ export async function POST(req: NextRequest) {
 
     const data = parsed.data
 
+    let isDesa = false
+    if (data.layananJenisId) {
+      const layanan = await prisma.layananJenis.findUnique({
+        where: { id: data.layananJenisId },
+        select: { isDesa: true },
+      })
+      isDesa = layanan?.isDesa ?? false
+    }
+
+    if (!data.opdId && !isDesa && data.kategori !== "PENGADUAN") {
+      return err("OPD wajib dipilih untuk permohonan layanan non-desa")
+    }
+
     if (data.kategori === "PERMOHONAN" && !data.layananJenisId) {
       return err("Pilih layanan untuk permohonan")
     }
@@ -64,7 +77,9 @@ export async function POST(req: NextRequest) {
       return err("Akun posyandu tidak terdaftar di posyandu")
     }
 
-    const tiketNumber = await generateTicketNumber(data.opdId)
+    const tiketNumber = data.opdId
+      ? await generateTicketNumber(data.opdId)
+      : await generateDesaTicketNumber(posyanduUser.posyandu.desaId)
     const deadlineAt = await calculateDeadline(new Date(), 7)
 
     const pengajuan = await prisma.pengajuan.create({
@@ -73,7 +88,7 @@ export async function POST(req: NextRequest) {
         posyanduUserId: user.id,
         posyanduId: posyanduUser.posyanduId,
         desaId: posyanduUser.posyandu.desaId,
-        opdId: data.opdId,
+        opdId: data.opdId ?? null,
         kategori: data.kategori,
         layananJenisId: data.layananJenisId ?? null,
         namaPelapor: data.namaPelapor,

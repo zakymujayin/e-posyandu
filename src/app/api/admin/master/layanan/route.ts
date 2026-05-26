@@ -3,12 +3,16 @@ import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 
 const schema = z.object({
-  opdId: z.string().min(1, "OPD wajib dipilih"),
+  opdId: z.string().optional(),
   name: z.string().min(1, "Nama layanan wajib diisi"),
   description: z.string().optional(),
   isActive: z.boolean().optional().default(true),
+  isDesa: z.boolean().optional().default(false),
   sortOrder: z.number().int().optional().default(0),
-})
+}).refine(
+  (data) => data.isDesa || !!data.opdId,
+  { message: "OPD wajib dipilih untuk layanan non-desa", path: ["opdId"] }
+)
 
 export async function GET(req: Request) {
   const { user, response } = await requireAuth(["ADMIN_DPMD"])
@@ -32,9 +36,14 @@ export async function POST(req: Request) {
   const parsed = schema.safeParse(await req.json())
   if (!parsed.success) return err(parsed.error.issues[0]?.message ?? "Data tidak valid")
 
-  const opd = await prisma.opd.findUnique({ where: { id: parsed.data.opdId } })
-  if (!opd) return err("OPD tidak ditemukan")
+  if (parsed.data.opdId) {
+    const opd = await prisma.opd.findUnique({ where: { id: parsed.data.opdId } })
+    if (!opd) return err("OPD tidak ditemukan")
+  }
 
-  const layanan = await prisma.layananJenis.create({ data: parsed.data })
+  const { opdId, ...rest } = parsed.data
+  const layanan = await prisma.layananJenis.create({
+    data: { ...rest, opdId: opdId ?? null },
+  })
   return ok(layanan, "Layanan berhasil ditambahkan")
 }

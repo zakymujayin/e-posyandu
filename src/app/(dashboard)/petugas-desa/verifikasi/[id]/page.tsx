@@ -131,7 +131,7 @@ export default async function VerifikasiDetailPage({
             {canVerify && (
             <VerifikasiActions
               pengajuanId={id}
-              isDesa={pengajuan.layananJenis?.isDesa ?? false}
+              isDesa={pengajuan.layananJenis?.isDesa ?? (pengajuan.opdId === null)}
             />
           )}
           </div>

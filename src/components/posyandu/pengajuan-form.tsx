@@ -35,7 +35,7 @@ interface FormField {
 }
 
 interface Props {
-  opdId: string
+  opdId?: string
   layananList: LayananJenis[]
 }
 
@@ -152,7 +152,7 @@ export function PengajuanForm({ opdId, layananList }: Props) {
     setShowConfirm(false)
 
     const payload = {
-      opdId,
+      ...(opdId ? { opdId } : {}),
       kategori,
       ...(kategori === "PERMOHONAN" ? { layananJenisId: selectedLayananId } : {}),
       namaPelapor: pendingSubmit.namaPelapor,

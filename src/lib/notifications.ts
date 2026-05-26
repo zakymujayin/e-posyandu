@@ -15,6 +15,9 @@ export type NotificationType =
   | "BYPASS_MANUAL"
   | "AUTO_BYPASS"
   | "SELESAI_DESA"
+  | "ESKALASI_OPD"
+  | "ESKALASI_KECAMATAN"
+  | "SELESAI_KECAMATAN"
 
 interface CreateNotificationParams {
   userId: string

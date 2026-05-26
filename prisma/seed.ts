@@ -192,8 +192,8 @@ async function main() {
 
   const posyanduPassword = await bcrypt.hash("posyandu123", 12)
   const kader = await prisma.user.upsert({
-    where: { email: "posyandu-mawar@example.com" },
-    update: { username: "posyandu-mawar" },
+    where: { id: "b71ddd56-615a-46b8-8b82-c03b4484f13f" },
+    update: { username: "posyandu-mawar", email: "posyandu-mawar@example.com", name: "Posyandu Mawar" },
     create: {
       id: "b71ddd56-615a-46b8-8b82-c03b4484f13f",
       name: "Posyandu Mawar",
@@ -294,6 +294,22 @@ async function main() {
   console.log("✅ 3 layanan jenis created")
 
   // =====================
+  // 6b. Layanan Desa (SKTM)
+  // =====================
+  await prisma.layananJenis.upsert({
+    where: { id: "layanan-desa-1" },
+    update: {},
+    create: {
+      id: "layanan-desa-1",
+      name: "Surat Keterangan Tidak Mampu (SKTM)",
+      description: "Penerbitan surat keterangan tidak mampu untuk keperluan administrasi warga (sekolah, berobat, bantuan sosial)",
+      isDesa: true,
+      sortOrder: 1,
+    },
+  })
+  console.log("✅ 1 layanan desa created")
+
+  // =====================
   // 7. Tiket Counters
   // =====================
   for (const opd of opds) {
@@ -308,6 +324,16 @@ async function main() {
     })
   }
   console.log("✅ 6 tiket counters created")
+
+  // =====================
+  // 7b. Desa Tiket Counters
+  // =====================
+  await prisma.desaTiketCounter.upsert({
+    where: { desaId_year: { desaId: desa1.id, year: 2026 } },
+    update: {},
+    create: { desaId: desa1.id, year: 2026, lastSequence: 0 },
+  })
+  console.log("✅ 1 desa tiket counter created")
 
   // =====================
   // 8. Sample Pengajuan — DINKES

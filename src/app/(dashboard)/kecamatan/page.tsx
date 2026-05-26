@@ -74,7 +74,7 @@ export default async function KecamatanPage({
     prisma.pengajuan.count({
       where: {
         desaId: { in: desaIds },
-        status: { in: ["MENUNGGU_VERIFIKASI", "DALAM_PROSES_OPD", "MENUNGGU_APPROVAL_DPMD"] },
+        status: { in: ["MENUNGGU_VERIFIKASI", "DALAM_PROSES_KECAMATAN", "DALAM_PROSES_OPD", "MENUNGGU_APPROVAL_DPMD"] },
       },
     }),
     prisma.pengajuan.count({ where: { desaId: { in: desaIds }, status: "SELESAI" } }),
@@ -176,6 +176,7 @@ export default async function KecamatanPage({
           >
             <option value="">Semua Status</option>
             <option value="MENUNGGU_VERIFIKASI">Menunggu Verifikasi</option>
+            <option value="DALAM_PROSES_KECAMATAN">Dalam Proses Kecamatan</option>
             <option value="DALAM_PROSES_OPD">Dalam Proses OPD</option>
             <option value="MENUNGGU_APPROVAL_DPMD">Menunggu Approval DPMD</option>
             <option value="SELESAI">Selesai</option>

@@ -2,7 +2,7 @@ import type { UserRole } from "@/types/next-auth"
 import type { SopStatus } from "@/lib/sop"
 import type { NotificationType } from "@/lib/notifications"
 
-export type PengajuanStatus = "MENUNGGU_VERIFIKASI" | "DALAM_PROSES_OPD" | "MENUNGGU_APPROVAL_DPMD" | "SELESAI" | "DITOLAK_DESA" | "DITOLAK_OPD"
+export type PengajuanStatus = "MENUNGGU_VERIFIKASI" | "DALAM_PROSES_OPD" | "DALAM_PROSES_KECAMATAN" | "MENUNGGU_APPROVAL_DPMD" | "SELESAI" | "DITOLAK_DESA" | "DITOLAK_OPD"
 
 export const MESSAGES = {
   auth: {
@@ -14,6 +14,7 @@ export const MESSAGES = {
   status: {
     MENUNGGU_VERIFIKASI: "Menunggu Verifikasi",
     DALAM_PROSES_OPD: "Dalam Proses OPD",
+    DALAM_PROSES_KECAMATAN: "Dalam Proses Kecamatan",
     MENUNGGU_APPROVAL_DPMD: "Menunggu Approval DPMD",
     SELESAI: "Selesai",
     DITOLAK_DESA: "Ditolak Desa",
@@ -22,6 +23,7 @@ export const MESSAGES = {
   statusColor: {
     MENUNGGU_VERIFIKASI: "yellow",
     DALAM_PROSES_OPD: "blue",
+    DALAM_PROSES_KECAMATAN: "purple",
     MENUNGGU_APPROVAL_DPMD: "orange",
     SELESAI: "green",
     DITOLAK_DESA: "red",
@@ -48,6 +50,10 @@ export const MESSAGES = {
     ADMIN_WARNING: "Teguran Admin",
     BYPASS_MANUAL: "Bypass Manual",
     AUTO_BYPASS: "Auto Bypass",
+    SELESAI_DESA: "Selesai Desa",
+    ESKALASI_OPD: "Eskalasi ke OPD",
+    ESKALASI_KECAMATAN: "Eskalasi ke Kecamatan",
+    SELESAI_KECAMATAN: "Selesai Kecamatan",
   } as Record<NotificationType, string>,
   sopStatus: {
     NORMAL: "Dalam batas waktu",

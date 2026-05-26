@@ -5,6 +5,7 @@ import { MapPin, Crosshair, Trash2, ChevronDown, ChevronUp, Navigation } from "l
 import "leaflet/dist/leaflet.css"
 import { Button } from "@/components/ui/button"
 import { MutedText } from "@/components/ui/typography"
+import { toast } from "sonner"
 
 interface Props {
   value: { lat: number; lng: number } | null
@@ -89,7 +90,10 @@ export function LocationPicker({ value, onChange }: Props) {
   }
 
   function handleGetLocation() {
-    if (!navigator.geolocation) return
+    if (!navigator.geolocation) {
+      toast.error("Browser tidak mendukung geolokasi")
+      return
+    }
     setGettingLoc(true)
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -100,8 +104,23 @@ export function LocationPicker({ value, onChange }: Props) {
           upsertMarker(LRef.current, mapInstance.current, loc.lat, loc.lng)
         }
         setGettingLoc(false)
+        toast.info("Lokasi didapatkan. Jika titik tidak akurat, klik atau geser marker ke posisi sebenarnya.")
       },
-      () => setGettingLoc(false),
+      (err) => {
+        setGettingLoc(false)
+        if (err.code === err.PERMISSION_DENIED) {
+          toast.error("Izin lokasi ditolak. Buka pengaturan browser untuk mengaktifkan, atau klik langsung di peta.")
+        } else if (err.code === err.TIMEOUT) {
+          toast.error("Gagal mendapatkan lokasi (timeout). Klik langsung di peta untuk menandai lokasi.")
+        } else {
+          toast.error("Gagal mendapatkan lokasi. Klik langsung di peta untuk menandai lokasi.")
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      },
     )
   }
 
@@ -136,6 +155,7 @@ export function LocationPicker({ value, onChange }: Props) {
               onClick={handleGetLocation}
               disabled={gettingLoc}
               className="rounded-lg font-bold gap-1.5 text-xs"
+              title="Akurat di HP/tablet. Di desktop, klik peta manual untuk akurasi maksimal."
             >
               <Crosshair className="size-3.5" />
               {gettingLoc ? "Mendapatkan..." : "Gunakan Lokasi Saya"}

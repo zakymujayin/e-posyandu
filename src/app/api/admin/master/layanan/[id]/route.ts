@@ -6,6 +6,8 @@ const schema = z.object({
   name: z.string().min(1).optional(),
   description: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
+  isDesa: z.boolean().optional(),
+  opdId: z.string().optional().nullable(),
   sortOrder: z.number().int().optional(),
 })
 

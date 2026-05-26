@@ -19,6 +19,10 @@ const STATUS_STYLING: Record<
     container: "bg-gradient-to-b from-sky-500/10 to-sky-500/5 text-sky-700 dark:text-sky-400 border-sky-500/20 shadow-[inset_0_1px_rgba(255,255,255,0.7)]",
     dot: "bg-gradient-to-b from-sky-400 to-sky-600 shadow-[inset_0_1px_rgba(255,255,255,0.8),0_0_8px_rgba(14,165,233,0.5)]",
   },
+  DALAM_PROSES_KECAMATAN: {
+    container: "bg-gradient-to-b from-violet-500/10 to-violet-500/5 text-violet-700 dark:text-violet-400 border-violet-500/20 shadow-[inset_0_1px_rgba(255,255,255,0.7)]",
+    dot: "bg-gradient-to-b from-violet-400 to-violet-600 shadow-[inset_0_1px_rgba(255,255,255,0.8),0_0_8px_rgba(139,92,246,0.5)]",
+  },
   MENUNGGU_APPROVAL_DPMD: {
     container: "bg-gradient-to-b from-orange-500/10 to-orange-500/5 text-orange-700 dark:text-orange-400 border-orange-500/20 shadow-[inset_0_1px_rgba(255,255,255,0.7)]",
     dot: "bg-gradient-to-b from-orange-400 to-orange-600 shadow-[inset_0_1px_rgba(255,255,255,0.8),0_0_8px_rgba(249,115,22,0.5)]",

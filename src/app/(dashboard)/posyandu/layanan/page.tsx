@@ -43,6 +43,46 @@ export default async function LayananPage() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+        {/* Layanan Desa Card — selalu tampil */}
+        <Link
+            href="/posyandu/ajukan/desa"
+            className="group relative flex flex-col overflow-hidden rounded-xl bg-card border border-blue-300 dark:border-blue-800 transition-all duration-300 hover:shadow-lg hover:border-blue-400 dark:hover:border-blue-600 hover:-translate-y-1"
+          >
+            {/* Top accent bar */}
+            <div className="h-1.5 w-full shrink-0 transition-all duration-300 group-hover:h-2 bg-blue-500" />
+
+            <div className="relative flex flex-col flex-1 p-5 md:p-6 gap-4 md:gap-5">
+              {/* Decorative watermark */}
+              <HomeIcon className="absolute -right-3 -top-3 size-28 text-blue-500/10 dark:text-blue-400/10 pointer-events-none transition-all duration-500 group-hover:scale-110 group-hover:rotate-6" />
+
+              {/* Icon */}
+              <div
+                className="size-14 md:size-16 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:rotate-2"
+                style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.12), rgba(59,130,246,0.04))", color: "#3b82f6" }}
+              >
+                <HomeIcon className="size-7 md:size-8" />
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 space-y-1.5">
+                <CardTitle className="text-sm md:text-[16px] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+                  Layanan Desa
+                </CardTitle>
+                <MutedText className="line-clamp-2 leading-relaxed text-xs md:text-sm">
+                  Layanan yang menjadi kewenangan desa. Diselesaikan langsung oleh Petugas Desa tanpa perlu diteruskan ke OPD.
+                </MutedText>
+              </div>
+
+              {/* CTA */}
+              <div className="flex items-center gap-1.5 mt-auto pt-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-blue-300/50 dark:border-blue-700/50 text-[11px] md:text-[12px] font-bold text-blue-600 dark:text-blue-400 group-hover:bg-blue-500/10 transition-all duration-300">
+                  Pilih Layanan
+                  <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                </span>
+              </div>
+            </div>
+          </Link>
+
         {opds.map((opd) => {
           const OpdIcon = OPD_ICONS[opd.icon || ""] || HelpCircle
           const accentColor = opd.color || "var(--primary)"

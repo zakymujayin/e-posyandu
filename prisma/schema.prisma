@@ -20,6 +20,7 @@ model Kecamatan {
 
   desas     Desa[]
   users     User[]
+  verifikasiKecamatans  VerifikasiKecamatan[]
 
   @@map("kecamatans")
 }
@@ -36,6 +37,7 @@ model Desa {
   posyandus    Posyandu[]
   users        User[]
   pengajuans   Pengajuan[]
+  tiketCounters DesaTiketCounter[]
 
   @@map("desas")
 }
@@ -79,6 +81,7 @@ model Opd {
   pengajuans                Pengajuan[]
   tiketCounters             TiketCounter[]
   verifikasiDesaEskalasis   VerifikasiDesa[] @relation("VerifikasiDesaOpd")
+  verifikasiKecamatanEskalasis VerifikasiKecamatan[] @relation("VerifikasiKecamatanOpd")
 
   @@map("opds")
 }
@@ -153,6 +156,7 @@ model User {
   pengajuansAsPosyandu Pengajuan[]   @relation("PosyanduPengajuan")
   balitas              Balita[]      @relation("PosyanduBalita")
   verifikasiDesas      VerifikasiDesa[]
+  verifikasiKecamatans  VerifikasiKecamatan[]
   tindakLanjuts        TindakLanjut[]
   adminActions         AdminAction[]
   notifications        Notification[]
@@ -174,6 +178,18 @@ model TiketCounter {
 
   @@unique([opdId, year])
   @@map("tiket_counters")
+}
+
+model DesaTiketCounter {
+  id           String @id @default(uuid())
+  desaId       String @map("desa_id")
+  year         Int
+  lastSequence Int    @default(0) @map("last_sequence")
+
+  desa         Desa @relation(fields: [desaId], references: [id])
+
+  @@unique([desaId, year])
+  @@map("desa_tiket_counters")
 }
 
 // =============================================
@@ -219,6 +235,7 @@ model Pengajuan {
   fieldValues     PengajuanFieldValue[]
   attachments     PengajuanAttachment[]
   verifikasiDesa  VerifikasiDesa?
+  verifikasiKecamatan VerifikasiKecamatan?
   tindakLanjuts   TindakLanjut[]
   adminActions    AdminAction[]
   activityLogs    ActivityLog[]
@@ -291,6 +308,29 @@ model VerifikasiDesa {
   opdEskalasi     Opd?      @relation("VerifikasiDesaOpd", fields: [opdEskalasiId], references: [id])
 
   @@map("verifikasi_desas")
+}
+
+// =============================================
+// VERIFIKASI KECAMATAN
+// =============================================
+
+model VerifikasiKecamatan {
+  id              String   @id @default(uuid())
+  pengajuanId     String   @unique @map("pengajuan_id")
+  kecamatanId     String   @map("kecamatan_id")
+  petugasKecId    String   @map("petugas_kec_id")
+  status          String
+  penyelesaian    String?  @map("penyelesaian")
+  catatan         String?
+  opdEskalasiId   String?  @map("opd_eskalasi_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  pengajuan       Pengajuan @relation(fields: [pengajuanId], references: [id])
+  kecamatan       Kecamatan @relation(fields: [kecamatanId], references: [id])
+  petugasKec      User      @relation(fields: [petugasKecId], references: [id])
+  opdEskalasi     Opd?      @relation("VerifikasiKecamatanOpd", fields: [opdEskalasiId], references: [id])
+
+  @@map("verifikasi_kecamatans")
 }
 
 // =============================================

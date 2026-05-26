@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import { redirect, notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { PengajuanDetail } from "@/components/shared/pengajuan-detail"
+import { PenyelesaianDesaSection } from "@/components/shared/penyelesaian-desa-section"
 import { TindakLanjutForm } from "@/components/opd/tindak-lanjut-form"
 import { getSopInfo } from "@/lib/sop"
 import { StatusBadge } from "@/components/shared/status-badge"
@@ -72,6 +73,12 @@ export default async function TindakLanjutDetailPage({
           <PengajuanDetail
             pengajuan={pengajuan}
             sopInfo={sopInfo ? { remainingDays: sopInfo.remainingDays, sopStatus: sopInfo.sopStatus } : null}
+          />
+
+          <PenyelesaianDesaSection
+            selesaiOleh={pengajuan.selesaiOleh}
+            verifikasiDesa={pengajuan.verifikasiDesa}
+            attachments={pengajuan.attachments}
           />
 
           {/* Riwayat tindak lanjut sebelumnya */}

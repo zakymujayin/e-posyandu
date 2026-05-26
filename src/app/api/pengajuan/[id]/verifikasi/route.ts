@@ -36,6 +36,10 @@ const schema = z.discriminatedUnion("action", [
     opdId: z.string().min(1, "OPD tujuan wajib dipilih"),
     catatan: z.string().optional(),
   }),
+  z.object({
+    action: z.literal("ESKALASI_KECAMATAN"),
+    catatan: z.string().optional(),
+  }),
 ])
 
 export async function PATCH(
@@ -54,7 +58,10 @@ export async function PATCH(
 
   const pengajuan = await prisma.pengajuan.findUnique({
     where: { id },
-    include: { posyanduUser: { select: { id: true, email: true, name: true } } },
+    include: {
+      posyanduUser: { select: { id: true, email: true, name: true } },
+      desa: { select: { kecamatanId: true, name: true } },
+    },
   })
 
   if (!pengajuan) return err("Pengajuan tidak ditemukan", 404)
@@ -279,6 +286,13 @@ export async function PATCH(
       }
     )
 
+    await createNotificationsForUsers([pengajuan.posyanduUserId], {
+      type: "ESKALASI_OPD",
+      title: "Pengajuan Dieskalasikan ke OPD",
+      message: `Pengajuan ${pengajuan.tiketNumber} telah dieskalasikan ke ${opd.name} untuk ditindaklanjuti.`,
+      pengajuanId: id,
+    })
+
     sendStatusChangeEmail(
       pengajuan.posyanduUser.email,
       pengajuan.posyanduUser.name,
@@ -289,6 +303,70 @@ export async function PATCH(
     ).catch((e) => console.error("[email] Failed to send status change:", e))
 
     return ok({ status: "DALAM_PROSES_OPD" }, "Pengajuan berhasil dieskalasikan ke OPD")
+  }
+
+  if (action === "ESKALASI_KECAMATAN") {
+    const kecamatanId = pengajuan.desa?.kecamatanId
+    if (!kecamatanId) return err("Desa tidak memiliki kecamatan", 400)
+
+    await prisma.$transaction(async (tx) => {
+      await tx.pengajuan.update({
+        where: { id },
+        data: { status: "DALAM_PROSES_KECAMATAN" },
+      })
+      await tx.verifikasiDesa.create({
+        data: {
+          pengajuanId: id,
+          petugasDesaId: user.id,
+          status: "ESKALASI_KECAMATAN",
+          penyelesaian: "ESKALASI_KECAMATAN",
+          catatan: parsed.data.catatan,
+        },
+      })
+      await tx.activityLog.create({
+        data: {
+          pengajuanId: id,
+          userId: user.id,
+          userRole: "PETUGAS_DESA",
+          action: "Pengajuan dieskalasikan ke Kecamatan",
+          oldStatus: "MENUNGGU_VERIFIKASI",
+          newStatus: "DALAM_PROSES_KECAMATAN",
+          catatan: parsed.data.catatan,
+        },
+      })
+    })
+
+    const kecUsers = await prisma.user.findMany({
+      where: { role: "PETUGAS_KECAMATAN", kecamatanId, isActive: true },
+      select: { id: true },
+    })
+    await createNotificationsForUsers(
+      kecUsers.map((u) => u.id),
+      {
+        type: "ESKALASI_KECAMATAN",
+        title: "Pengajuan Baru Masuk (Eskalasi Desa)",
+        message: `Pengajuan ${pengajuan.tiketNumber} dari Desa ${pengajuan.desa.name} dieskalasikan dan menunggu tindak lanjut.`,
+        pengajuanId: id,
+      }
+    )
+
+    await createNotificationsForUsers([pengajuan.posyanduUserId], {
+      type: "ESKALASI_KECAMATAN",
+      title: "Pengajuan Dieskalasikan ke Kecamatan",
+      message: `Pengajuan ${pengajuan.tiketNumber} telah dieskalasikan ke tingkat Kecamatan untuk ditindaklanjuti.`,
+      pengajuanId: id,
+    })
+
+    sendStatusChangeEmail(
+      pengajuan.posyanduUser.email,
+      pengajuan.posyanduUser.name,
+      pengajuan.tiketNumber,
+      "Dalam Proses Kecamatan",
+      id,
+      "POSYANDU"
+    ).catch((e) => console.error("[email] Failed to send status change:", e))
+
+    return ok({ status: "DALAM_PROSES_KECAMATAN" }, "Pengajuan berhasil dieskalasikan ke Kecamatan")
   }
 
   return err("Action tidak valid")

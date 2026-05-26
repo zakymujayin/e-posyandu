@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { Loader2, CheckCircle2, AlertTriangle, XCircle, ArrowUpCircle, Building2, Upload, FileText, X, Info } from "lucide-react"
+import { Loader2, CheckCircle2, AlertTriangle, XCircle, ArrowUpCircle, Building2, Upload, FileText, X, Info, Landmark } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -30,11 +30,13 @@ export function VerifikasiActions({ pengajuanId, isDesa = false }: Props) {
   const [showRejectModal, setShowRejectModal] = useState(false)
   const [showSelesaiDesaModal, setShowSelesaiDesaModal] = useState(false)
   const [showEskalasiModal, setShowEskalasiModal] = useState(false)
+  const [showEskalasiKecamatanModal, setShowEskalasiKecamatanModal] = useState(false)
 
   // Form state
   const [alasan, setAlasan] = useState("")
   const [catatanDesa, setCatatanDesa] = useState("")
   const [catatanEskalasi, setCatatanEskalasi] = useState("")
+  const [catatanEskalasiKecamatan, setCatatanEskalasiKecamatan] = useState("")
   const [selectedOpdId, setSelectedOpdId] = useState("")
   const [opds, setOpds] = useState<Opd[]>([])
   const [uploadedFiles, setUploadedFiles] = useState<{ path: string; name: string; size: number; mime: string }[]>([])
@@ -166,6 +168,30 @@ export function VerifikasiActions({ pengajuanId, isDesa = false }: Props) {
     }
   }
 
+  async function doEskalasiKecamatan() {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/pengajuan/${pengajuanId}/verifikasi`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "ESKALASI_KECAMATAN",
+          catatan: catatanEskalasiKecamatan,
+        }),
+      })
+      const json = await res.json()
+      if (!json.success) throw new Error(json.error)
+      toast.success("Pengajuan berhasil dieskalasikan ke Kecamatan")
+      router.push("/petugas-desa")
+      router.refresh()
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal mengeskalasikan pengajuan")
+    } finally {
+      setLoading(false)
+      setShowEskalasiKecamatanModal(false)
+    }
+  }
+
   if (!isDesa) {
     return (
       <>
@@ -279,7 +305,7 @@ export function VerifikasiActions({ pengajuanId, isDesa = false }: Props) {
           {/* Hint banner */}
           <div className="flex items-start gap-2 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-xs text-blue-700 dark:text-blue-300">
             <Info className="size-4 shrink-0 mt-0.5" />
-            <span>Pengaduan/layanan ini merupakan kewenangan desa. Anda dapat menyelesaikan langsung atau meneruskan ke OPD jika tidak sanggup ditangani.</span>
+            <span>Pengaduan/layanan ini merupakan kewenangan desa. Anda dapat menyelesaikan langsung atau meneruskan ke Kecamatan/OPD jika tidak sanggup ditangani.</span>
           </div>
 
           <div className="flex flex-col gap-2.5">
@@ -290,6 +316,14 @@ export function VerifikasiActions({ pengajuanId, isDesa = false }: Props) {
             >
               <CheckCircle2 className="size-4" />
               <span>Selesaikan di Desa</span>
+            </Button>
+            <Button
+              onClick={() => setShowEskalasiKecamatanModal(true)}
+              className="w-full min-h-[44px] font-bold bg-violet-600 text-white hover:bg-violet-700 shadow-md flex items-center justify-center gap-2 text-xs md:text-sm"
+              disabled={loading}
+            >
+              <Landmark className="size-4" />
+              <span>Eskalasikan ke Kecamatan</span>
             </Button>
             <Button
               onClick={() => setShowEskalasiModal(true)}
@@ -475,6 +509,58 @@ export function VerifikasiActions({ pengajuanId, isDesa = false }: Props) {
               onClick={doEskalasi}
               className="flex-1 text-xs md:text-sm font-bold bg-blue-600 text-white hover:bg-blue-700"
               disabled={loading || !selectedOpdId}
+            >
+              {loading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : null}
+              Eskalasikan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Eskalasi ke Kecamatan Modal */}
+      <Dialog open={showEskalasiKecamatanModal} onOpenChange={(open) => {
+        if (!open) setCatatanEskalasiKecamatan("")
+        setShowEskalasiKecamatanModal(open)
+      }}>
+        <DialogContent className="rounded-lg border border-border bg-card max-w-md p-6">
+          <DialogHeader>
+            <DialogTitle className="text-base md:text-lg font-bold text-foreground flex items-center gap-2">
+              <Landmark className="size-5 text-violet-500" />
+              <span>Eskalasikan ke Kecamatan</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <MutedText className="leading-relaxed text-xs">
+              Pengajuan akan diteruskan ke tingkat Kecamatan untuk ditindaklanjuti. Kecamatan dapat menyelesaikan langsung atau meneruskan ke OPD jika diperlukan.
+            </MutedText>
+
+            <div className="space-y-1.5">
+              <FormLabel htmlFor="eskalasi-kecamatan-catatan" className="text-muted-foreground">
+                Alasan Eskalasi <span className="text-muted-foreground text-xs">(opsional)</span>
+              </FormLabel>
+              <Textarea
+                id="eskalasi-kecamatan-catatan"
+                value={catatanEskalasiKecamatan}
+                onChange={(e) => setCatatanEskalasiKecamatan(e.target.value)}
+                placeholder="Jelaskan mengapa pengaduan ini perlu diteruskan ke tingkat Kecamatan..."
+                rows={3}
+                className="rounded-lg border-border bg-background text-sm"
+              />
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => { setShowEskalasiKecamatanModal(false); setCatatanEskalasiKecamatan("") }}
+              disabled={loading}
+              className="flex-1 text-xs md:text-sm font-semibold"
+            >
+              Batal
+            </Button>
+            <Button
+              onClick={doEskalasiKecamatan}
+              className="flex-1 text-xs md:text-sm font-bold bg-violet-600 text-white hover:bg-violet-700"
+              disabled={loading}
             >
               {loading ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : null}
               Eskalasikan

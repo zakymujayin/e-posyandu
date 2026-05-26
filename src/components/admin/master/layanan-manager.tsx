@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
-import { Plus, Pencil, Trash2, X, Check, List, HelpCircle, Upload } from "lucide-react"
+import { Plus, Pencil, Trash2, X, Check, List, HelpCircle, Upload, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FormLabel, SubText } from "@/components/ui/typography"
@@ -13,12 +13,13 @@ import { MasterCsvImport } from "./master-csv-import"
 
 interface Layanan {
   id: string
-  opdId: string
+  opdId: string | null
   name: string
   description: string | null
   isActive: boolean
+  isDesa: boolean
   sortOrder: number
-  opd: { name: string }
+  opd: { name: string } | null
 }
 
 interface Opd {
@@ -32,20 +33,20 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Layanan | null>(null)
   const [loading, setLoading] = useState(false)
-  const [form, setForm] = useState({ opdId: "", name: "", description: "", sortOrder: 0 })
+  const [form, setForm] = useState({ opdId: "", name: "", description: "", isDesa: false, sortOrder: 0 })
   const [showImport, setShowImport] = useState(false)
 
   const filtered = filterOpd ? layanans.filter((l) => l.opdId === filterOpd) : layanans
 
   function openCreate() {
     setEditing(null)
-    setForm({ opdId: filterOpd || "", name: "", description: "", sortOrder: 0 })
+    setForm({ opdId: filterOpd || "", name: "", description: "", isDesa: false, sortOrder: 0 })
     setShowForm(true)
   }
 
   function openEdit(l: Layanan) {
     setEditing(l)
-    setForm({ opdId: l.opdId, name: l.name, description: l.description ?? "", sortOrder: l.sortOrder })
+    setForm({ opdId: l.opdId ?? "", name: l.name, description: l.description ?? "", isDesa: l.isDesa, sortOrder: l.sortOrder })
     setShowForm(true)
   }
 
@@ -57,22 +58,34 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
         const res = await fetch(`/api/admin/master/layanan/${editing.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: form.name, description: form.description || null, sortOrder: form.sortOrder }),
+          body: JSON.stringify({
+            name: form.name,
+            description: form.description || null,
+            sortOrder: form.sortOrder,
+            isDesa: form.isDesa,
+            opdId: form.isDesa ? null : (form.opdId || null),
+          }),
         })
         const data = await res.json()
         if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
-        setLayanans((prev) => prev.map((l) => l.id === editing.id ? { ...data.data, opd: editing.opd } : l))
+        setLayanans((prev) => prev.map((l) => l.id === editing.id ? { ...data.data, opd: data.data.opd ?? editing.opd } : l))
         toast.success("Layanan diperbarui")
       } else {
         const res = await fetch("/api/admin/master/layanan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...form, sortOrder: Number(form.sortOrder) }),
+          body: JSON.stringify({
+            name: form.name,
+            description: form.description || null,
+            sortOrder: Number(form.sortOrder),
+            isDesa: form.isDesa,
+            opdId: form.isDesa ? undefined : form.opdId,
+          }),
         })
         const data = await res.json()
         if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
-        const opdName = opds.find((o) => o.id === form.opdId)?.name ?? ""
-        setLayanans((prev) => [...prev, { ...data.data, opd: { name: opdName } }])
+        const opdName = form.isDesa ? "" : (opds.find((o) => o.id === form.opdId)?.name ?? "")
+        setLayanans((prev) => [...prev, { ...data.data, opd: opdName ? { name: opdName } : null }])
         toast.success("Layanan ditambahkan")
       }
       setShowForm(false)
@@ -153,15 +166,15 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <FormLabel>Penanggung Jawab OPD <span className="text-destructive">*</span></FormLabel>
+                <FormLabel>Penanggung Jawab OPD {!form.isDesa && <span className="text-destructive">*</span>}</FormLabel>
                 <select
                   value={form.opdId}
                   onChange={(e) => setForm((f) => ({ ...f, opdId: e.target.value }))}
-                  disabled={!!editing}
-                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50"
-                  required
+                  disabled={!!editing || form.isDesa}
+                  className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground disabled:bg-muted/50 disabled:text-muted-foreground"
+                  required={!form.isDesa}
                 >
-                  <option value="">Pilih OPD</option>
+                  <option value="">{form.isDesa ? "— Layanan Desa —" : "Pilih OPD"}</option>
                   {opds.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
                 </select>
               </div>
@@ -192,6 +205,21 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   placeholder="Informasi pelengkap kriteria layanan..."
                 />
+              </div>
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={form.isDesa}
+                    onChange={(e) => setForm((f) => ({ ...f, isDesa: e.target.checked, opdId: e.target.checked ? "" : f.opdId }))}
+                    disabled={!!editing}
+                    className="accent-primary size-4 rounded border-border"
+                  />
+                  <div>
+                    <span className="text-sm font-bold text-foreground">Layanan Kewenangan Desa</span>
+                    <p className="text-xs text-muted-foreground">Layanan ini diselesaikan di tingkat desa tanpa perlu diteruskan ke OPD. OPD tidak wajib diisi.</p>
+                  </div>
+                </label>
               </div>
             </div>
             <div className="flex gap-2 pt-2">
@@ -244,8 +272,15 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
                   </div>
                 </div>
               </TableCell>
-              <TableCell className="px-4 py-3.5 text-xs text-muted-foreground font-semibold">
-                {l.opd.name}
+              <TableCell className="px-4 py-3.5 text-xs font-semibold">
+                {l.opd ? (
+                  <span className="text-muted-foreground">{l.opd.name}</span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-bold">
+                    <Home className="w-3 h-3" />
+                    Layanan Desa
+                  </span>
+                )}
               </TableCell>
               <TableCell className="px-4 py-3.5">
                 <button
