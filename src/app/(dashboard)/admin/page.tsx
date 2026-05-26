@@ -122,7 +122,7 @@ export default async function AdminPage({
                 className="flex items-center justify-between text-xs md:text-sm bg-card border border-border/60 rounded-lg px-4 py-3 hover:bg-muted/40 hover:border-primary/40 transition-all font-semibold"
               >
                 <span className="font-mono text-primary">{p.tiketNumber}</span>
-                <span className="truncate max-w-[150px]">{p.opd.name}</span>
+                <span className="truncate max-w-[150px]">{p.opd?.name ?? "Layanan Desa"}</span>
                 <span className="text-xs font-semibold text-muted-foreground">
                   {format(new Date(p.submittedAt), "d MMM yyyy", { locale: localeId })}
                 </span>
@@ -183,7 +183,7 @@ export default async function AdminPage({
                     {p.namaPelapor}
                   </TableCell>
                   <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
-                    {p.opd.name}
+                    {p.opd?.name ?? "Layanan Desa"}
                   </TableCell>
                   <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
                     {p.desa.name}

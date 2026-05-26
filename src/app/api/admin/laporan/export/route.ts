@@ -50,7 +50,7 @@ export async function GET(req: Request) {
     p.tiketNumber,
     format(new Date(p.submittedAt), "d MMMM yyyy", { locale: localeId }),
     p.namaPelapor,
-    p.opd.name,
+    p.opd?.name ?? "Layanan Desa",
     p.layananJenis?.name ?? "Pengaduan",
     p.desa.name,
     p.posyanduUser.name,

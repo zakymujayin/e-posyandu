@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import { redirect, notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { PengajuanDetail } from "@/components/shared/pengajuan-detail"
+import { PenyelesaianDesaSection } from "@/components/shared/penyelesaian-desa-section"
 import { AdminActions } from "@/components/admin/admin-actions"
 import { getSopInfo } from "@/lib/sop"
 import { format } from "date-fns"
@@ -73,6 +74,12 @@ export default async function AdminPengajuanDetailPage({
           <PengajuanDetail
             pengajuan={pengajuan}
             sopInfo={sopInfo ? { remainingDays: sopInfo.remainingDays, sopStatus: sopInfo.sopStatus } : null}
+          />
+
+          <PenyelesaianDesaSection
+            selesaiOleh={pengajuan.selesaiOleh}
+            verifikasiDesa={pengajuan.verifikasiDesa}
+            attachments={pengajuan.attachments}
           />
 
           {/* Tindak Lanjut OPD */}

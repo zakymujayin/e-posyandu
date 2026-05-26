@@ -166,7 +166,7 @@ export default async function PetugasDesaPage({
                     {p.namaPelapor}
                   </TableCell>
                   <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
-                    {p.opd.name}
+                    {p.opd?.name ?? "Layanan Desa"}
                   </TableCell>
                   <TableCell className="px-4 py-3.5">
                     <StatusBadge status={p.status as PengajuanStatus} />

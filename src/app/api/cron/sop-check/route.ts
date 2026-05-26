@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       await prisma.pengajuan.update({ where: { id: p.id }, data: { notifiedH2: true } })
 
       // Email to handlers
-      if (p.status === "DALAM_PROSES_OPD") {
+      if (p.status === "DALAM_PROSES_OPD" && p.opdId) {
         try {
           const officers = await prisma.user.findMany({
             where: { role: "PETUGAS_OPD", opdId: p.opdId, isActive: true },
@@ -109,7 +109,7 @@ export async function POST(req: Request) {
   return ok({ processed }, `SOP check selesai: ${processed} pengajuan diproses`)
 }
 
-async function getHandlerIds(p: { desaId: string; opdId: string; status: string }): Promise<string[]> {
+async function getHandlerIds(p: { desaId: string; opdId: string | null; status: string }): Promise<string[]> {
   if (p.status === "MENUNGGU_VERIFIKASI") {
     const users = await prisma.user.findMany({
       where: { role: "PETUGAS_DESA", desaId: p.desaId, isActive: true },
@@ -117,7 +117,7 @@ async function getHandlerIds(p: { desaId: string; opdId: string; status: string 
     })
     return users.map((u) => u.id)
   }
-  if (p.status === "DALAM_PROSES_OPD") {
+  if (p.status === "DALAM_PROSES_OPD" && p.opdId) {
     const users = await prisma.user.findMany({
       where: { role: "PETUGAS_OPD", opdId: p.opdId, isActive: true },
       select: { id: true },

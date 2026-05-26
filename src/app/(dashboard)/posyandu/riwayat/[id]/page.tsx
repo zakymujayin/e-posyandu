@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import { redirect, notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { PengajuanDetail } from "@/components/shared/pengajuan-detail"
+import { PenyelesaianDesaSection } from "@/components/shared/penyelesaian-desa-section"
 import { getSopInfo } from "@/lib/sop"
 import { PageHeader } from "@/components/shared/page-header"
 import { PageContainer } from "@/components/layout/page-container"
@@ -56,6 +57,11 @@ export default async function PosyanduRiwayatDetailPage({
       <PengajuanDetail
         pengajuan={pengajuan}
         sopInfo={sopInfo ? { remainingDays: sopInfo.remainingDays, sopStatus: sopInfo.sopStatus } : null}
+      />
+      <PenyelesaianDesaSection
+        selesaiOleh={pengajuan.selesaiOleh}
+        verifikasiDesa={pengajuan.verifikasiDesa}
+        attachments={pengajuan.attachments}
       />
     </PageContainer>
   )
