@@ -38,6 +38,8 @@ export async function POST(req: NextRequest) {
   const { user, response } = await requireAuth(["POSYANDU"])
   if (!user) return response!
 
+  const ENABLE_LAYANAN_FEATURE = false
+
   try {
     const allowed = await rateLimit(`rl:pengajuan:${user.id}`, 5, 600)
     if (!allowed) return err("Terlalu banyak pengajuan. Coba lagi dalam beberapa menit.", 429)
@@ -59,11 +61,15 @@ export async function POST(req: NextRequest) {
       isDesa = layanan?.isDesa ?? false
     }
 
+    if (!data.opdId && !data.layananJenisId) {
+      isDesa = true
+    }
+
     if (!data.opdId && !isDesa && data.kategori !== "PENGADUAN") {
       return err("OPD wajib dipilih untuk permohonan layanan non-desa")
     }
 
-    if (data.kategori === "PERMOHONAN" && !data.layananJenisId) {
+    if (ENABLE_LAYANAN_FEATURE && data.kategori === "PERMOHONAN" && !data.layananJenisId) {
       return err("Pilih layanan untuk permohonan")
     }
 

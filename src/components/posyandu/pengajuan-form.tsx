@@ -50,6 +50,8 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
+const ENABLE_LAYANAN_FEATURE = false
+
 export function PengajuanForm({ opdId, layananList }: Props) {
   const router = useRouter()
   const [kategori, setKategori] = useState<"" | "PENGADUAN" | "PERMOHONAN">("")
@@ -133,7 +135,7 @@ export function PengajuanForm({ opdId, layananList }: Props) {
       toast.error("Pilih jenis pengajuan terlebih dahulu")
       return
     }
-    if (kategori === "PERMOHONAN" && !selectedLayananId) {
+    if (ENABLE_LAYANAN_FEATURE && kategori === "PERMOHONAN" && !selectedLayananId) {
       toast.error("Pilih nama layanan untuk permohonan")
       return
     }
@@ -154,7 +156,7 @@ export function PengajuanForm({ opdId, layananList }: Props) {
     const payload = {
       ...(opdId ? { opdId } : {}),
       kategori,
-      ...(kategori === "PERMOHONAN" ? { layananJenisId: selectedLayananId } : {}),
+      ...(ENABLE_LAYANAN_FEATURE && kategori === "PERMOHONAN" ? { layananJenisId: selectedLayananId } : {}),
       namaPelapor: pendingSubmit.namaPelapor,
       nikPelapor: pendingSubmit.nikPelapor,
       noHpPelapor: pendingSubmit.noHpPelapor,
@@ -230,7 +232,7 @@ export function PengajuanForm({ opdId, layananList }: Props) {
             </Select>
           </div>
 
-          {showLayananSelect && (
+          {ENABLE_LAYANAN_FEATURE && showLayananSelect && (
             <div className="space-y-1.5">
               <FormLabel>
                 Nama Layanan <span className="text-destructive">*</span>
@@ -254,7 +256,7 @@ export function PengajuanForm({ opdId, layananList }: Props) {
         </FormSection>
 
         {/* Dynamic Fields — Permohonan only */}
-        {showDynamicFields && (
+        {ENABLE_LAYANAN_FEATURE && showDynamicFields && (
           <FormSection
             title="Formulir Detail Layanan"
             description="Silakan lengkapi atribut data dukung di bawah ini sesuai spesifikasi jenis layanan."

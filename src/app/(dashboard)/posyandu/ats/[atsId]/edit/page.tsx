@@ -53,7 +53,7 @@ export default async function EditATSPage({ params }: { params: Promise<{ atsId:
   }
 
   return (
-    <PageContainer className="space-y-6 max-w-5xl">
+    <PageContainer className="space-y-6 max-w-7xl">
       <PageHeader title={`Edit Data: ${record.namaAnak}`} description="Perbarui data anak tidak sekolah" backHref={`/posyandu/ats/${atsId}`} />
       <ATSForm mode="edit" atsId={atsId} defaultValues={defaultValues} wilayah={wilayah} />
     </PageContainer>

@@ -408,14 +408,17 @@ export function ATSForm({ mode, atsId, defaultValues, wilayah }: ATSFormProps) {
               </Card>
             )
           })}
+          <Card>
+            <CardContent className="px-5 py-5">
+              <div className="flex gap-3">
+                <Button type="button" variant="outline" className="flex-1" onClick={() => router.back()}>Batal</Button>
+                <Button type="button" className="flex-1 gap-2 font-bold" onClick={() => { if (validate()) setShowConfirm(true) }}>
+                  {mode === "edit" ? "Perbarui Data ATS" : "Simpan Data ATS"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </div>
-
-      <div className="flex gap-3 justify-end pt-2">
-        <Button type="button" variant="outline" onClick={() => router.back()}>Batal</Button>
-        <Button type="button" onClick={() => { if (validate()) setShowConfirm(true) }} className="gap-2 font-bold">
-          {mode === "edit" ? "Perbarui Data ATS" : "Simpan Data ATS"}
-        </Button>
       </div>
 
       <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
