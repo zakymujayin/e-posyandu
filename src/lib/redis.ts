@@ -13,6 +13,10 @@ const redis =
     enableOfflineQueue: false,
   })
 
+redis.on("error", () => {
+  // Redis unavailable — silently ignore, operations wrapped in try/catch
+})
+
 if (process.env.NODE_ENV !== "production") globalThis._redis = redis
 
 export { redis }
