@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
   User, MapPin, Users, GraduationCap, ClipboardList,
-  ChevronDown, ChevronUp, CheckCircle2, Loader2,
+  CheckCircle2, Loader2,
 } from "lucide-react"
 import {
   PENDIDIKAN_OPTIONS, STATUS_SEKOLAH_OPTIONS, ALASAN_OPTIONS, PROGRAM_OPTIONS,
@@ -78,7 +78,6 @@ function isSectionEDone(f: ATSFormData) {
 export function ATSForm({ mode, atsId, defaultValues, wilayah }: ATSFormProps) {
   const router = useRouter()
   const [form, setForm] = useState<ATSFormData>({ ...EMPTY_FORM, ...defaultValues })
-  const [open, setOpen] = useState<number[]>([0])
   const [showConfirm, setShowConfirm] = useState(false)
   const [loading, setLoading] = useState(false)
   const today = new Date().toISOString().split("T")[0]
@@ -106,10 +105,6 @@ export function ATSForm({ mode, atsId, defaultValues, wilayah }: ATSFormProps) {
     })
   }
 
-  function toggleSection(idx: number) {
-    setOpen((prev) => prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx])
-  }
-
   function toggleProgram(p: string) {
     set("programDibutuhkan", form.programDibutuhkan.includes(p)
       ? form.programDibutuhkan.filter((x) => x !== p)
@@ -118,21 +113,21 @@ export function ATSForm({ mode, atsId, defaultValues, wilayah }: ATSFormProps) {
   }
 
   function validate() {
-    if (!form.namaAnak) { toast.error("Nama anak wajib diisi"); setOpen([0]); return false }
-    if (!form.jenisKelamin) { toast.error("Jenis kelamin wajib dipilih"); setOpen([0]); return false }
-    if (!form.tempatLahir) { toast.error("Tempat lahir wajib diisi"); setOpen([0]); return false }
-    if (!form.tanggalLahir) { toast.error("Tanggal lahir wajib diisi"); setOpen([0]); return false }
-    if (!form.alamat) { toast.error("Alamat wajib diisi"); setOpen([0]); return false }
-    if (!form.namaOrangTua) { toast.error("Nama orang tua wajib diisi"); setOpen([2]); return false }
-    if (!form.pendidikanTerakhir) { toast.error("Pendidikan terakhir wajib dipilih"); setOpen([3]); return false }
-    if (!form.statusSekolah) { toast.error("Status sekolah wajib dipilih"); setOpen([3]); return false }
-    if (!form.alasanTidakSekolah) { toast.error("Alasan tidak sekolah wajib dipilih"); setOpen([3]); return false }
+    if (!form.namaAnak) { toast.error("Nama anak wajib diisi"); return false }
+    if (!form.jenisKelamin) { toast.error("Jenis kelamin wajib dipilih"); return false }
+    if (!form.tempatLahir) { toast.error("Tempat lahir wajib diisi"); return false }
+    if (!form.tanggalLahir) { toast.error("Tanggal lahir wajib diisi"); return false }
+    if (!form.alamat) { toast.error("Alamat wajib diisi"); return false }
+    if (!form.namaOrangTua) { toast.error("Nama orang tua wajib diisi"); return false }
+    if (!form.pendidikanTerakhir) { toast.error("Pendidikan terakhir wajib dipilih"); return false }
+    if (!form.statusSekolah) { toast.error("Status sekolah wajib dipilih"); return false }
+    if (!form.alasanTidakSekolah) { toast.error("Alasan tidak sekolah wajib dipilih"); return false }
     if (form.alasanTidakSekolah === "Lainnya" && !form.alasanLainnya) {
-      toast.error("Alasan lainnya wajib diisi"); setOpen([3]); return false
+      toast.error("Alasan lainnya wajib diisi"); return false
     }
-    if (!form.keinginanSekolah) { toast.error("Keinginan sekolah wajib dipilih"); setOpen([4]); return false }
+    if (!form.keinginanSekolah) { toast.error("Keinginan sekolah wajib dipilih"); return false }
     if (form.programDibutuhkan.includes("Lainnya") && !form.programLainnya) {
-      toast.error("Program lainnya wajib diisi"); setOpen([4]); return false
+      toast.error("Program lainnya wajib diisi"); return false
     }
     return true
   }
@@ -375,38 +370,45 @@ export function ATSForm({ mode, atsId, defaultValues, wilayah }: ATSFormProps) {
     },
   ]
 
-  const sectionCard = (idx: number) => {
-    const section = sections[idx]
-    const Icon = section.icon
-    const isOpen = open.includes(idx)
-    return (
-      <Card key={idx} className={`transition-all duration-200 ${isOpen ? "shadow-sm" : ""}`}>
-        <button type="button" onClick={() => toggleSection(idx)}
-          className="w-full flex items-center justify-between px-5 py-4 text-left">
-          <div className="flex items-center gap-2">
-            <Icon className="size-4 text-primary" />
-            <span className="font-semibold text-sm">{section.title}</span>
-            {section.done && <CheckCircle2 className="size-4 text-emerald-500 ml-1" />}
-          </div>
-          {isOpen ? <ChevronUp className="size-4 text-muted-foreground" /> : <ChevronDown className="size-4 text-muted-foreground" />}
-        </button>
-        {isOpen && (
-          <CardContent className="px-5 pb-5 pt-0 border-t border-border/50">
-            {section.content}
-          </CardContent>
-        )}
-      </Card>
-    )
-  }
-
-  const LEFT = [0, 2, 4]
-  const RIGHT = [1, 3]
-
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <div className="space-y-3">{LEFT.map((idx) => sectionCard(idx))}</div>
-        <div className="space-y-3">{RIGHT.map((idx) => sectionCard(idx))}</div>
+        <div className="space-y-3">
+          {[0, 2, 4].map((idx) => {
+            const section = sections[idx]
+            const Icon = section.icon
+            return (
+              <Card key={idx}>
+                <CardContent className="px-5 py-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Icon className="size-4 text-primary" />
+                    <span className="font-semibold text-sm">{section.title}</span>
+                    {section.done && <CheckCircle2 className="size-4 text-emerald-500 ml-1" />}
+                  </div>
+                  {section.content}
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+        <div className="space-y-3">
+          {[1, 3].map((idx) => {
+            const section = sections[idx]
+            const Icon = section.icon
+            return (
+              <Card key={idx}>
+                <CardContent className="px-5 py-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Icon className="size-4 text-primary" />
+                    <span className="font-semibold text-sm">{section.title}</span>
+                    {section.done && <CheckCircle2 className="size-4 text-emerald-500 ml-1" />}
+                  </div>
+                  {section.content}
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
       </div>
 
       <div className="flex gap-3 justify-end pt-2">
