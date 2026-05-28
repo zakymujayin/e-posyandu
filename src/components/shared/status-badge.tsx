@@ -50,12 +50,12 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border uppercase tracking-wider shadow-[0_1px_2px_rgba(0,0,0,0.02)]",
+        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold border sm:tracking-wide shadow-[0_1px_2px_rgba(0,0,0,0.02)]",
         style.container,
         className
       )}
     >
-      <span className={cn("size-1.5 rounded-full shrink-0", style.dot)} />
+      <span className={cn("size-1 rounded-full shrink-0", style.dot)} />
       {MESSAGES.status[status]}
     </span>
   )
