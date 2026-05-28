@@ -375,31 +375,38 @@ export function ATSForm({ mode, atsId, defaultValues, wilayah }: ATSFormProps) {
     },
   ]
 
+  const sectionCard = (idx: number) => {
+    const section = sections[idx]
+    const Icon = section.icon
+    const isOpen = open.includes(idx)
+    return (
+      <Card key={idx} className={`transition-all duration-200 ${isOpen ? "shadow-sm" : ""}`}>
+        <button type="button" onClick={() => toggleSection(idx)}
+          className="w-full flex items-center justify-between px-5 py-4 text-left">
+          <div className="flex items-center gap-2">
+            <Icon className="size-4 text-primary" />
+            <span className="font-semibold text-sm">{section.title}</span>
+            {section.done && <CheckCircle2 className="size-4 text-emerald-500 ml-1" />}
+          </div>
+          {isOpen ? <ChevronUp className="size-4 text-muted-foreground" /> : <ChevronDown className="size-4 text-muted-foreground" />}
+        </button>
+        {isOpen && (
+          <CardContent className="px-5 pb-5 pt-0 border-t border-border/50">
+            {section.content}
+          </CardContent>
+        )}
+      </Card>
+    )
+  }
+
+  const LEFT = [0, 2, 4]
+  const RIGHT = [1, 3]
+
   return (
     <>
-      <div className="space-y-3">
-        {sections.map((section, idx) => {
-          const Icon = section.icon
-          const isOpen = open.includes(idx)
-          return (
-            <Card key={idx} className={`transition-all duration-200 ${isOpen ? "shadow-sm" : ""}`}>
-              <button type="button" onClick={() => toggleSection(idx)}
-                className="w-full flex items-center justify-between px-5 py-4 text-left">
-                <div className="flex items-center gap-2">
-                  <Icon className="size-4 text-primary" />
-                  <span className="font-semibold text-sm">{section.title}</span>
-                  {section.done && <CheckCircle2 className="size-4 text-emerald-500 ml-1" />}
-                </div>
-                {isOpen ? <ChevronUp className="size-4 text-muted-foreground" /> : <ChevronDown className="size-4 text-muted-foreground" />}
-              </button>
-              {isOpen && (
-                <CardContent className="px-5 pb-5 pt-0 border-t border-border/50">
-                  {section.content}
-                </CardContent>
-              )}
-            </Card>
-          )
-        })}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div className="space-y-3">{LEFT.map((idx) => sectionCard(idx))}</div>
+        <div className="space-y-3">{RIGHT.map((idx) => sectionCard(idx))}</div>
       </div>
 
       <div className="flex gap-3 justify-end pt-2">

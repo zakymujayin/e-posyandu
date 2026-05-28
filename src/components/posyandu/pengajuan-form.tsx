@@ -191,7 +191,7 @@ export function PengajuanForm({ opdId, layananList }: Props) {
       })
       const json = await res.json()
       if (!json.success) throw new Error(json.error)
-      router.push(`/kader/ajukan/sukses?tiket=${json.data.tiketNumber}`)
+      router.push(`/posyandu/ajukan/sukses?tiket=${json.data.tiketNumber}`)
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal mengirim pengajuan")
     }
