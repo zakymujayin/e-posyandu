@@ -160,8 +160,7 @@ export function PengajuanForm({ opdId, layananList }: Props) {
       noHpPelapor: pendingSubmit.noHpPelapor,
       alamatPelapor: pendingSubmit.alamatPelapor,
       deskripsi: pendingSubmit.deskripsi,
-      lokasiLat: kategori === "PENGADUAN" ? lokasi?.lat ?? null : null,
-      lokasiLng: kategori === "PENGADUAN" ? lokasi?.lng ?? null : null,
+      ...(kategori === "PENGADUAN" && lokasi ? { lokasiLat: lokasi.lat, lokasiLng: lokasi.lng } : {}),
       fieldValues: Object.entries(dynamicValues).map(([formFieldId, fieldValue]) => ({
         formFieldId,
         fieldValue,

@@ -17,8 +17,8 @@ const createSchema = z.object({
   noHpPelapor: z.string().optional(),
   alamatPelapor: z.string().min(1, "Alamat wajib diisi"),
   deskripsi: z.string().min(20, "Deskripsi minimal 20 karakter"),
-  lokasiLat: z.number().optional(),
-  lokasiLng: z.number().optional(),
+  lokasiLat: z.number().optional().nullable(),
+  lokasiLng: z.number().optional().nullable(),
   fieldValues: z.array(z.object({
     formFieldId: z.string(),
     fieldValue: z.string(),
