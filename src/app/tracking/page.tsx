@@ -16,7 +16,7 @@ interface TrackingResult {
   namaPelapor: string
   status: string
   submittedAt: string
-  opd: { name: string }
+  opd: { name: string } | null
   layananJenis: { name: string } | null
   kategori?: string | null
   desa: { name: string }
@@ -155,7 +155,7 @@ export default function TrackingPage() {
                   </div>
                   <div>
                     <span className="block text-[9px] font-bold text-muted-foreground uppercase tracking-widest">OPD Penerima</span>
-                    <span className="text-xs md:text-sm font-bold text-foreground block mt-0.5">{result.opd.name}</span>
+                    <span className="text-xs md:text-sm font-bold text-foreground block mt-0.5">{result.opd?.name ?? "Layanan Desa"}</span>
                   </div>
                 </div>
 
