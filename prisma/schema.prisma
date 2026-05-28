@@ -21,6 +21,8 @@ model Kecamatan {
   desas     Desa[]
   users     User[]
   verifikasiKecamatans  VerifikasiKecamatan[]
+  noRegCounters         NoRegCounter[]
+  atsRecords            AnakTidakSekolah[]
 
   @@map("kecamatans")
 }
@@ -38,6 +40,7 @@ model Desa {
   users        User[]
   pengajuans   Pengajuan[]
   tiketCounters DesaTiketCounter[]
+  atsRecords   AnakTidakSekolah[]
 
   @@map("desas")
 }
@@ -55,6 +58,7 @@ model Posyandu {
   users      User[]
   pengajuans Pengajuan[]
   balitas    Balita[]
+  atsRecords AnakTidakSekolah[]
 
   @@map("posyandus")
 }
@@ -155,6 +159,7 @@ model User {
 
   pengajuansAsPosyandu Pengajuan[]   @relation("PosyanduPengajuan")
   balitas              Balita[]      @relation("PosyanduBalita")
+  atsRecords           AnakTidakSekolah[] @relation("PosyanduATS")
   verifikasiDesas      VerifikasiDesa[]
   verifikasiKecamatans  VerifikasiKecamatan[]
   tindakLanjuts        TindakLanjut[]
@@ -162,6 +167,18 @@ model User {
   notifications        Notification[]
 
   @@map("users")
+}
+
+// =============================================
+// NO REG COUNTER
+// =============================================
+
+model NoRegCounter {
+  id            String    @id @default(uuid())
+  kecamatanId   String    @unique @map("kecamatan_id")
+  lastSequence  Int       @default(0) @map("last_sequence")
+  kecamatan     Kecamatan @relation(fields: [kecamatanId], references: [id])
+  @@map("no_reg_counters")
 }
 
 // =============================================
@@ -514,4 +531,52 @@ model ImunisasiBalita {
   balita           Balita @relation(fields: [balitaId], references: [id], onDelete: Cascade)
 
   @@map("imunisasi_balitas")
+}
+
+// =============================================
+// MODUL ATS (ANAK TIDAK SEKOLAH)
+// =============================================
+
+model AnakTidakSekolah {
+  id                   String       @id @default(uuid())
+  posyanduId           String       @map("posyandu_id")
+  posyanduUserId       String       @map("posyandu_user_id")
+
+  namaAnak             String       @map("nama_anak")
+  nik                  String?
+  jenisKelamin         JenisKelamin @map("jenis_kelamin")
+  tempatLahir          String       @map("tempat_lahir")
+  tanggalLahir         DateTime     @map("tanggal_lahir")
+  alamat               String
+  rtRw                 String?      @map("rt_rw")
+
+  desaId               String       @map("desa_id")
+  kecamatanId          String       @map("kecamatan_id")
+
+  namaOrangTua         String       @map("nama_orang_tua")
+  pekerjaanOrangTua    String?      @map("pekerjaan_orang_tua")
+  noHpOrangTua         String?      @map("no_hp_orang_tua")
+
+  pendidikanTerakhir   String       @map("pendidikan_terakhir")
+  kelasTerakhir        String?      @map("kelas_terakhir")
+  statusSekolah        String       @map("status_sekolah")
+  alasanTidakSekolah   String       @map("alasan_tidak_sekolah")
+  alasanLainnya        String?      @map("alasan_lainnya")
+  tahunPutusSekolah    Int?         @map("tahun_putus_sekolah")
+
+  keinginanSekolah     String       @map("keinginan_sekolah")
+  programDibutuhkan    Json?        @map("program_dibutuhkan")
+  programLainnya       String?      @map("program_lainnya")
+  keterangan           String?
+
+  isActive             Boolean      @default(true) @map("is_active")
+  createdAt            DateTime     @default(now()) @map("created_at")
+  updatedAt            DateTime     @updatedAt @map("updated_at")
+
+  posyandu             Posyandu     @relation(fields: [posyanduId], references: [id])
+  posyanduUser         User         @relation("PosyanduATS", fields: [posyanduUserId], references: [id])
+  desa                 Desa         @relation(fields: [desaId], references: [id])
+  kecamatan            Kecamatan    @relation(fields: [kecamatanId], references: [id])
+
+  @@map("anak_tidak_sekolahs")
 }

@@ -39,6 +39,44 @@ export async function invalidateRekap(bulan: number, tahun: number): Promise<voi
   }
 }
 
+export async function invalidatePattern(pattern: string): Promise<void> {
+  try {
+    const stream = redis.scanStream({ match: pattern, count: 100 })
+    const keys: string[] = []
+
+    await new Promise<void>((resolve, reject) => {
+      stream.on("data", (chunk: string[]) => keys.push(...chunk))
+      stream.on("end", resolve)
+      stream.on("error", reject)
+    })
+
+    if (keys.length > 0) {
+      await redis.unlink(...keys)
+    }
+  } catch {
+    // Redis unavailable — no-op
+  }
+}
+
+export async function invalidateATSRekap(): Promise<void> {
+  try {
+    const stream = redis.scanStream({ match: "rekap:ats:*", count: 100 })
+    const keys: string[] = []
+
+    await new Promise<void>((resolve, reject) => {
+      stream.on("data", (chunk: string[]) => keys.push(...chunk))
+      stream.on("end", resolve)
+      stream.on("error", reject)
+    })
+
+    if (keys.length > 0) {
+      await redis.del(...keys)
+    }
+  } catch {
+    // Redis unavailable — no-op
+  }
+}
+
 export async function rateLimit(key: string, limit: number, windowSec: number): Promise<boolean> {
   try {
     const count = await redis.incr(key)
