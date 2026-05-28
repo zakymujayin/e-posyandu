@@ -15,6 +15,8 @@ const MOBILE_LABELS: Record<string, string> = {
   "Master Data": "Master",
   "Data Balita": "Balita",
   "Rekap Balita": "Rekap",
+  "Data ATS": "ATS",
+  "Rekap ATS": "ATS",
   "Laporan Pengajuan": "Laporan",
   "Laporan Balita": "Lap. Balita",
 }

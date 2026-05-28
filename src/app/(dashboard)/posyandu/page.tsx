@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { formatDistanceToNow } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { MESSAGES, type PengajuanStatus } from "@/lib/messages"
-import { FileText, Clock, CheckCircle2, XCircle, Plus, Baby, Scale, AlertCircle } from "lucide-react"
+import { FileText, Clock, CheckCircle2, XCircle, Plus, Baby, Scale, AlertCircle, GraduationCap } from "lucide-react"
 import { PageContainer } from "@/components/layout/page-container"
 import { SectionTitle } from "@/components/ui/typography"
 
@@ -54,6 +54,14 @@ export default async function PosyanduPage() {
       : Promise.resolve(0),
   ])
   const belumDitimbang = totalBalita - ditimbangBulanIni
+
+  // ATS stats
+  const [totalATS, putusSekolahCount, tidakPernahCount, lulusTidakCount] = await Promise.all([
+    posyanduId ? prisma.anakTidakSekolah.count({ where: { posyanduId, isActive: true } }) : Promise.resolve(0),
+    posyanduId ? prisma.anakTidakSekolah.count({ where: { posyanduId, isActive: true, statusSekolah: "Putus Sekolah" } }) : Promise.resolve(0),
+    posyanduId ? prisma.anakTidakSekolah.count({ where: { posyanduId, isActive: true, statusSekolah: "Tidak Pernah Sekolah" } }) : Promise.resolve(0),
+    posyanduId ? prisma.anakTidakSekolah.count({ where: { posyanduId, isActive: true, statusSekolah: "Lulus Tidak Melanjutkan" } }) : Promise.resolve(0),
+  ])
 
   const stats = [
     { label: "Total Pengajuan", value: total, icon: FileText, variant: "primary" as const },
@@ -133,6 +141,40 @@ export default async function PosyanduPage() {
             <Scale className="w-4 h-4" />
             Tambah Data Balita
           </Link>
+        </Button>
+      </div>
+
+      {/* ATS Summary Section */}
+      <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <GraduationCap className="w-4 h-4 text-primary" />
+            <SectionTitle>Pendataan Anak Tidak Sekolah</SectionTitle>
+          </div>
+          <Button variant="link" size="sm" asChild className="text-primary hover:text-primary/80 font-bold px-0">
+            <Link href="/posyandu/ats">Lihat Data →</Link>
+          </Button>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="rounded-lg bg-muted/40 px-4 py-3 text-center">
+            <p className="text-2xl font-bold text-foreground">{totalATS}</p>
+            <p className="text-xs text-muted-foreground font-medium mt-0.5">Total Terdaftar</p>
+          </div>
+          <div className="rounded-lg bg-red-500/10 px-4 py-3 text-center">
+            <p className="text-2xl font-bold text-red-700">{putusSekolahCount}</p>
+            <p className="text-xs text-muted-foreground font-medium mt-0.5">Putus Sekolah</p>
+          </div>
+          <div className="rounded-lg bg-amber-500/10 px-4 py-3 text-center">
+            <p className="text-2xl font-bold text-amber-700">{tidakPernahCount}</p>
+            <p className="text-xs text-muted-foreground font-medium mt-0.5">Tidak Pernah Sekolah</p>
+          </div>
+          <div className="rounded-lg bg-blue-500/10 px-4 py-3 text-center">
+            <p className="text-2xl font-bold text-blue-700">{lulusTidakCount}</p>
+            <p className="text-xs text-muted-foreground font-medium mt-0.5">Lulus Tdk Lanjut</p>
+          </div>
+        </div>
+        <Button asChild variant="outline" size="sm" className="w-full font-bold gap-2">
+          <Link href="/posyandu/ats/tambah"><Plus className="w-4 h-4" />Tambah Data ATS</Link>
         </Button>
       </div>
 

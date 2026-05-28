@@ -10,6 +10,7 @@ import {
   Settings,
   LayoutGrid,
   Baby,
+  GraduationCap,
 } from "lucide-react"
 import type { ComponentType } from "react"
 
@@ -25,16 +26,19 @@ export const NAV_ITEMS: Record<UserRole, NavItem[]> = {
     { href: "/posyandu/layanan", label: "Layanan", icon: LayoutGrid },
     { href: "/posyandu/riwayat", label: "Riwayat Pengajuan", icon: FileText },
     { href: "/posyandu/balita", label: "Data Balita", icon: Baby },
+    { href: "/posyandu/ats", label: "Data ATS", icon: GraduationCap },
   ],
   PETUGAS_DESA: [
     { href: "/petugas-desa", label: "Beranda", icon: Home },
     { href: "/petugas-desa/verifikasi", label: "Verifikasi", icon: CheckCircle },
     { href: "/petugas-desa/rekap-balita", label: "Rekap Balita", icon: Baby },
+    { href: "/petugas-desa/rekap-ats", label: "Rekap ATS", icon: GraduationCap },
     { href: "/admin/laporan-balita", label: "Laporan Balita", icon: PieChart },
   ],
   PETUGAS_KECAMATAN: [
     { href: "/kecamatan", label: "Monitoring", icon: Eye },
     { href: "/kecamatan/rekap-balita", label: "Rekap Balita", icon: Baby },
+    { href: "/kecamatan/rekap-ats", label: "Rekap ATS", icon: GraduationCap },
     { href: "/admin/laporan-balita", label: "Laporan Balita", icon: PieChart },
   ],
   PETUGAS_OPD: [
@@ -45,6 +49,7 @@ export const NAV_ITEMS: Record<UserRole, NavItem[]> = {
     { href: "/admin", label: "Dashboard", icon: Home },
     { href: "/admin/pengajuan", label: "Pengajuan", icon: FileText },
     { href: "/admin/rekap-balita", label: "Rekap Balita", icon: Baby },
+    { href: "/admin/rekap-ats", label: "Rekap ATS", icon: GraduationCap },
     { href: "/admin/laporan", label: "Laporan Pengajuan", icon: BarChart3 },
     { href: "/admin/laporan-balita", label: "Laporan Balita", icon: PieChart },
     { href: "/admin/master", label: "Master Data", icon: Settings },
