@@ -20,7 +20,7 @@ export default async function TambahATSPage() {
   }
 
   return (
-    <PageContainer className="space-y-6 max-w-2xl">
+    <PageContainer className="space-y-6 max-w-5xl">
       <PageHeader title="Tambah Data ATS" description="Daftarkan anak tidak sekolah baru" backHref="/posyandu/ats" />
       <ATSForm mode="tambah" wilayah={wilayah} />
     </PageContainer>
