@@ -291,7 +291,7 @@ export function ATSForm({ mode, atsId, defaultValues, wilayah }: ATSFormProps) {
             <div className="space-y-1.5">
               <Label>Pendidikan Terakhir <span className="text-destructive">*</span></Label>
               <Select value={form.pendidikanTerakhir} onValueChange={(v) => set("pendidikanTerakhir", v ?? "")}>
-                <SelectTrigger><SelectValue placeholder="Pilih..." /></SelectTrigger>
+                <SelectTrigger className="w-full"><SelectValue placeholder="Pilih..." /></SelectTrigger>
                 <SelectContent>{PENDIDIKAN_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
               </Select>
             </div>
@@ -304,14 +304,14 @@ export function ATSForm({ mode, atsId, defaultValues, wilayah }: ATSFormProps) {
           <div className="space-y-1.5">
             <Label>Status Sekolah <span className="text-destructive">*</span></Label>
             <Select value={form.statusSekolah} onValueChange={(v) => set("statusSekolah", v ?? "")}>
-              <SelectTrigger><SelectValue placeholder="Pilih..." /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue placeholder="Pilih..." /></SelectTrigger>
               <SelectContent>{STATUS_SEKOLAH_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
             </Select>
           </div>
           <div className="space-y-1.5">
             <Label>Alasan Tidak Sekolah <span className="text-destructive">*</span></Label>
             <Select value={form.alasanTidakSekolah} onValueChange={(v) => set("alasanTidakSekolah", v ?? "")}>
-              <SelectTrigger><SelectValue placeholder="Pilih..." /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue placeholder="Pilih..." /></SelectTrigger>
               <SelectContent>{ALASAN_OPTIONS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
             </Select>
           </div>
@@ -324,7 +324,7 @@ export function ATSForm({ mode, atsId, defaultValues, wilayah }: ATSFormProps) {
           <div className="space-y-1.5">
             <Label className={tidakPernahSekolah ? "opacity-40" : ""}>Tahun Putus Sekolah</Label>
             <Select value={form.tahunPutusSekolah} onValueChange={(v) => set("tahunPutusSekolah", v ?? "")} disabled={tidakPernahSekolah}>
-              <SelectTrigger><SelectValue placeholder="Pilih tahun..." /></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue placeholder="Pilih tahun..." /></SelectTrigger>
               <SelectContent>{tahunOptions.map((y) => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
             </Select>
           </div>
