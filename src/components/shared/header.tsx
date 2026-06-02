@@ -25,8 +25,10 @@ export function Header({ user }: HeaderProps) {
   return (
     <header className="fixed top-0 left-0 right-0 md:left-64 z-30 flex items-center justify-between px-4 md:px-6 h-16 md:h-[72px] bg-white/80 dark:bg-card/80 backdrop-blur-2xl border-b border-white/60 shadow-[0_4px_30px_rgba(0,0,0,0.03),inset_0_-1px_0_rgba(255,255,255,1)] transition-all duration-300">
       <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
-        <div className="md:hidden flex items-center gap-1.5">
-          <Heart className="size-4 fill-red-500 stroke-none drop-shadow-sm shrink-0" />
+        <div className="md:hidden flex items-center gap-2">
+          <div className="size-7 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-sm">
+            <Heart className="size-3.5 fill-white stroke-none drop-shadow-sm" />
+          </div>
           <h1 className="text-[17px] font-black tracking-tight text-slate-800">e-Posyandu</h1>
         </div>
         <div className="hidden md:contents">
