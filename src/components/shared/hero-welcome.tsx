@@ -60,7 +60,7 @@ export function HeroWelcome({ userName, roleLabel, description }: HeroWelcomePro
 
       {/* Kader posyandu illustration — pops out from top-right */}
       <div
-        className="absolute z-0 -top-8 right-5 drop-shadow-2xl pointer-events-none select-none hidden sm:block w-[120px] md:w-[150px] lg:w-[190px] hover:animate-float-3d"
+        className="absolute z-0 bottom-0 right-5 drop-shadow-2xl pointer-events-none select-none hidden sm:block w-[120px] md:w-[150px] lg:w-[190px] hover:animate-float-3d"
         aria-hidden="true"
       >
         <Image
