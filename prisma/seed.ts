@@ -183,13 +183,13 @@ async function main() {
 
   const petugasDesaPassword = await bcrypt.hash("petugas123", 12)
   const petugasDesa = await prisma.user.upsert({
-    where: { email: "petugas@example.com" },
-      update: { username: "petugas_desa", name: "Petugas Desa Nameng" },
+    where: { id: "d808c564-a474-435f-8ff6-e3f8f1b612da" },
+      update: { username: "desa_3602140006", name: "Petugas Desa Nameng", email: "desa-3602140006@example.com" },
       create: {
         id: "d808c564-a474-435f-8ff6-e3f8f1b612da",
         name: "Petugas Desa Nameng",
-      email: "petugas@example.com",
-      username: "petugas_desa",
+      email: "desa-3602140006@example.com",
+      username: "desa_3602140006",
       password: petugasDesaPassword,
       role: "PETUGAS_DESA",
       desaId: desa1.id,
@@ -198,13 +198,13 @@ async function main() {
 
   const petugasKecPassword = await bcrypt.hash("kecamatan123", 12)
   await prisma.user.upsert({
-    where: { email: "kecamatan@example.com" },
-      update: { username: "petugas_kec", name: "Petugas Kecamatan Rangkasbitung" },
+    where: { id: "d4eda4bf-66a7-4bb8-bda4-628672dbf53c" },
+      update: { username: "kec_360214", name: "Petugas Kecamatan Rangkasbitung", email: "kec-360214@example.com" },
       create: {
         id: "d4eda4bf-66a7-4bb8-bda4-628672dbf53c",
         name: "Petugas Kecamatan Rangkasbitung",
-      email: "kecamatan@example.com",
-      username: "petugas_kec",
+      email: "kec-360214@example.com",
+      username: "kec_360214",
       password: petugasKecPassword,
       role: "PETUGAS_KECAMATAN",
       kecamatanId: kecamatan.id,
@@ -213,13 +213,13 @@ async function main() {
 
   const petugasOpdPassword = await bcrypt.hash("opd123", 12)
   await prisma.user.upsert({
-    where: { email: "opd@example.com" },
-      update: { username: "petugas_opd", name: "Petugas Dinas Kesehatan" },
+    where: { id: "50574e17-ef50-4730-aca6-965d9f2568ca" },
+      update: { username: "opd_dinkes", name: "Petugas Dinas Kesehatan", email: "opd-dinkes@example.com" },
       create: {
         id: "50574e17-ef50-4730-aca6-965d9f2568ca",
         name: "Petugas Dinas Kesehatan",
-      email: "opd@example.com",
-      username: "petugas_opd",
+      email: "opd-dinkes@example.com",
+      username: "opd_dinkes",
       password: petugasOpdPassword,
       role: "PETUGAS_OPD",
       opdId: opdKesehatan.id,
