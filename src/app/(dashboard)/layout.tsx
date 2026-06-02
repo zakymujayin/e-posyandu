@@ -1,6 +1,7 @@
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
+import { withCache } from "@/lib/cache"
 import { AppShell } from "@/components/shared/app-shell"
 import type { UserRole } from "@/types/next-auth"
 
@@ -14,8 +15,14 @@ export default async function DashboardLayout({
     redirect("/login")
   }
 
-  const logoSetting = await prisma.appSetting.findUnique({ where: { key: "logo_url" } })
-  const logoUrl = logoSetting?.value || null
+  const logoUrl = await withCache<string | null>(
+    "app_setting:logo_url",
+    3600,
+    async () => {
+      const row = await prisma.appSetting.findUnique({ where: { key: "logo_url" } })
+      return row?.value ?? null
+    },
+  )
 
   const formattedUser = {
     name: session.user.name || "Pengguna",
