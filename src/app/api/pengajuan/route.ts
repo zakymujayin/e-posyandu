@@ -202,17 +202,14 @@ export async function GET(req: NextRequest) {
   if (user.role === "POSYANDU") {
     where.posyanduUserId = user.id
   } else if (user.role === "PETUGAS_DESA") {
-    const u = await prisma.user.findUnique({ where: { id: user.id }, select: { desaId: true } })
-    if (!u?.desaId) return err("User tidak terdaftar di desa", 400)
-    where.desaId = u.desaId
+    if (!user.desaId) return err("User tidak terdaftar di desa", 400)
+    where.desaId = user.desaId
   } else if (user.role === "PETUGAS_KECAMATAN") {
-    const u = await prisma.user.findUnique({ where: { id: user.id }, select: { kecamatanId: true } })
-    if (!u?.kecamatanId) return err("User tidak terdaftar di kecamatan", 400)
-    where.desa = { kecamatanId: u.kecamatanId }
+    if (!user.kecamatanId) return err("User tidak terdaftar di kecamatan", 400)
+    where.desa = { kecamatanId: user.kecamatanId }
   } else if (user.role === "PETUGAS_OPD") {
-    const u = await prisma.user.findUnique({ where: { id: user.id }, select: { opdId: true } })
-    if (!u?.opdId) return err("User tidak terdaftar di OPD", 400)
-    where.opdId = u.opdId
+    if (!user.opdId) return err("User tidak terdaftar di OPD", 400)
+    where.opdId = user.opdId
   }
 
   if (status) where.status = status

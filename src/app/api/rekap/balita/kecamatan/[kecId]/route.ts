@@ -11,10 +11,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ kecI
     const { kecId } = await params
 
     if (user.role === "PETUGAS_KECAMATAN") {
-      const petugas = await prisma.user.findUnique({ where: { id: user.id }, select: { kecamatanId: true } })
-      if (petugas?.kecamatanId !== kecId) {
-        return err("Akses ditolak", 403)
-      }
+      if (user.kecamatanId !== kecId) return err("Akses ditolak", 403)
     }
 
     const now = new Date()

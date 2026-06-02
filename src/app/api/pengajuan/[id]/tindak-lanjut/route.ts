@@ -39,8 +39,7 @@ export async function POST(
     return err("Pengajuan tidak dalam status proses OPD")
   }
 
-  const opd = await prisma.user.findUnique({ where: { id: user.id }, select: { opdId: true } })
-  if (opd?.opdId !== pengajuan.opdId) return err("Akses ditolak", 403)
+  if (user.opdId !== pengajuan.opdId) return err("Akses ditolak", 403)
 
   const { deskripsi, attachments } = parsed.data
 

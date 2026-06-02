@@ -23,33 +23,23 @@ export async function GET(req: NextRequest) {
     const posyanduFilter: Record<string, unknown> = {}
 
     if (user.role === "PETUGAS_DESA") {
-      const petugas = await prisma.user.findUnique({
-        where: { id: user.id },
-        select: { desaId: true },
-      })
-      if (!petugas?.desaId) return err("Akun belum dihubungkan ke desa", 400)
-      posyanduFilter.desaId = petugas.desaId
+      if (!user.desaId) return err("Akun belum dihubungkan ke desa", 400)
+      posyanduFilter.desaId = user.desaId
     } else if (user.role === "PETUGAS_KECAMATAN") {
-      const petugas = await prisma.user.findUnique({
-        where: { id: user.id },
-        select: { kecamatanId: true },
-      })
-      if (!petugas?.kecamatanId) return err("Akun belum dihubungkan ke kecamatan", 400)
-      posyanduFilter.desa = { kecamatanId: petugas.kecamatanId }
+      if (!user.kecamatanId) return err("Akun belum dihubungkan ke kecamatan", 400)
+      posyanduFilter.desa = { kecamatanId: user.kecamatanId }
     }
 
     if (posyanduId) {
       posyanduFilter.id = posyanduId
     } else if (desaId) {
       if (user.role === "PETUGAS_DESA") {
-        const petugas = await prisma.user.findUnique({ where: { id: user.id }, select: { desaId: true } })
-        if (petugas?.desaId !== desaId) return err("Akses ditolak", 403)
+        if (user.desaId !== desaId) return err("Akses ditolak", 403)
       }
       posyanduFilter.desaId = desaId
     } else if (kecId) {
       if (user.role === "PETUGAS_KECAMATAN") {
-        const petugas = await prisma.user.findUnique({ where: { id: user.id }, select: { kecamatanId: true } })
-        if (petugas?.kecamatanId !== kecId) return err("Akses ditolak", 403)
+        if (user.kecamatanId !== kecId) return err("Akses ditolak", 403)
       }
       posyanduFilter.desa = { kecamatanId: kecId }
     }

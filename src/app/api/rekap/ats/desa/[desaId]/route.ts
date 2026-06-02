@@ -11,8 +11,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ desa
     const { desaId } = await params
 
     if (user.role === "PETUGAS_DESA") {
-      const p = await prisma.user.findUnique({ where: { id: user.id }, select: { desaId: true } })
-      if (p?.desaId !== desaId) return err("Akses ditolak", 403)
+      if (user.desaId !== desaId) return err("Akses ditolak", 403)
     }
 
     const data = await withCache(`rekap:ats:desa:${desaId}`, 3600, async () => {

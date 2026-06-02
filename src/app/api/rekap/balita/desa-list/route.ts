@@ -12,8 +12,7 @@ export async function GET(req: NextRequest) {
 
     const where: Record<string, unknown> = {}
     if (user.role === "PETUGAS_KECAMATAN") {
-      const p = await prisma.user.findUnique({ where: { id: user.id }, select: { kecamatanId: true } })
-      if (p?.kecamatanId) where.kecamatanId = p.kecamatanId
+      if (user.kecamatanId) where.kecamatanId = user.kecamatanId
     } else if (kecId) {
       where.kecamatanId = kecId
     }
