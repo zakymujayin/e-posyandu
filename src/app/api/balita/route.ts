@@ -2,7 +2,7 @@ import { NextRequest } from "next/server"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
-import { invalidateRekap, invalidatePattern } from "@/lib/cache"
+import { invalidateRekap, invalidatePattern, rateLimit } from "@/lib/cache"
 
 const createSchema = z.object({
   namaBalita: z.string().min(1),
@@ -67,6 +67,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const { user, response } = await requireAuth(["POSYANDU"])
   if (!user) return response!
+
+  const limited = await rateLimit(`rl:balita:${user.id}`, 30, 60)
+  if (!limited) return err("Terlalu banyak permintaan. Coba lagi dalam 1 menit.", 429)
 
   try {
     const body = await req.json()

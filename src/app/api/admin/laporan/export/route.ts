@@ -30,9 +30,18 @@ export async function GET(req: Request) {
   const sampai = searchParams.get("sampai")
   const opdId = searchParams.get("opdId")
 
-  if (!dari) {
+  if (!dari || !sampai) {
     return new Response(
-      JSON.stringify({ success: false, error: "Parameter dari (tanggal awal) wajib diisi." }),
+      JSON.stringify({ success: false, error: "Parameter dari dan sampai wajib diisi." }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    )
+  }
+  const dariDate = new Date(dari)
+  const sampaiDate = new Date(sampai)
+  const diffDays = Math.ceil((sampaiDate.getTime() - dariDate.getTime()) / (1000 * 60 * 60 * 24))
+  if (diffDays > 31) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Rentang tanggal maksimal 31 hari." }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     )
   }

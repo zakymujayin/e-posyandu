@@ -3,7 +3,7 @@ import { z } from "zod"
 import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
-import { invalidateATSRekap } from "@/lib/cache"
+import { invalidateATSRekap, rateLimit } from "@/lib/cache"
 
 const createSchema = z.object({
   namaAnak: z.string().min(1),
@@ -80,6 +80,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const { user, response } = await requireAuth(["POSYANDU"])
   if (!user) return response!
+
+  const limited = await rateLimit(`rl:ats:${user.id}`, 20, 60)
+  if (!limited) return err("Terlalu banyak permintaan. Coba lagi dalam 1 menit.", 429)
 
   try {
     const body = await req.json()
