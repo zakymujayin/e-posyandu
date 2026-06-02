@@ -6,7 +6,7 @@ const UsersCsvImport = lazy(() =>
   import("@/components/admin/master/users-csv-import").then((m) => ({ default: m.UsersCsvImport }))
 )
 import { toast } from "sonner"
-import { Plus, Pencil, X, Check, Search, UserCheck, HelpCircle, Upload } from "lucide-react"
+import { Plus, Pencil, X, Check, Search, UserCheck, HelpCircle, Upload, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FormLabel, SubText } from "@/components/ui/typography"
@@ -64,6 +64,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [rawPage, setRawPage] = useState(1)
+  const [showPassword, setShowPassword] = useState(false)
   const limit = 10
 
   const filtered = users.filter((u) => {
@@ -241,15 +242,26 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               )}
               <div className="space-y-1.5">
                 <FormLabel htmlFor="users-password">{editing ? "Kata Sandi Baru (Kosongkan jika tidak diubah)" : "Kata Sandi Baru"}</FormLabel>
-                <Input
-                  id="users-password"
-                  type="password"
-                  value={form.password}
-                  onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-                  placeholder="Minimal 8 karakter..."
-                  required={!editing}
-                  minLength={8}
-                />
+                <div className="relative">
+                  <Input
+                    id="users-password"
+                    type={showPassword ? "text" : "password"}
+                    value={form.password}
+                    onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                    placeholder="Minimal 8 karakter..."
+                    required={!editing}
+                    minLength={8}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
               <div className="space-y-1.5">
                 <FormLabel htmlFor="users-role">Hak Akses / Peran Sistem <span className="text-destructive">*</span></FormLabel>

@@ -4,7 +4,7 @@ import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { User, Lock } from "lucide-react"
+import { User, Lock, Eye, EyeOff } from "lucide-react"
 
 export function ProfilForms({ initialName, initialEmail }: { initialName: string; initialEmail: string }) {
   const router = useRouter()
@@ -13,6 +13,7 @@ export function ProfilForms({ initialName, initialEmail }: { initialName: string
   const [savingName, setSavingName] = useState(false)
   const [savingPw, setSavingPw] = useState(false)
   const [pw, setPw] = useState({ current: "", new: "", confirm: "" })
+  const [showPw, setShowPw] = useState({ current: false, new: false, confirm: false })
 
   async function handleUpdateName(e: React.FormEvent) {
     e.preventDefault()
@@ -120,14 +121,24 @@ export function ProfilForms({ initialName, initialEmail }: { initialName: string
             <label className="text-xs font-medium text-gray-500">
               {field === "current" ? "Password Lama" : field === "new" ? "Password Baru" : "Konfirmasi Password Baru"}
             </label>
-            <input
-              type="password"
-              value={pw[field]}
-              onChange={(e) => setPw((p) => ({ ...p, [field]: e.target.value }))}
-              required
-              minLength={field === "current" ? 1 : 6}
-              className="w-full h-9 rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="relative">
+              <input
+                type={showPw[field] ? "text" : "password"}
+                value={pw[field]}
+                onChange={(e) => setPw((p) => ({ ...p, [field]: e.target.value }))}
+                required
+                minLength={field === "current" ? 1 : 6}
+                className="w-full h-9 rounded-lg border border-gray-200 pr-9 pl-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw((s) => ({ ...s, [field]: !s[field] }))}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label={showPw[field] ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+              >
+                {showPw[field] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              </button>
+            </div>
           </div>
         ))}
         <Button type="submit" size="sm" className="text-xs" disabled={savingPw}>

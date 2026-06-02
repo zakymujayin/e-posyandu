@@ -35,7 +35,7 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
         className={cn(
           "flex items-center px-1",
           scrollable
-            ? "overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            ? "overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden justify-center"
             : "justify-around"
         )}
       >
