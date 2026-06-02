@@ -19,7 +19,15 @@ export function FooterSection({ logoUrl }: Props) {
             <div className="flex items-center gap-3 mb-4">
               <div className="size-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
                 {logoUrl ? (
-                  <img src={logoUrl} alt="Logo E-Posyandu" className="w-full h-full object-contain p-1" />
+                  <img
+                    src={logoUrl}
+                    alt="Logo E-Posyandu"
+                    className="w-full h-full object-contain p-1"
+                    loading="lazy"
+                    decoding="async"
+                    width={36}
+                    height={36}
+                  />
                 ) : (
                   <Building2 className="size-5 text-slate-400" />
                 )}

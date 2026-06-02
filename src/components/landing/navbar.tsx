@@ -20,6 +20,10 @@ export function LandingNavbar({ logoUrl }: Props) {
                 src={logoUrl}
                 alt="Logo E-Posyandu"
                 className="w-full h-full object-contain p-1"
+                fetchPriority="high"
+                width={36}
+                height={36}
+                decoding="async"
               />
             ) : (
               <Building2 className="size-5 text-blue-700" />
