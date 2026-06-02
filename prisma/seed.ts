@@ -109,43 +109,16 @@ async function main() {
   const opdPend = opds.find((o) => o.code === "DINDIK")!
 
   // =====================
-  // 2. Kecamatan
+  // 2. Kecamatan & Desa — dari seed-wilayah
   // =====================
-  const kecamatan = await prisma.kecamatan.upsert({
-    where: { code: "KEC_LEBAK" },
-    update: {},
-    create: {
-      id: "3d59ec39-9819-4638-a69c-a02a5e122af5",
-      name: "Kecamatan Rangkasbitung",
-      code: "KEC_LEBAK",
-    },
-  })
-  console.log("✅ Kecamatan created:", kecamatan.name)
+  const kecamatan = await prisma.kecamatan.findFirst({ where: { name: "Rangkasbitung" } })
+  if (!kecamatan) throw new Error("Kecamatan Rangkasbitung tidak ditemukan — pastikan seed-wilayah sudah dijalankan")
+  console.log("✅ Kecamatan:", kecamatan.name, "(", kecamatan.code, ")")
 
-  // =====================
-  // 3. Desa
-  // =====================
-  const desa1 = await prisma.desa.upsert({
-    where: { code: "DS_LEBAK_1" },
-    update: {},
-    create: {
-      id: "4496ad10-e0f7-49c0-8475-0d90901d4d70",
-      name: "Nameng",
-      code: "DS_LEBAK_1",
-      kecamatanId: kecamatan.id,
-    },
-  })
-  const desa2 = await prisma.desa.upsert({
-    where: { code: "DS_LEBAK_2" },
-    update: {},
-    create: {
-      id: "826d597a-9e7b-4846-a387-0159054365d4",
-      name: "Rangkasbitung Barat",
-      code: "DS_LEBAK_2",
-      kecamatanId: kecamatan.id,
-    },
-  })
-  console.log("✅ 2 Desa created")
+  const desa1 = await prisma.desa.findFirst({ where: { name: "Nameng", kecamatanId: kecamatan.id } })
+  const desa2 = await prisma.desa.findFirst({ where: { name: "Rangkasbitung Barat", kecamatanId: kecamatan.id } })
+  if (!desa1 || !desa2) throw new Error("Desa tidak ditemukan — pastikan seed-wilayah sudah dijalankan")
+  console.log("✅ 2 Desa:", desa1.name, ",", desa2.name)
 
   // =====================
   // 4. Posyandu
@@ -178,10 +151,10 @@ async function main() {
   const adminPassword = await bcrypt.hash("admin123", 12)
   const admin = await prisma.user.upsert({
     where: { email: "admin@dpmd.go.id" },
-    update: { username: "admin_dpmd" },
-    create: {
-      id: "719d7d82-a9b1-4d27-ba4e-c84db0cc158f",
-      name: "Rin Rin Fauziah",
+      update: { username: "admin_dpmd", name: "Petugas DPMD" },
+      create: {
+        id: "719d7d82-a9b1-4d27-ba4e-c84db0cc158f",
+        name: "Petugas DPMD",
       email: "admin@dpmd.go.id",
       username: "admin_dpmd",
       password: adminPassword,
@@ -201,7 +174,7 @@ async function main() {
       username: "posyandu-mawar",
       password: posyanduPassword,
       role: "POSYANDU",
-      noRegistrasi: "REG-2026-001",
+      noRegistrasi: "360214-001",
       posyanduId: posyandu1.id,
       desaId: desa1.id,
       kecamatanId: kecamatan.id,
@@ -211,10 +184,10 @@ async function main() {
   const petugasDesaPassword = await bcrypt.hash("petugas123", 12)
   const petugasDesa = await prisma.user.upsert({
     where: { email: "petugas@example.com" },
-    update: { username: "petugas_desa" },
-    create: {
-      id: "d808c564-a474-435f-8ff6-e3f8f1b612da",
-      name: "Ahmad Fauzi",
+      update: { username: "petugas_desa", name: "Petugas Desa Nameng" },
+      create: {
+        id: "d808c564-a474-435f-8ff6-e3f8f1b612da",
+        name: "Petugas Desa Nameng",
       email: "petugas@example.com",
       username: "petugas_desa",
       password: petugasDesaPassword,
@@ -226,10 +199,10 @@ async function main() {
   const petugasKecPassword = await bcrypt.hash("kecamatan123", 12)
   await prisma.user.upsert({
     where: { email: "kecamatan@example.com" },
-    update: { username: "petugas_kec" },
-    create: {
-      id: "d4eda4bf-66a7-4bb8-bda4-628672dbf53c",
-      name: "Budi Santoso",
+      update: { username: "petugas_kec", name: "Petugas Kecamatan Rangkasbitung" },
+      create: {
+        id: "d4eda4bf-66a7-4bb8-bda4-628672dbf53c",
+        name: "Petugas Kecamatan Rangkasbitung",
       email: "kecamatan@example.com",
       username: "petugas_kec",
       password: petugasKecPassword,
@@ -241,10 +214,10 @@ async function main() {
   const petugasOpdPassword = await bcrypt.hash("opd123", 12)
   await prisma.user.upsert({
     where: { email: "opd@example.com" },
-    update: { username: "petugas_opd" },
-    create: {
-      id: "50574e17-ef50-4730-aca6-965d9f2568ca",
-      name: "Dewi Kusuma",
+      update: { username: "petugas_opd", name: "Petugas Dinas Kesehatan" },
+      create: {
+        id: "50574e17-ef50-4730-aca6-965d9f2568ca",
+        name: "Petugas Dinas Kesehatan",
       email: "opd@example.com",
       username: "petugas_opd",
       password: petugasOpdPassword,
@@ -253,7 +226,63 @@ async function main() {
     },
   })
 
-  console.log("✅ 5 users created (admin, posyandu, petugas desa, petugas kec, petugas OPD)")
+  let userCount = 5
+
+  // Create users for remaining OPDs
+  for (const opd of opds) {
+    await prisma.user.upsert({
+      where: { email: `opd-${opd.code.toLowerCase()}@example.com` },
+      update: { name: `Petugas ${opd.name}` },
+      create: {
+        name: `Petugas ${opd.name}`,
+        email: `opd-${opd.code.toLowerCase()}@example.com`,
+        username: `opd_${opd.code.toLowerCase()}`,
+        password: petugasOpdPassword,
+        role: "PETUGAS_OPD",
+        opdId: opd.id,
+      },
+    })
+    userCount++
+  }
+
+  // Create users for ALL kecamatan
+  const allKecamatan = await prisma.kecamatan.findMany()
+  for (const kec of allKecamatan) {
+    await prisma.user.upsert({
+      where: { email: `kec-${kec.code}@example.com` },
+      update: { name: `Petugas Kecamatan ${kec.name}` },
+      create: {
+        name: `Petugas Kecamatan ${kec.name}`,
+        email: `kec-${kec.code}@example.com`,
+        username: `kec_${kec.code}`,
+        password: petugasKecPassword,
+        role: "PETUGAS_KECAMATAN",
+        kecamatanId: kec.id,
+      },
+    })
+    userCount++
+  }
+
+  // Create users for ALL desa
+  const allDesa = await prisma.desa.findMany()
+  for (const desa of allDesa) {
+    await prisma.user.upsert({
+      where: { email: `desa-${desa.code}@example.com` },
+      update: { name: `Petugas Desa ${desa.name}` },
+      create: {
+        name: `Petugas Desa ${desa.name}`,
+        email: `desa-${desa.code}@example.com`,
+        username: `desa_${desa.code}`,
+        password: petugasDesaPassword,
+        role: "PETUGAS_DESA",
+        desaId: desa.id,
+      },
+    })
+    userCount++
+  }
+
+  console.log(`✅ ${userCount} users created (1 admin, 1 posyandu, ${opds.length} OPD, ${allKecamatan.length} kecamatan, ${allDesa.length} desa)`)
+
 
   // =====================
   // 6. Layanan Jenis
@@ -334,6 +363,16 @@ async function main() {
     create: { desaId: desa1.id, year: 2026, lastSequence: 0 },
   })
   console.log("✅ 1 desa tiket counter created")
+
+  // =====================
+  // 7c. No Registrasi Counter
+  // =====================
+  await prisma.noRegCounter.upsert({
+    where: { kecamatanId: kecamatan.id },
+    update: {},
+    create: { kecamatanId: kecamatan.id, lastSequence: 1 },
+  })
+  console.log("✅ No registrasi counter created")
 
   // =====================
   // 8. Sample Pengajuan — DINKES
