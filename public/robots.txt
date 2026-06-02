@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://in-pasyandu.lebak.dss.dkru.org/sitemap.xml

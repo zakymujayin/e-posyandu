@@ -1,8 +1,7 @@
 "use client"
 
-/* eslint-disable @next/next/no-img-element */
-
 import { useState } from "react"
+import Image from "next/image"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
@@ -102,8 +101,8 @@ export default function LoginForm({ logoUrl }: Props) {
         {/* Branding header */}
         <div className="flex items-center gap-3 relative z-10">
           {logoUrl ? (
-            <div className="size-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg overflow-hidden">
-              <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-1" />
+            <div className="size-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg overflow-hidden relative">
+              <Image src={logoUrl} alt="Logo" fill className="object-contain p-1" sizes="40px" />
             </div>
           ) : (
             <div className="size-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center font-black border border-white/20 shadow-lg text-white text-sm tracking-wide">
