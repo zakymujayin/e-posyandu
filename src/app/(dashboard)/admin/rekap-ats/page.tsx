@@ -10,7 +10,7 @@ import { TableRow, TableCell } from "@/components/ui/table"
 import { StatCard } from "@/components/shared/stat-card"
 import { Button } from "@/components/ui/button"
 import { GraduationCap, UserX, BookOpen, CheckCircle2, Download } from "lucide-react"
-import { ATSCharts } from "@/components/admin/ats-charts"
+import { ATSCharts } from "@/components/admin/ats-charts-wrapper"
 
 export default async function RekapATSAdminPage() {
   const session = await auth()

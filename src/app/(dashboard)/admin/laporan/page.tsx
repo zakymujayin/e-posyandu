@@ -9,7 +9,7 @@ import { PageContainer } from "@/components/layout/page-container"
 import { PageHeader } from "@/components/shared/page-header"
 import { StatCard } from "@/components/shared/stat-card"
 import { LaporanExport } from "@/components/admin/laporan-export"
-import { LaporanCharts } from "@/components/admin/laporan-charts"
+import { LaporanCharts } from "@/components/admin/laporan-charts-wrapper"
 import { LaporanFilter } from "@/components/admin/laporan-filter"
 import { SectionTitle } from "@/components/ui/typography"
 
