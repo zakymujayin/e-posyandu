@@ -18,7 +18,7 @@ interface AppShellProps {
 
 export function AppShell({ user, logoUrl, children }: AppShellProps) {
   return (
-    <div className="flex min-h-screen bg-background transition-all duration-300">
+    <div className="flex min-h-screen bg-background">
       {/* Desktop Sidebar (hidden on mobile) */}
       <Sidebar user={user} />
 
