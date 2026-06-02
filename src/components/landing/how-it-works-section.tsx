@@ -52,7 +52,7 @@ export function HowItWorksSection() {
             >
               Bagaimana Cara Kerjanya?
             </h2>
-            <p className="text-[14px] text-slate-500 mt-3 max-w-lg mx-auto" style={{ fontFamily: "var(--font-jakarta)" }}>
+            <p className="text-[14px] text-slate-500 mt-3 max-w-lg mx-auto">
               Proses sederhana tiga langkah dari pengajuan hingga penyelesaian
             </p>
           </div>
@@ -73,11 +73,10 @@ export function HowItWorksSection() {
                 </span>
                 <h3
                   className="text-[16px] font-bold text-slate-800 mb-3"
-                  style={{ fontFamily: "var(--font-jakarta)" }}
                 >
                   {step.title}
                 </h3>
-                <p className="text-[13px] text-slate-500 leading-relaxed" style={{ fontFamily: "var(--font-jakarta)" }}>
+                <p className="text-[13px] text-slate-500 leading-relaxed">
                   {step.description}
                 </p>
               </div>

@@ -64,11 +64,10 @@ export function FeaturesSection() {
                 </div>
                 <h3
                   className="text-[15px] font-bold text-slate-800 mb-2"
-                  style={{ fontFamily: "var(--font-jakarta)" }}
                 >
                   {f.title}
                 </h3>
-                <p className="text-[13px] text-slate-500 leading-relaxed" style={{ fontFamily: "var(--font-jakarta)" }}>
+                <p className="text-[13px] text-slate-500 leading-relaxed">
                   {f.description}
                 </p>
               </div>

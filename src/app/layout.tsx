@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
-import { inter, dmSerifDisplay, plusJakartaSans } from "@/lib/fonts"
+import { inter, dmSerifDisplay } from "@/lib/fonts"
 
 export const metadata: Metadata = {
   title: "E-Posyandu — DPMD Kabupaten Lebak",
@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${inter.variable} ${dmSerifDisplay.variable} ${plusJakartaSans.variable}`}
+      className={`${inter.variable} ${dmSerifDisplay.variable}`}
     >
       <body className={inter.className}>
         <a

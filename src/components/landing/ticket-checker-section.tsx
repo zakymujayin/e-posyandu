@@ -26,7 +26,7 @@ export function TicketCheckerSection() {
         >
           Sudah Punya Nomor Tiket?
         </h2>
-        <p className="text-blue-100 text-[14px] mb-8 leading-relaxed" style={{ fontFamily: "var(--font-jakarta)" }}>
+        <p className="text-blue-100 text-[14px] mb-8 leading-relaxed">
           Gunakan nomor tiket yang diberikan oleh kader posyandu untuk melihat status pengajuan Anda tanpa perlu login.
         </p>
 

@@ -29,7 +29,7 @@ export function FooterSection({ logoUrl }: Props) {
                 <span className="block text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Kabupaten Lebak</span>
               </div>
             </div>
-            <p className="text-[13px] leading-relaxed text-slate-500" style={{ fontFamily: "var(--font-jakarta)" }}>
+            <p className="text-[13px] leading-relaxed text-slate-500">
               Dinas Pemberdayaan Masyarakat dan Desa (DPMD) Kabupaten Lebak, Banten.
             </p>
             <p className="text-[12px] text-slate-600 mt-2">
@@ -47,7 +47,6 @@ export function FooterSection({ logoUrl }: Props) {
                 <Link
                   href="/login"
                   className="text-[13px] text-slate-400 hover:text-white transition-colors"
-                  style={{ fontFamily: "var(--font-jakarta)" }}
                 >
                   Masuk ke Sistem
                 </Link>
@@ -56,7 +55,6 @@ export function FooterSection({ logoUrl }: Props) {
                 <a
                   href="#cek-tiket"
                   className="text-[13px] text-slate-400 hover:text-white transition-colors"
-                  style={{ fontFamily: "var(--font-jakarta)" }}
                 >
                   Cek Status Tiket
                 </a>
@@ -65,7 +63,6 @@ export function FooterSection({ logoUrl }: Props) {
                 <Link
                   href="/tracking"
                   className="text-[13px] text-slate-400 hover:text-white transition-colors"
-                  style={{ fontFamily: "var(--font-jakarta)" }}
                 >
                   Halaman Pelacakan
                 </Link>
