@@ -59,7 +59,7 @@ export default async function ATSListKecPage({
           </TableRow>
         ))}
       </DataTable>
-      <Pagination page={page} totalPages={totalPages} total={total} buildHref={(p) => `?page=${p}`} />
+      <Pagination page={page} totalPages={totalPages} total={total} buildHref="?page=" />
     </PageContainer>
   )
 }

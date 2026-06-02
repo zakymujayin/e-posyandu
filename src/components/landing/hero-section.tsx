@@ -78,7 +78,7 @@ export function HeroSection() {
           </div>
 
           <div className="hero-fade-d2 flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-md">
+            <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md">
               <PosyanduIllustration className="relative w-full h-auto drop-shadow-xl rounded-2xl" />
             </div>
           </div>

@@ -68,15 +68,15 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
             >
               <div
                 className={cn(
-                  "p-1.5 rounded-xl transition-all duration-300",
+                  "flex items-center justify-center size-8 rounded-xl transition-all duration-300",
                   isActive
                     ? "bg-primary/10 text-primary dark:bg-primary/20"
                     : "bg-transparent"
                 )}
               >
-                <Icon className={cn("size-5 transition-transform duration-300", isActive && "scale-110")} />
+                <Icon className="size-5" />
               </div>
-              <span className="truncate w-full text-center">{label}</span>
+              <span className="text-center text-[11px] leading-tight">{label}</span>
             </Link>
           )
         })}

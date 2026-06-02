@@ -119,7 +119,7 @@ export default async function RekapBalitaKecPosyanduPage({
           )
         })}
       </DataTable>
-      <Pagination page={page} totalPages={totalPages} total={total} buildHref={(p) => `?page=${p}`} />
+      <Pagination page={page} totalPages={totalPages} total={total} buildHref="?page=" />
     </PageContainer>
   )
 }

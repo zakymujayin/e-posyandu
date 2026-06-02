@@ -8,7 +8,7 @@ interface PaginationProps {
   page: number
   totalPages: number
   total?: number
-  buildHref?: (page: number) => string
+  buildHref?: string
   onPageChange?: (page: number) => void
 }
 
@@ -27,10 +27,10 @@ export function Pagination({ page, totalPages, total, buildHref, onPageChange }:
         {buildHref ? (
           <>
             <Button variant="outline" size="sm" disabled={prevDisabled} asChild={!prevDisabled} className="font-semibold text-xs md:text-sm">
-              {!prevDisabled ? <Link href={buildHref(page - 1)}>&larr; Sebelumnya</Link> : <span>&larr; Sebelumnya</span>}
+              {!prevDisabled ? <Link href={`${buildHref}${page - 1}`}>&larr; Sebelumnya</Link> : <span>&larr; Sebelumnya</span>}
             </Button>
             <Button variant="outline" size="sm" disabled={nextDisabled} asChild={!nextDisabled} className="font-semibold text-xs md:text-sm">
-              {!nextDisabled ? <Link href={buildHref(page + 1)}>Selanjutnya &rarr;</Link> : <span>Selanjutnya &rarr;</span>}
+              {!nextDisabled ? <Link href={`${buildHref}${page + 1}`}>Selanjutnya &rarr;</Link> : <span>Selanjutnya &rarr;</span>}
             </Button>
           </>
         ) : (

@@ -69,7 +69,7 @@ export default async function ATSListPerPosyanduDesaPage({
           </TableRow>
         ))}
       </DataTable>
-      <Pagination page={page} totalPages={totalPages} total={total} buildHref={(p) => `?page=${p}`} />
+      <Pagination page={page} totalPages={totalPages} total={total} buildHref="?page=" />
     </PageContainer>
   )
 }
