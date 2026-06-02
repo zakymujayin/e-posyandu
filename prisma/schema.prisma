@@ -272,6 +272,10 @@ model Pengajuan {
   activityLogs    ActivityLog[]
   notifications   Notification[]
 
+  @@index([posyanduUserId, status, submittedAt(sort: Desc)])
+  @@index([desaId, status, submittedAt(sort: Desc)])
+  @@index([opdId, status, submittedAt(sort: Desc)])
+  @@index([status, submittedAt(sort: Desc)])
   @@map("pengajuans")
 }
 
@@ -505,6 +509,7 @@ model Balita {
   penimbangans   PenimbanganBalita[]
   imunisasis     ImunisasiBalita[]
 
+  @@index([posyanduId, isActive])
   @@map("balitas")
 }
 
@@ -592,5 +597,6 @@ model AnakTidakSekolah {
   desa                 Desa         @relation(fields: [desaId], references: [id])
   kecamatan            Kecamatan    @relation(fields: [kecamatanId], references: [id])
 
+  @@index([kecamatanId, statusSekolah, isActive])
   @@map("anak_tidak_sekolahs")
 }
