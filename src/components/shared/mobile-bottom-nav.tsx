@@ -30,7 +30,7 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
   const scrollable = items.length > 5
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-lg border-t border-border px-2 py-1 shadow-[0_-2px_10px_rgba(0,0,0,0.03)] dark:bg-card/80 dark:border-border">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xs border-t border-border px-2 py-1 shadow-[0_-2px_10px_rgba(0,0,0,0.03)] dark:bg-card/80 dark:border-border">
       <nav
         className={cn(
           "flex items-center px-1",
