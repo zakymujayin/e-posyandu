@@ -13,6 +13,10 @@ export const authConfig = {
       if (user) {
         token.id = user.id
         token.role = user.role as UserRole
+        token.posyanduId = user.posyanduId
+        token.desaId = user.desaId
+        token.kecamatanId = user.kecamatanId
+        token.opdId = user.opdId
       }
       return token
     },
@@ -20,6 +24,10 @@ export const authConfig = {
       if (session.user) {
         session.user.id = token.id as string
         session.user.role = token.role as UserRole
+        session.user.posyanduId = token.posyanduId as string | null | undefined
+        session.user.desaId = token.desaId as string | null | undefined
+        session.user.kecamatanId = token.kecamatanId as string | null | undefined
+        session.user.opdId = token.opdId as string | null | undefined
       }
       return session
     },

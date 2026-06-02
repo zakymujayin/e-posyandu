@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireAuth } from "@/lib/api-helpers"
+import { rateLimit } from "@/lib/cache"
 import { createWorkbook, styleHeaderRow, workbookToBuffer } from "@/lib/excel"
 import { hitungUsiaAnak } from "@/lib/utils-ats"
 import { format } from "date-fns"
@@ -8,6 +9,14 @@ import { format } from "date-fns"
 export async function GET(req: NextRequest) {
   const { user, response } = await requireAuth(["PETUGAS_DESA", "PETUGAS_KECAMATAN", "ADMIN_DPMD"])
   if (!user) return response!
+
+  const allowed = await rateLimit(`rl:export:ats:${user.id}`, 3, 300)
+  if (!allowed) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Terlalu banyak permintaan. Coba lagi dalam 5 menit." }),
+      { status: 429, headers: { "Content-Type": "application/json" } }
+    )
+  }
 
   const { searchParams } = new URL(req.url)
   const level = searchParams.get("level") ?? "all"
@@ -17,13 +26,11 @@ export async function GET(req: NextRequest) {
     const where: Record<string, unknown> = { isActive: true }
 
     if (user.role === "PETUGAS_DESA") {
-      const p = await prisma.user.findUnique({ where: { id: user.id }, select: { desaId: true } })
-      if (!p?.desaId) return new Response("Akun belum terhubung ke desa", { status: 400 })
-      where.desaId = p.desaId
+      if (!user.desaId) return new Response("Akun belum terhubung ke desa", { status: 400 })
+      where.desaId = user.desaId
     } else if (user.role === "PETUGAS_KECAMATAN") {
-      const p = await prisma.user.findUnique({ where: { id: user.id }, select: { kecamatanId: true } })
-      if (!p?.kecamatanId) return new Response("Akun belum terhubung ke kecamatan", { status: 400 })
-      where.kecamatanId = p.kecamatanId
+      if (!user.kecamatanId) return new Response("Akun belum terhubung ke kecamatan", { status: 400 })
+      where.kecamatanId = user.kecamatanId
     } else {
       if (level === "desa" && id) where.desaId = id
       else if (level === "kecamatan" && id) where.kecamatanId = id

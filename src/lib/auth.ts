@@ -2,6 +2,7 @@ import NextAuth, { CredentialsSignin } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
+import { rateLimit } from "@/lib/cache"
 import { authConfig } from "./auth.config"
 import type { UserRole } from "@/types/next-auth"
 
@@ -34,6 +35,11 @@ const nextAuth = NextAuth({
 
         const username = credentials.username as string
         const password = credentials.password as string
+
+        const allowed = await rateLimit(`rl:login:${username}`, 5, 60)
+        if (!allowed) {
+          throw new CredentialsSignin()
+        }
 
         const user = await prisma.user.findUnique({ where: { username } })
 
@@ -82,6 +88,10 @@ const nextAuth = NextAuth({
           name: user.name,
           email: user.email,
           role: user.role as UserRole,
+          posyanduId: user.posyanduId,
+          desaId: user.desaId,
+          kecamatanId: user.kecamatanId,
+          opdId: user.opdId,
         }
       },
     }),

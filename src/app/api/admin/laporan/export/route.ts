@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { requireAuth } from "@/lib/api-helpers"
+import { rateLimit } from "@/lib/cache"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 
@@ -15,6 +16,14 @@ const STATUS_LABELS: Record<string, string> = {
 export async function GET(req: Request) {
   const { user, response } = await requireAuth(["ADMIN_DPMD"])
   if (!user) return response!
+
+  const allowed = await rateLimit(`rl:export:csv:${user.id}`, 3, 300)
+  if (!allowed) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Terlalu banyak permintaan. Coba lagi dalam 5 menit." }),
+      { status: 429, headers: { "Content-Type": "application/json" } }
+    )
+  }
 
   const { searchParams } = new URL(req.url)
   const dari = searchParams.get("dari")
@@ -46,6 +55,7 @@ export async function GET(req: Request) {
       desa: { select: { name: true } },
       posyanduUser: { select: { name: true } },
     },
+    take: 10000,
   })
 
   const headers = [

@@ -20,41 +20,35 @@ const ALL_ROLES: UserRole[] = ["POSYANDU", "PETUGAS_DESA", "PETUGAS_KECAMATAN", 
 
 async function authorizeBalitaAccess(
   balitaId: string,
-  user: { id: string; role: UserRole }
+  user: { id: string; role: UserRole; posyanduId?: string | null; desaId?: string | null; kecamatanId?: string | null }
 ): Promise<boolean> {
   if (user.role === "ADMIN_DPMD") {
     const exists = await prisma.balita.findUnique({ where: { id: balitaId }, select: { id: true } })
     return !!exists
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: { posyanduId: true, desaId: true, kecamatanId: true },
-  })
-  if (!dbUser) return false
-
   if (user.role === "POSYANDU") {
-    if (!dbUser.posyanduId) return false
+    if (!user.posyanduId) return false
     const exists = await prisma.balita.findFirst({
-      where: { id: balitaId, posyanduId: dbUser.posyanduId },
+      where: { id: balitaId, posyanduId: user.posyanduId },
       select: { id: true },
     })
     return !!exists
   }
 
   if (user.role === "PETUGAS_DESA") {
-    if (!dbUser.desaId) return false
+    if (!user.desaId) return false
     const exists = await prisma.balita.findFirst({
-      where: { id: balitaId, posyandu: { desaId: dbUser.desaId } },
+      where: { id: balitaId, posyandu: { desaId: user.desaId } },
       select: { id: true },
     })
     return !!exists
   }
 
   if (user.role === "PETUGAS_KECAMATAN") {
-    if (!dbUser.kecamatanId) return false
+    if (!user.kecamatanId) return false
     const exists = await prisma.balita.findFirst({
-      where: { id: balitaId, posyandu: { desa: { kecamatanId: dbUser.kecamatanId } } },
+      where: { id: balitaId, posyandu: { desa: { kecamatanId: user.kecamatanId } } },
       select: { id: true },
     })
     return !!exists

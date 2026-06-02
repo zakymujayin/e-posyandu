@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireAuth } from "@/lib/api-helpers"
+import { rateLimit } from "@/lib/cache"
 import { createWorkbook, styleHeaderRow, workbookToBuffer } from "@/lib/excel"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
@@ -8,6 +9,14 @@ import { id as localeId } from "date-fns/locale"
 export async function GET(req: NextRequest) {
   const { user, response } = await requireAuth(["ADMIN_DPMD", "PETUGAS_KECAMATAN", "PETUGAS_DESA"])
   if (!user) return response!
+
+  const allowed = await rateLimit(`rl:export:balita:${user.id}`, 3, 300)
+  if (!allowed) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Terlalu banyak permintaan. Coba lagi dalam 5 menit." }),
+      { status: 429, headers: { "Content-Type": "application/json" } }
+    )
+  }
 
   const { searchParams } = new URL(req.url)
   const kecId = searchParams.get("kecId")
@@ -18,15 +27,12 @@ export async function GET(req: NextRequest) {
 
   const posyanduFilter: Record<string, unknown> = {}
 
-  // Role-based scoping
   if (user.role === "PETUGAS_DESA") {
-    const p = await prisma.user.findUnique({ where: { id: user.id }, select: { desaId: true } })
-    if (!p?.desaId) return new Response("Akun belum dihubungkan ke desa", { status: 400 })
-    posyanduFilter.desaId = p.desaId
+    if (!user.desaId) return new Response("Akun belum dihubungkan ke desa", { status: 400 })
+    posyanduFilter.desaId = user.desaId
   } else if (user.role === "PETUGAS_KECAMATAN") {
-    const p = await prisma.user.findUnique({ where: { id: user.id }, select: { kecamatanId: true } })
-    if (!p?.kecamatanId) return new Response("Akun belum dihubungkan ke kecamatan", { status: 400 })
-    posyanduFilter.desa = { kecamatanId: p.kecamatanId }
+    if (!user.kecamatanId) return new Response("Akun belum dihubungkan ke kecamatan", { status: 400 })
+    posyanduFilter.desa = { kecamatanId: user.kecamatanId }
   }
 
   if (posyanduId) {
