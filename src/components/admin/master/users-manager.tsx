@@ -35,10 +35,10 @@ interface User {
   isActive: boolean
   createdAt: Date | string
   lastLoginAt: Date | string | null
-  desa: { name: string } | null
+  desa: { name: string; kecamatan: { name: string } } | null
   kecamatan: { name: string } | null
   opd: { name: string } | null
-  posyandu: { name: string } | null
+  posyandu: { name: string; desa: { name: string; kecamatan: { name: string } } } | null
 }
 
 interface Props {
@@ -343,7 +343,11 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
           </TableRow>
         ) : (
           paginated.map((u) => {
-            const wilayah = u.opd?.name ?? u.desa?.name ?? u.kecamatan?.name ?? u.posyandu?.name ?? "Pusat Kabupaten"
+            const wilayah = u.opd?.name
+              ?? (u.desa ? `${u.desa.name}, Kec. ${u.desa.kecamatan.name}` : null)
+              ?? (u.kecamatan ? `Kec. ${u.kecamatan.name}` : null)
+              ?? (u.posyandu ? `${u.posyandu.name}, Desa ${u.posyandu.desa.name}, Kec. ${u.posyandu.desa.kecamatan.name}` : null)
+              ?? "Pusat Kabupaten"
             return (
               <TableRow key={u.id} className="transition-colors hover:bg-muted/30">
                 <TableCell className="px-4 py-3.5">

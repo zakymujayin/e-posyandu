@@ -15,10 +15,10 @@ export default async function MasterUsersPage() {
       select: {
         id: true, name: true, email: true, username: true, role: true,
         isActive: true, createdAt: true, lastLoginAt: true,
-        desa: { select: { name: true } },
+        desa: { select: { name: true, kecamatan: { select: { name: true } } } },
         kecamatan: { select: { name: true } },
         opd: { select: { name: true } },
-        posyandu: { select: { name: true } },
+        posyandu: { select: { name: true, desa: { select: { name: true, kecamatan: { select: { name: true } } } } } },
       },
     }),
     prisma.desa.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kecamatan: { select: { name: true } } } }),
