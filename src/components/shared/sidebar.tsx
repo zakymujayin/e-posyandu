@@ -96,7 +96,7 @@ export function Sidebar({ user }: SidebarProps) {
           className="w-full flex items-center gap-3 px-3.5 py-2.5 text-[14px] font-semibold text-muted-foreground/80 hover:text-destructive hover:bg-destructive/5 border border-transparent hover:border-destructive/10 rounded-xl transition-all duration-300 hover:translate-x-1 hover:shadow-[0_4px_12px_rgba(244,63,94,0.08)] select-none"
         >
           <LogOut className="size-4.5 shrink-0" />
-          Keluar Layanan
+          Keluar
         </button>
       </div>
     </aside>

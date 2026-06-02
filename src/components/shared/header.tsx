@@ -59,7 +59,7 @@ export function Header({ user }: HeaderProps) {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onClick={() => signOut({ callbackUrl: "/login" })}>
-              <LogOut className="mr-2 size-4" /> Keluar Layanan
+              <LogOut className="mr-2 size-4" /> Keluar
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
