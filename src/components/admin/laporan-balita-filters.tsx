@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, startTransition } from "react"
 import { Loader2 } from "lucide-react"
 
 interface Kecamatan { id: string; name: string }
@@ -36,8 +36,8 @@ export function LaporanBalitaFilters({
   const [loadingPosyandu, setLoadingPosyandu] = useState(false)
 
   useEffect(() => {
-    if (!kecId && role === "ADMIN_DPMD") { setDesas([]); setPosyandus([]); return }
-    setLoadingDesa(true)
+    if (!kecId && role === "ADMIN_DPMD") return
+    startTransition(() => setLoadingDesa(true))
     const url = role === "ADMIN_DPMD"
       ? `/api/rekap/balita/desa-list?kecId=${kecId}`
       : `/api/rekap/balita/desa-list?kecId=${defaultKecId}`
@@ -45,11 +45,14 @@ export function LaporanBalitaFilters({
   }, [kecId, role, defaultKecId])
 
   useEffect(() => {
-    if (!desaId) { setPosyandus([]); return }
-    setLoadingPosyandu(true)
+    if (!desaId) return
+    startTransition(() => setLoadingPosyandu(true))
     fetch(`/api/rekap/balita/posyandu-list?desaId=${desaId}`)
       .then(r => r.json()).then(d => { if (d.data) setPosyandus(d.data) }).catch(() => {}).finally(() => setLoadingPosyandu(false))
   }, [desaId])
+
+  const shownDesas = (!kecId && role === "ADMIN_DPMD") ? [] : desas
+  const shownPosyandus = !desaId ? [] : posyandus
 
   function buildUrl(params: Record<string, string>) {
     const sp = new URLSearchParams(searchParams.toString())
@@ -96,10 +99,10 @@ export function LaporanBalitaFilters({
               value={desaId}
               onChange={(e) => handleChange("desaId", e.target.value)}
               className={selectClass}
-              disabled={loadingDesa && desas.length === 0}
+              disabled={loadingDesa && shownDesas.length === 0}
             >
               <option value="">Semua Desa</option>
-              {desas.map((d) => (
+              {shownDesas.map((d) => (
                 <option key={d.id} value={d.id}>{d.name}</option>
               ))}
             </select>
@@ -115,10 +118,10 @@ export function LaporanBalitaFilters({
             value={posyanduId}
             onChange={(e) => handleChange("posyanduId", e.target.value)}
             className={selectClass}
-            disabled={loadingPosyandu && posyandus.length === 0}
+              disabled={loadingPosyandu && shownPosyandus.length === 0}
           >
             <option value="">Semua Posyandu</option>
-            {posyandus.map((p) => (
+              {shownPosyandus.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
           </select>
