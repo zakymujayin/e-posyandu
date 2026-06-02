@@ -28,8 +28,8 @@ const ROLE_LABELS: Record<ImportRole, string> = {
 
 const TEMPLATES: Record<ImportRole, { headers: string[]; example: string[] }> = {
   POSYANDU: {
-    headers: ["nama_posyandu", "no_registrasi", "email", "password", "desa_id"],
-    example: ["Posyandu Melati", "REG-2026-001", "melati001", "password123", "uuid-desa"],
+    headers: ["nama_posyandu", "email", "password", "desa_id"],
+    example: ["Posyandu Melati", "melati001@example.com", "password123", "uuid-desa"],
   },
   PETUGAS_DESA: {
     headers: ["nama", "email", "password", "desa_id"],

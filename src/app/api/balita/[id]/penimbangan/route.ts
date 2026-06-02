@@ -2,7 +2,7 @@ import { NextRequest } from "next/server"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
-import { invalidateRekap } from "@/lib/cache"
+import { invalidateRekap, invalidatePattern } from "@/lib/cache"
 
 const createSchema = z.object({
   bulan: z.number().int().min(1).max(12),
@@ -82,6 +82,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     })
 
     invalidateRekap(parsed.data.bulan, parsed.data.tahun).catch(() => {})
+    invalidatePattern("laporan:balita-statistik*")
     return ok(penimbangan, "Data penimbangan berhasil disimpan")
   } catch (e) {
     console.error("[POST /api/balita/[id]/penimbangan]", e)

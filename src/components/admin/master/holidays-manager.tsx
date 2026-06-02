@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FormLabel } from "@/components/ui/typography"
 import { DataTable } from "@/components/shared/data-table"
+import { Pagination } from "@/components/ui/pagination"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
 import { format } from "date-fns"
@@ -24,6 +25,8 @@ export function HolidaysManager({ initialHolidays }: { initialHolidays: Holiday[
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({ date: "", name: "" })
   const [filterYear, setFilterYear] = useState(new Date().getFullYear().toString())
+  const [rawPage, setRawPage] = useState(1)
+  const limit = 10
 
   const years = Array.from(new Set(holidays.map((h) => new Date(h.date).getFullYear().toString())))
     .sort((a, b) => Number(b) - Number(a))
@@ -32,6 +35,10 @@ export function HolidaysManager({ initialHolidays }: { initialHolidays: Holiday[
   const filtered = filterYear
     ? holidays.filter((h) => new Date(h.date).getFullYear().toString() === filterYear)
     : holidays
+
+  const totalPages = Math.ceil(filtered.length / limit) || 1
+  const page = Math.min(rawPage, totalPages)
+  const paginated = filtered.slice((page - 1) * limit, page * limit)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -120,9 +127,9 @@ export function HolidaysManager({ initialHolidays }: { initialHolidays: Holiday[
 
       <DataTable
         columns={["Tanggal", "Hari", "Nama Hari Libur", "Aksi"]}
-        dataLength={filtered.length}
+        dataLength={paginated.length}
       >
-        {filtered.length === 0 ? (
+        {paginated.length === 0 ? (
           <TableRow>
             <TableCell colSpan={4} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
               <HelpCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-55" />
@@ -130,7 +137,7 @@ export function HolidaysManager({ initialHolidays }: { initialHolidays: Holiday[
             </TableCell>
           </TableRow>
         ) : (
-          filtered.map((h) => {
+          paginated.map((h) => {
             const d = new Date(h.date)
             const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
             return (
@@ -166,6 +173,7 @@ export function HolidaysManager({ initialHolidays }: { initialHolidays: Holiday[
           })
         )}
       </DataTable>
+      <Pagination page={page} totalPages={totalPages} total={filtered.length} onPageChange={setRawPage} />
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { invalidatePattern } from "@/lib/cache"
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { user, response } = await requireAuth(["ADMIN_DPMD"])
@@ -12,6 +13,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const data: Record<string, string> = { name: name.trim() }
     if (code !== undefined) data.code = code
     const updated = await prisma.desa.update({ where: { id }, data })
+    invalidatePattern("master:desa")
     return ok(updated)
   } catch (e: unknown) {
     if (e && typeof e === "object" && "code" in e && (e as { code: string }).code === "P2002") return err("Kode sudah digunakan", 409)
@@ -29,6 +31,7 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
   if (userCount > 0) return err(`Tidak dapat dihapus: masih ada ${userCount} pengguna terdaftar`, 400)
   try {
     await prisma.desa.delete({ where: { id } })
+    invalidatePattern("master:desa")
     return ok(null, "Desa dihapus")
   } catch {
     return err("Gagal menghapus desa", 500)

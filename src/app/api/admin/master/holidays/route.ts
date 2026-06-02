@@ -1,13 +1,16 @@
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { withCache, invalidatePattern } from "@/lib/cache"
 
 export async function GET() {
   const { user, response } = await requireAuth(["ADMIN_DPMD"])
   if (!user) return response!
 
-  const holidays = await prisma.publicHoliday.findMany({
-    orderBy: { date: "asc" },
-  })
+  const holidays = await withCache("master:holidays", 3600, () =>
+    prisma.publicHoliday.findMany({
+      orderBy: { date: "asc" },
+    })
+  )
   return ok(holidays)
 }
 
@@ -33,6 +36,8 @@ export async function POST(req: Request) {
     const holiday = await prisma.publicHoliday.create({
       data: { date: parsed, name },
     })
+
+    invalidatePattern("master:holidays")
 
     return ok(holiday)
   } catch {

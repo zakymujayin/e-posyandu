@@ -13,6 +13,7 @@ import { FormLabel, SubText } from "@/components/ui/typography"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { DataTable } from "@/components/shared/data-table"
+import { Pagination } from "@/components/ui/pagination"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
 
@@ -50,7 +51,7 @@ interface Props {
 
 const emptyForm = {
   name: "", email: "", username: "", password: "", role: "POSYANDU" as string,
-  desaId: "", kecamatanId: "", opdId: "", posyanduId: "", noRegistrasi: "", phone: "",
+  desaId: "", kecamatanId: "", opdId: "", posyanduId: "", phone: "",
 }
 
 export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus }: Props) {
@@ -62,6 +63,8 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
   const [editing, setEditing] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState(emptyForm)
+  const [rawPage, setRawPage] = useState(1)
+  const limit = 10
 
   const filtered = users.filter((u) => {
     const matchRole = filterRole ? u.role === filterRole : true
@@ -69,6 +72,10 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
     const matchSearch = q ? u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) : true
     return matchRole && matchSearch
   })
+
+  const totalPages = Math.ceil(filtered.length / limit) || 1
+  const page = Math.min(rawPage, totalPages)
+  const paginated = filtered.slice((page - 1) * limit, page * limit)
 
   function openCreate() {
     setEditing(null)
@@ -96,7 +103,6 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
         kecamatanId: form.kecamatanId || null,
         opdId: form.opdId || null,
         posyanduId: form.posyanduId || null,
-        noRegistrasi: !editing && form.role === "POSYANDU" ? (form as typeof form & { noRegistrasi: string }).noRegistrasi || null : undefined,
         phone: form.phone || null,
       }
 
@@ -134,8 +140,6 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
   const showDesa = ["POSYANDU", "PETUGAS_DESA"].includes(form.role)
   const showKec = form.role === "PETUGAS_KECAMATAN"
   const showOpd = form.role === "PETUGAS_OPD"
-  const showPosyandu = form.role === "POSYANDU"
-  const showNoRegistrasi = form.role === "POSYANDU"
 
   return (
     <div className="space-y-6">
@@ -300,19 +304,6 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                   </select>
                 </div>
               )}
-              {showNoRegistrasi && !editing && (
-                <div className="space-y-1.5">
-                  <FormLabel htmlFor="users-noreg">No. Registrasi Posyandu <span className="text-destructive">*</span></FormLabel>
-                  <Input
-                    id="users-noreg"
-                    type="text"
-                    value={(form as typeof form & { noRegistrasi: string }).noRegistrasi}
-                    onChange={(e) => setForm((f) => ({ ...f, noRegistrasi: e.target.value }))}
-                    placeholder="Contoh: REG-2026-001"
-                    required
-                  />
-                </div>
-              )}
             </div>
             <div className="flex gap-2 pt-2">
               <Button
@@ -341,9 +332,9 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
 
       <DataTable
         columns={["Nama & Email", "Username Login", "Hak Akses/Role", "Unit/Wilayah Kerja", "Login Terakhir", "Status", "Aksi"]}
-        dataLength={filtered.length}
+        dataLength={paginated.length}
       >
-        {filtered.length === 0 ? (
+        {paginated.length === 0 ? (
           <TableRow>
             <TableCell colSpan={7} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
               <HelpCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-55" />
@@ -351,7 +342,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
             </TableCell>
           </TableRow>
         ) : (
-          filtered.map((u) => {
+          paginated.map((u) => {
             const wilayah = u.opd?.name ?? u.desa?.name ?? u.kecamatan?.name ?? u.posyandu?.name ?? "Pusat Kabupaten"
             return (
               <TableRow key={u.id} className="transition-colors hover:bg-muted/30">
@@ -411,6 +402,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
           })
         )}
       </DataTable>
+      <Pagination page={page} totalPages={totalPages} total={filtered.length} onPageChange={setRawPage} />
     </div>
   )
 }

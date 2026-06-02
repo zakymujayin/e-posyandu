@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { invalidatePattern } from "@/lib/cache"
 
 interface CsvRow {
   nama: string
@@ -81,6 +82,7 @@ export async function POST(req: Request) {
       imported++
     }
 
+    invalidatePattern("master:opd")
     const errors = results.filter((r) => r.status === "error").length
     return ok({ results, imported, errors })
   } catch (e) {

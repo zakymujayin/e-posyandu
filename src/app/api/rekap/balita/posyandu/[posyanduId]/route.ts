@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { withCache } from "@/lib/cache"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ posyanduId: string }> }) {
   const { user, response } = await requireAuth(["PETUGAS_DESA", "ADMIN_DPMD"])
@@ -19,33 +20,39 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ posy
     const bulanIni = now.getMonth() + 1
     const tahunIni = now.getFullYear()
 
-    const balitas = await prisma.balita.findMany({
-      where: { posyanduId, isActive: true },
-      select: {
-        id: true,
-        namaBalita: true,
-        jenisKelamin: true,
-        tanggalLahir: true,
-        namaOrangTua: true,
-        penimbangans: {
-          where: { bulan: bulanIni, tahun: tahunIni },
-          select: { id: true, beratBadan: true, statusGizi: true },
-          take: 1,
-        },
-      },
-      orderBy: { namaBalita: "asc" },
-    })
+    const data = await withCache(
+      `rekap:posyandu:${posyanduId}:${bulanIni}:${tahunIni}`,
+      3600,
+      async () => {
+        const balitas = await prisma.balita.findMany({
+          where: { posyanduId, isActive: true },
+          select: {
+            id: true,
+            namaBalita: true,
+            jenisKelamin: true,
+            tanggalLahir: true,
+            namaOrangTua: true,
+            penimbangans: {
+              where: { bulan: bulanIni, tahun: tahunIni },
+              select: { id: true, beratBadan: true, statusGizi: true },
+              take: 1,
+            },
+          },
+          orderBy: { namaBalita: "asc" },
+        })
 
-    const data = balitas.map((b) => ({
-      id: b.id,
-      namaBalita: b.namaBalita,
-      jenisKelamin: b.jenisKelamin,
-      tanggalLahir: b.tanggalLahir,
-      namaOrangTua: b.namaOrangTua,
-      ditimbangBulanIni: b.penimbangans.length > 0,
-      beratBadan: b.penimbangans[0]?.beratBadan ?? null,
-      statusGizi: b.penimbangans[0]?.statusGizi ?? null,
-    }))
+        return balitas.map((b) => ({
+          id: b.id,
+          namaBalita: b.namaBalita,
+          jenisKelamin: b.jenisKelamin,
+          tanggalLahir: b.tanggalLahir,
+          namaOrangTua: b.namaOrangTua,
+          ditimbangBulanIni: b.penimbangans.length > 0,
+          beratBadan: b.penimbangans[0]?.beratBadan ?? null,
+          statusGizi: b.penimbangans[0]?.statusGizi ?? null,
+        }))
+      }
+    )
 
     return ok(data)
   } catch (e) {

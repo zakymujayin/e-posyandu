@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { withCache, invalidatePattern } from "@/lib/cache"
 
 const schema = z.object({
   opdId: z.string().optional(),
@@ -21,11 +22,16 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const opdId = searchParams.get("opdId")
 
-  const layanans = await prisma.layananJenis.findMany({
-    where: opdId ? { opdId } : undefined,
-    orderBy: [{ opdId: "asc" }, { sortOrder: "asc" }],
-    include: { opd: { select: { name: true } } },
-  })
+  const layanans = await withCache(
+    opdId ? `master:layanan:${opdId}` : "master:layanan",
+    600,
+    () =>
+      prisma.layananJenis.findMany({
+        where: opdId ? { opdId } : undefined,
+        orderBy: [{ opdId: "asc" }, { sortOrder: "asc" }],
+        include: { opd: { select: { name: true } } },
+      })
+  )
   return ok(layanans)
 }
 
@@ -45,5 +51,6 @@ export async function POST(req: Request) {
   const layanan = await prisma.layananJenis.create({
     data: { ...rest, opdId: opdId ?? null },
   })
+  invalidatePattern("master:layanan*")
   return ok(layanan, "Layanan berhasil ditambahkan")
 }

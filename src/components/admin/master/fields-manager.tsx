@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FormLabel, SubText } from "@/components/ui/typography"
 import { DataTable } from "@/components/shared/data-table"
+import { Pagination } from "@/components/ui/pagination"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
 
@@ -45,6 +46,8 @@ export function FieldsManager({
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Field | null>(null)
   const [loading, setLoading] = useState(false)
+  const [rawPage, setRawPage] = useState(1)
+  const limit = 10
   const [form, setForm] = useState({
     layananJenisId: "", fieldLabel: "", fieldName: "", fieldType: "text" as string,
     fieldOptions: "", isRequired: false, placeholder: "", helperText: "", sortOrder: 0,
@@ -56,6 +59,10 @@ export function FieldsManager({
     if (filterOpd) return filteredLayanans.some((l) => l.id === f.layananJenisId)
     return true
   })
+
+  const totalPages = Math.ceil(filteredFields.length / limit) || 1
+  const page = Math.min(rawPage, totalPages)
+  const paginated = filteredFields.slice((page - 1) * limit, page * limit)
 
   function openCreate() {
     setEditing(null)
@@ -296,9 +303,9 @@ export function FieldsManager({
 
       <DataTable
         columns={["Nama/Label Input", "Jenis Layanan", "Tipe", "Required", "Aksi"]}
-        dataLength={filteredFields.length}
+        dataLength={paginated.length}
       >
-        {filteredFields.length === 0 ? (
+        {paginated.length === 0 ? (
           <TableRow>
             <TableCell colSpan={5} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
               <HelpCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-55" />
@@ -306,7 +313,7 @@ export function FieldsManager({
             </TableCell>
           </TableRow>
         ) : (
-          filteredFields.map((f) => (
+          paginated.map((f) => (
             <TableRow key={f.id} className="transition-colors hover:bg-muted/30">
               <TableCell className="px-4 py-3.5">
                 <div className="flex items-center gap-3">
@@ -359,6 +366,7 @@ export function FieldsManager({
           ))
         )}
       </DataTable>
+      <Pagination page={page} totalPages={totalPages} total={filteredFields.length} onPageChange={setRawPage} />
     </div>
   )
 }

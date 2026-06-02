@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { generateNoRegistrasi } from "@/lib/no-registrasi"
 import bcrypt from "bcryptjs"
 
 const VALID_ROLES = ["POSYANDU", "PETUGAS_DESA", "PETUGAS_KECAMATAN", "PETUGAS_OPD"] as const
@@ -8,7 +9,6 @@ type ImportRole = (typeof VALID_ROLES)[number]
 interface CsvRow {
   nama_posyandu?: string
   nama?: string
-  no_registrasi?: string
   email: string
   password: string
   posyandu_id?: string
@@ -130,16 +130,15 @@ export async function POST(req: Request) {
       const row = rows[i]
       const hashed = await bcrypt.hash(row.password.trim(), 12)
       const rowNama = role === "POSYANDU" ? row.nama_posyandu!.trim() : row.nama!.trim()
-      // Untuk POSYANDU, ambil desaId dan cari/create posyandu
       let posyanduId: string | undefined
       let desaId: string | undefined
       let kecamatanId: string | undefined
+      let noRegistrasi: string | null = null
       if (role === "POSYANDU" && row.desa_id) {
         const desa = await prisma.desa.findUnique({ where: { id: row.desa_id }, select: { id: true, kecamatanId: true } })
         if (desa) {
           desaId = desa.id
           kecamatanId = desa.kecamatanId
-          // Cari posyandu berdasarkan nama + desa, buat jika belum ada
           const existingPosyandu = await prisma.posyandu.findFirst({ where: { name: rowNama, desaId: desa.id } })
           if (existingPosyandu) {
             posyanduId = existingPosyandu.id
@@ -149,6 +148,7 @@ export async function POST(req: Request) {
             })
             posyanduId = newPosyandu.id
           }
+          noRegistrasi = await generateNoRegistrasi(kecamatanId)
         }
       }
       await prisma.user.create({
@@ -157,7 +157,7 @@ export async function POST(req: Request) {
           email: row.email.trim().toLowerCase(),
           password: hashed,
           role,
-          ...(role === "POSYANDU" && { posyanduId, desaId, kecamatanId, noRegistrasi: row.no_registrasi?.trim() }),
+          ...(role === "POSYANDU" && { posyanduId, desaId, kecamatanId, noRegistrasi }),
           ...(role === "PETUGAS_DESA" && { desaId: row.desa_id }),
           ...(role === "PETUGAS_KECAMATAN" && { kecamatanId: row.kecamatan_id }),
           ...(role === "PETUGAS_OPD" && { opdId: row.opd_id }),

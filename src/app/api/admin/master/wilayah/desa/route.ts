@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { withCache, invalidatePattern } from "@/lib/cache"
 
 const schema = z.object({
   kecamatanId: z.string().min(1, "Kecamatan wajib dipilih"),
@@ -12,10 +13,12 @@ export async function GET() {
   const { user, response } = await requireAuth(["ADMIN_DPMD"])
   if (!user) return response!
 
-  const desas = await prisma.desa.findMany({
-    orderBy: [{ kecamatanId: "asc" }, { name: "asc" }],
-    include: { kecamatan: { select: { name: true } } },
-  })
+  const desas = await withCache("master:desa", 1800, () =>
+    prisma.desa.findMany({
+      orderBy: [{ kecamatanId: "asc" }, { name: "asc" }],
+      include: { kecamatan: { select: { name: true } } },
+    })
+  )
   return ok(desas)
 }
 
@@ -30,5 +33,6 @@ export async function POST(req: Request) {
   if (existing) return err("Kode desa sudah digunakan")
 
   const desa = await prisma.desa.create({ data: parsed.data })
+  invalidatePattern("master:desa")
   return ok(desa, "Desa berhasil ditambahkan")
 }

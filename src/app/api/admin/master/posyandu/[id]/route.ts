@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { invalidatePattern } from "@/lib/cache"
 
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { user, response } = await requireAuth(["ADMIN_DPMD"])
@@ -11,6 +12,7 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
   if (pengCount > 0) return err(`Tidak dapat dihapus: masih ada ${pengCount} pengajuan terkait`, 400)
   try {
     await prisma.posyandu.delete({ where: { id } })
+    invalidatePattern("master:posyandu*")
     return ok(null, "Posyandu dihapus")
   } catch {
     return err("Gagal menghapus posyandu", 500)
@@ -40,6 +42,7 @@ export async function PATCH(
       include: { desa: { select: { name: true, kecamatan: { select: { name: true } } } } },
     })
 
+    invalidatePattern("master:posyandu*")
     return ok(posyandu)
   } catch (e: unknown) {
     if (e && typeof e === "object" && "code" in e && (e as { code: string }).code === "P2002") return err("Kode sudah digunakan", 409)

@@ -8,18 +8,33 @@ import { DataTable } from "@/components/shared/data-table"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Pagination } from "@/components/ui/pagination"
 import { hitungUsiaAnak } from "@/lib/utils-ats"
 
-export default async function ATSListKecPage({ params }: { params: Promise<{ desaId: string; posyanduId: string }> }) {
+export default async function ATSListKecPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ desaId: string; posyanduId: string }>
+  searchParams: Promise<{ page?: string }>
+}) {
   const session = await auth()
   if (!session?.user || session.user.role !== "PETUGAS_KECAMATAN") redirect("/login")
 
   const { desaId, posyanduId } = await params
+  const { page: pageParam } = await searchParams
+  const page = Math.max(1, parseInt(pageParam ?? "1"))
+  const limit = 10
+
   const petugas = await prisma.user.findUnique({ where: { id: session.user.id }, select: { kecamatanId: true } })
   const posyandu = await prisma.posyandu.findFirst({ where: { id: posyanduId, desaId, desa: { kecamatanId: petugas?.kecamatanId ?? "" } }, select: { name: true } })
   if (!posyandu) notFound()
 
-  const records = await prisma.anakTidakSekolah.findMany({ where: { posyanduId, isActive: true }, orderBy: { namaAnak: "asc" } })
+  const [total, records] = await Promise.all([
+    prisma.anakTidakSekolah.count({ where: { posyanduId, isActive: true } }),
+    prisma.anakTidakSekolah.findMany({ where: { posyanduId, isActive: true }, orderBy: { namaAnak: "asc" }, skip: (page - 1) * limit, take: limit }),
+  ])
+  const totalPages = Math.ceil(total / limit)
 
   const STATUS_COLORS: Record<string, string> = { "Putus Sekolah": "bg-red-500/10 text-red-700 border-red-500/30", "Tidak Pernah Sekolah": "bg-amber-500/10 text-amber-700 border-amber-500/30", "Lulus Tidak Melanjutkan": "bg-blue-500/10 text-blue-700 border-blue-500/30" }
 
@@ -44,6 +59,7 @@ export default async function ATSListKecPage({ params }: { params: Promise<{ des
           </TableRow>
         ))}
       </DataTable>
+      <Pagination page={page} totalPages={totalPages} total={total} buildHref={(p) => `?page=${p}`} />
     </PageContainer>
   )
 }

@@ -2,7 +2,7 @@ import { NextRequest } from "next/server"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
-import { invalidateRekap } from "@/lib/cache"
+import { invalidateRekap, invalidatePattern } from "@/lib/cache"
 
 const updateSchema = z.object({
   namaBalita: z.string().min(1).optional(),
@@ -96,6 +96,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     await prisma.balita.delete({ where: { id } })
     const now = new Date()
     invalidateRekap(now.getMonth() + 1, now.getFullYear()).catch(() => {})
+    invalidatePattern("laporan:balita-statistik*")
     return ok(null, "Data balita berhasil dihapus")
   } catch (e) {
     console.error("[DELETE /api/balita/[id]]", e)

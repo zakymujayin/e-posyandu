@@ -9,21 +9,38 @@ import { TableRow, TableCell } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { hitungUsiaAnak } from "@/lib/utils-ats"
 import { Button } from "@/components/ui/button"
+import { Pagination } from "@/components/ui/pagination"
 
-export default async function ATSListPerPosyanduDesaPage({ params }: { params: Promise<{ posyanduId: string }> }) {
+export default async function ATSListPerPosyanduDesaPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ posyanduId: string }>
+  searchParams: Promise<{ page?: string }>
+}) {
   const session = await auth()
   if (!session?.user || session.user.role !== "PETUGAS_DESA") redirect("/login")
 
   const { posyanduId } = await params
+  const { page: pageParam } = await searchParams
+  const page = Math.max(1, parseInt(pageParam ?? "1"))
+  const limit = 10
+
   const petugas = await prisma.user.findUnique({ where: { id: session.user.id }, select: { desaId: true } })
 
   const posyandu = await prisma.posyandu.findFirst({ where: { id: posyanduId, desaId: petugas?.desaId ?? "" }, select: { name: true } })
   if (!posyandu) notFound()
 
-  const records = await prisma.anakTidakSekolah.findMany({
-    where: { posyanduId, isActive: true },
-    orderBy: { namaAnak: "asc" },
-  })
+  const [total, records] = await Promise.all([
+    prisma.anakTidakSekolah.count({ where: { posyanduId, isActive: true } }),
+    prisma.anakTidakSekolah.findMany({
+      where: { posyanduId, isActive: true },
+      orderBy: { namaAnak: "asc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+  ])
+  const totalPages = Math.ceil(total / limit)
 
   const STATUS_COLORS: Record<string, string> = {
     "Putus Sekolah": "bg-red-500/10 text-red-700 border-red-500/30",
@@ -52,6 +69,7 @@ export default async function ATSListPerPosyanduDesaPage({ params }: { params: P
           </TableRow>
         ))}
       </DataTable>
+      <Pagination page={page} totalPages={totalPages} total={total} buildHref={(p) => `?page=${p}`} />
     </PageContainer>
   )
 }

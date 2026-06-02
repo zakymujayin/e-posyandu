@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { withCache, invalidatePattern } from "@/lib/cache"
 
 export async function GET(req: Request) {
   const { user, response } = await requireAuth(["ADMIN_DPMD"])
@@ -8,11 +9,16 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const desaId = searchParams.get("desaId")
 
-  const posyandus = await prisma.posyandu.findMany({
-    where: desaId ? { desaId } : undefined,
-    orderBy: [{ desaId: "asc" }, { name: "asc" }],
-    include: { desa: { select: { name: true, kecamatan: { select: { name: true } } } } },
-  })
+  const posyandus = await withCache(
+    desaId ? `master:posyandu:${desaId}` : "master:posyandu",
+    1800,
+    () =>
+      prisma.posyandu.findMany({
+        where: desaId ? { desaId } : undefined,
+        orderBy: [{ desaId: "asc" }, { name: "asc" }],
+        include: { desa: { select: { name: true, kecamatan: { select: { name: true } } } } },
+      })
+  )
 
   return ok(posyandus)
 }
@@ -37,6 +43,8 @@ export async function POST(req: Request) {
       data: { desaId, name, code, isActive: true },
       include: { desa: { select: { name: true, kecamatan: { select: { name: true } } } } },
     })
+
+    invalidatePattern("master:posyandu*")
 
     return ok(posyandu)
   } catch {

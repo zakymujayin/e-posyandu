@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { withCache } from "@/lib/cache"
 
 export async function GET(req: NextRequest) {
   const { user, response } = await requireAuth(["ADMIN_DPMD", "PETUGAS_KECAMATAN", "PETUGAS_DESA"])
@@ -18,11 +19,16 @@ export async function GET(req: NextRequest) {
       where.desaId = desaId
     }
 
-    const posyandus = await prisma.posyandu.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    })
+    const posyandus = await withCache(
+      `rekap:posyandu-list:${user.role}:${desaId ?? "_"}`,
+      600,
+      () =>
+        prisma.posyandu.findMany({
+          where: Object.keys(where).length > 0 ? where : undefined,
+          select: { id: true, name: true },
+          orderBy: { name: "asc" },
+        })
+    )
 
     return ok(posyandus)
   } catch (e) {

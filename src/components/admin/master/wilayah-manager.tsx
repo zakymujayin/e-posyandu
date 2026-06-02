@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FormLabel } from "@/components/ui/typography"
 import { DataTable } from "@/components/shared/data-table"
+import { Pagination } from "@/components/ui/pagination"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
 import { MasterCsvImport } from "./master-csv-import"
@@ -65,6 +66,11 @@ export function WilayahManager({
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showImport, setShowImport] = useState<"kecamatan" | "desa" | "posyandu" | null>(null)
 
+  const [rawKec, setRawKec] = useState(1)
+  const [rawDesa, setRawDesa] = useState(1)
+  const [rawPos, setRawPos] = useState(1)
+  const limit = 10
+
   async function refreshData(type: "kecamatan" | "desa" | "posyandu") {
     try {
       if (type === "kecamatan") {
@@ -90,6 +96,17 @@ export function WilayahManager({
 
   const filteredDesas = filterKec ? desas.filter((d) => d.kecamatanId === filterKec) : desas
   const filteredPosyandus = filterDesaPos ? posyandus.filter((p) => p.desaId === filterDesaPos) : posyandus
+
+
+  const totalKec = Math.ceil(kecamatans.length / limit) || 1
+  const kecPage = Math.min(rawKec, totalKec)
+  const paginatedKec = kecamatans.slice((kecPage - 1) * limit, kecPage * limit)
+  const totalDesa = Math.ceil(filteredDesas.length / limit) || 1
+  const desaPage = Math.min(rawDesa, totalDesa)
+  const paginatedDesa = filteredDesas.slice((desaPage - 1) * limit, desaPage * limit)
+  const totalPos = Math.ceil(filteredPosyandus.length / limit) || 1
+  const posPage = Math.min(rawPos, totalPos)
+  const paginatedPos = filteredPosyandus.slice((posPage - 1) * limit, posPage * limit)
 
   async function handleAddKecamatan(e: React.FormEvent) {
     e.preventDefault()
@@ -418,9 +435,9 @@ export function WilayahManager({
 
           <DataTable
             columns={["Nama Kecamatan", "Kode Wilayah", "Jumlah Desa", ""]}
-            dataLength={kecamatans.length}
+            dataLength={paginatedKec.length}
           >
-            {kecamatans.length === 0 ? (
+            {paginatedKec.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
                   <HelpCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-55" />
@@ -428,7 +445,7 @@ export function WilayahManager({
                 </TableCell>
               </TableRow>
             ) : (
-              kecamatans.map((k) => (
+              paginatedKec.map((k) => (
                 editingKec?.id === k.id ? (
                   <TableRow key={k.id}>
                     <TableCell colSpan={4} className="px-4 py-3">
@@ -505,16 +522,18 @@ export function WilayahManager({
                           onClick={() => setDeletingId(k.id)}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )
-              ))
-            )}
-          </DataTable>
-        </div>
-      )}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                ))
+              )}
+            </DataTable>
+
+            <Pagination page={kecPage} totalPages={totalKec} total={kecamatans.length} onPageChange={setRawKec} />
+          </div>
+        )}
 
       {/* Posyandu Tab */}
       {activeTab === "posyandu" && (
@@ -601,9 +620,9 @@ export function WilayahManager({
 
           <DataTable
             columns={["Nama Posyandu", "Desa", "Kecamatan", "Status", ""]}
-            dataLength={filteredPosyandus.length}
+            dataLength={paginatedPos.length}
           >
-            {filteredPosyandus.length === 0 ? (
+            {paginatedPos.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
                   <HelpCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-55" />
@@ -611,7 +630,7 @@ export function WilayahManager({
                 </TableCell>
               </TableRow>
             ) : (
-              filteredPosyandus.map((p) => (
+              paginatedPos.map((p) => (
                 editingPos?.id === p.id ? (
                   <TableRow key={p.id}>
                     <TableCell colSpan={5} className="px-4 py-3">
@@ -703,17 +722,18 @@ export function WilayahManager({
                           onClick={() => setDeletingId(p.id)}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )
-              ))
-            )}
-          </DataTable>
-        </div>
-      )}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                ))
+              )}
+            </DataTable>
 
+            <Pagination page={posPage} totalPages={totalPos} total={filteredPosyandus.length} onPageChange={setRawPos} />
+          </div>
+        )}
       {/* Desa Tab */}
       {activeTab === "desa" && (
         <div className="space-y-4">
@@ -799,9 +819,9 @@ export function WilayahManager({
 
           <DataTable
             columns={["Nama Desa", "Kecamatan", "Kode Wilayah", ""]}
-            dataLength={filteredDesas.length}
+            dataLength={paginatedDesa.length}
           >
-            {filteredDesas.length === 0 ? (
+            {paginatedDesa.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
                   <HelpCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-55" />
@@ -809,7 +829,7 @@ export function WilayahManager({
                 </TableCell>
               </TableRow>
             ) : (
-              filteredDesas.map((d) => (
+              paginatedDesa.map((d) => (
                 editingDesa?.id === d.id ? (
                   <TableRow key={d.id}>
                     <TableCell colSpan={4} className="px-4 py-3">
@@ -886,16 +906,18 @@ export function WilayahManager({
                           onClick={() => setDeletingId(d.id)}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )
-              ))
-            )}
-          </DataTable>
-        </div>
-      )}
-    </div>
-  )
-}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                ))
+              )}
+            </DataTable>
+
+            <Pagination page={desaPage} totalPages={totalDesa} total={filteredDesas.length} onPageChange={setRawDesa} />
+          </div>
+        )}
+      </div>
+    )
+  }

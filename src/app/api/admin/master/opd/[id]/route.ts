@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { invalidatePattern } from "@/lib/cache"
 
 const schema = z.object({
   name: z.string().min(1).optional(),
@@ -21,7 +22,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (!opd) return err("OPD tidak ditemukan", 404)
 
   const updated = await prisma.opd.update({ where: { id }, data: parsed.data })
-  return ok(updated, "OPD berhasil diperbarui")
+    invalidatePattern("master:opd")
+    return ok(updated, "OPD berhasil diperbarui")
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -33,5 +35,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   if (pengajuanCount > 0) return err("OPD tidak bisa dihapus karena memiliki data pengajuan")
 
   await prisma.opd.delete({ where: { id } })
-  return ok(null, "OPD berhasil dihapus")
+    invalidatePattern("master:opd")
+    return ok(null, "OPD berhasil dihapus")
 }

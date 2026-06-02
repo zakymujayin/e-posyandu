@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FormLabel, SubText } from "@/components/ui/typography"
 import { DataTable } from "@/components/shared/data-table"
+import { Pagination } from "@/components/ui/pagination"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
 import { MasterCsvImport } from "./master-csv-import"
@@ -30,6 +31,8 @@ interface Opd {
 export function LayananManager({ initialLayanans, opds }: { initialLayanans: Layanan[]; opds: Opd[] }) {
   const [layanans, setLayanans] = useState<Layanan[]>(initialLayanans)
   const [filterOpd, setFilterOpd] = useState("")
+  const [rawPage, setRawPage] = useState(1)
+  const limit = 10
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Layanan | null>(null)
   const [loading, setLoading] = useState(false)
@@ -37,6 +40,10 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
   const [showImport, setShowImport] = useState(false)
 
   const filtered = filterOpd ? layanans.filter((l) => l.opdId === filterOpd) : layanans
+
+  const totalPages = Math.ceil(filtered.length / limit) || 1
+  const page = Math.min(rawPage, totalPages)
+  const paginated = filtered.slice((page - 1) * limit, page * limit)
 
   function openCreate() {
     setEditing(null)
@@ -249,9 +256,9 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
 
       <DataTable
         columns={["Nama Layanan", "OPD Instansi", "Status", "Aksi"]}
-        dataLength={filtered.length}
+        dataLength={paginated.length}
       >
-        {filtered.length === 0 ? (
+        {paginated.length === 0 ? (
           <TableRow>
             <TableCell colSpan={4} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
               <HelpCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-55" />
@@ -259,7 +266,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
             </TableCell>
           </TableRow>
         ) : (
-          filtered.map((l) => (
+          paginated.map((l) => (
             <TableRow key={l.id} className="transition-colors hover:bg-muted/30">
               <TableCell className="px-4 py-3.5">
                 <div className="flex items-center gap-3">
@@ -318,6 +325,7 @@ export function LayananManager({ initialLayanans, opds }: { initialLayanans: Lay
           ))
         )}
       </DataTable>
+      <Pagination page={page} totalPages={totalPages} total={filtered.length} onPageChange={setRawPage} />
     </div>
   )
 }

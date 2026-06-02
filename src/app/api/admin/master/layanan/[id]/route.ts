@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { invalidatePattern } from "@/lib/cache"
 
 const schema = z.object({
   name: z.string().min(1).optional(),
@@ -23,7 +24,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (!existing) return err("Layanan tidak ditemukan", 404)
 
   const updated = await prisma.layananJenis.update({ where: { id }, data: parsed.data })
-  return ok(updated, "Layanan diperbarui")
+    invalidatePattern("master:layanan*")
+    return ok(updated, "Layanan diperbarui")
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -35,5 +37,6 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   if (pengajuanCount > 0) return err("Layanan tidak bisa dihapus karena memiliki data pengajuan")
 
   await prisma.layananJenis.delete({ where: { id } })
-  return ok(null, "Layanan dihapus")
+    invalidatePattern("master:layanan*")
+    return ok(null, "Layanan dihapus")
 }

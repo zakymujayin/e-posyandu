@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
+import { withCache, invalidatePattern } from "@/lib/cache"
 
 const schema = z.object({
   name: z.string().min(1, "Nama OPD wajib diisi"),
@@ -15,7 +16,9 @@ export async function GET() {
   const { user, response } = await requireAuth(["ADMIN_DPMD"])
   if (!user) return response!
 
-  const opds = await prisma.opd.findMany({ orderBy: { sortOrder: "asc" } })
+  const opds = await withCache("master:opd", 600, () =>
+    prisma.opd.findMany({ orderBy: { sortOrder: "asc" } })
+  )
   return ok(opds)
 }
 
@@ -32,5 +35,6 @@ export async function POST(req: Request) {
   if (existing) return err("Kode atau prefix tiket sudah digunakan")
 
   const opd = await prisma.opd.create({ data: { name, code, tiketPrefix, description, isActive, sortOrder } })
+  invalidatePattern("master:opd")
   return ok(opd, "OPD berhasil ditambahkan")
 }

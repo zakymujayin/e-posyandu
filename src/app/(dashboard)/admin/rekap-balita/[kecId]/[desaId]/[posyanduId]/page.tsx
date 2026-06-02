@@ -7,18 +7,24 @@ import { PageHeader } from "@/components/shared/page-header"
 import { DataTable } from "@/components/shared/data-table"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Pagination } from "@/components/ui/pagination"
 import { differenceInMonths } from "date-fns"
 import { CheckCircle2, XCircle } from "lucide-react"
 
 export default async function RekapBalitaPosyanduDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ kecId: string; desaId: string; posyanduId: string }>
+  searchParams: Promise<{ page?: string }>
 }) {
   const session = await auth()
   if (!session?.user || session.user.role !== "ADMIN_DPMD") redirect("/login")
 
   const { kecId, desaId, posyanduId } = await params
+  const { page: pageParam } = await searchParams
+  const page = Math.max(1, parseInt(pageParam ?? "1"))
+  const limit = 10
 
   const posyandu = await prisma.posyandu.findUnique({
     where: { id: posyanduId },
@@ -30,22 +36,28 @@ export default async function RekapBalitaPosyanduDetailPage({
   const bulanIni = now.getMonth() + 1
   const tahunIni = now.getFullYear()
 
-  const balitas = await prisma.balita.findMany({
-    where: { posyanduId, isActive: true },
-    select: {
-      id: true,
-      namaBalita: true,
-      jenisKelamin: true,
-      tanggalLahir: true,
-      namaOrangTua: true,
-      penimbangans: {
-        where: { bulan: bulanIni, tahun: tahunIni },
-        select: { id: true, beratBadan: true, statusGizi: true },
-        take: 1,
+  const [total, balitas] = await Promise.all([
+    prisma.balita.count({ where: { posyanduId, isActive: true } }),
+    prisma.balita.findMany({
+      where: { posyanduId, isActive: true },
+      select: {
+        id: true,
+        namaBalita: true,
+        jenisKelamin: true,
+        tanggalLahir: true,
+        namaOrangTua: true,
+        penimbangans: {
+          where: { bulan: bulanIni, tahun: tahunIni },
+          select: { id: true, beratBadan: true, statusGizi: true },
+          take: 1,
+        },
       },
-    },
-    orderBy: { namaBalita: "asc" },
-  })
+      orderBy: { namaBalita: "asc" },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+  ])
+  const totalPages = Math.ceil(total / limit)
 
   const BULAN_LABEL = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"][bulanIni - 1]
 
@@ -90,6 +102,7 @@ export default async function RekapBalitaPosyanduDetailPage({
           )
         })}
       </DataTable>
+      <Pagination page={page} totalPages={totalPages} total={total} buildHref={(p) => `?page=${p}`} />
     </PageContainer>
   )
 }
