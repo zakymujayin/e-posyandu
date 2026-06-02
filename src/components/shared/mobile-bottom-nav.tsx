@@ -60,7 +60,7 @@ export function MobileBottomNav({ role }: MobileBottomNavProps) {
               href={item.href}
               className={cn(
                 "flex flex-col items-center justify-center py-1.5 rounded-xl text-[12px] font-medium transition-all duration-300 gap-1 select-none",
-                scrollable ? "flex-1 min-w-[56px] px-1" : "flex-1 max-w-[90px] px-2",
+                scrollable ? "shrink-0 w-[72px] px-1" : "flex-1 max-w-[90px] px-2",
                 isActive
                   ? "text-primary dark:text-primary-foreground font-semibold scale-105"
                   : "text-muted-foreground hover:text-foreground"
