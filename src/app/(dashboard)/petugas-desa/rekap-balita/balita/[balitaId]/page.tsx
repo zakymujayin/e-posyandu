@@ -20,7 +20,7 @@ export default async function DesaBalitaDetailPage({
     select: {
       namaBalita: true,
       posyandu: {
-        select: { name: true, desa: { select: { name: true, kecamatan: { select: { name: true } } } } },
+        select: { id: true, name: true, desa: { select: { id: true, name: true, kecamatan: { select: { id: true, name: true } } } } },
       },
     },
   })
@@ -31,7 +31,7 @@ export default async function DesaBalitaDetailPage({
       <PageHeader
         title={balita.namaBalita}
         description={`${balita.posyandu.name} · Desa ${balita.posyandu.desa.name} · Kec. ${balita.posyandu.desa.kecamatan.name}`}
-        backHref="/petugas-desa/rekap-balita"
+        backHref={`/petugas-desa/rekap-balita/${balita.posyandu.id}`}
       />
       <BalitaDetailView balitaId={balitaId} />
     </PageContainer>
