@@ -1,5 +1,6 @@
-import { addDays, isWeekend, startOfDay } from "date-fns"
+import { addDays, isWeekend } from "date-fns"
 import { prisma } from "@/lib/prisma"
+import { withCache } from "@/lib/cache"
 
 export async function calculateDeadline(
   startDate: Date,
@@ -28,17 +29,28 @@ export function isWorkingDay(date: Date, holidaySet: Set<string>): boolean {
 }
 
 async function fetchHolidaySet(from: Date, to: Date): Promise<Set<string>> {
-  const holidays = await prisma.publicHoliday.findMany({
-    where: {
-      date: {
-        gte: startOfDay(from),
-        lte: to,
-      },
-    },
-    select: { date: true },
-  })
+  const fromYear = from.getFullYear()
+  const toYear = to.getFullYear()
+  const years = fromYear === toYear ? [fromYear] : [fromYear, toYear]
 
-  return new Set(holidays.map((h) => formatDateKey(h.date)))
+  const allKeys: string[] = []
+  for (const year of years) {
+    const dates = await withCache<string[]>(
+      `public_holidays:${year}`,
+      86400 * 30,
+      async () => {
+        const rows = await prisma.publicHoliday.findMany({
+          where: {
+            date: { gte: new Date(`${year}-01-01`), lte: new Date(`${year}-12-31T23:59:59`) },
+          },
+          select: { date: true },
+        })
+        return rows.map((r) => formatDateKey(r.date))
+      }
+    )
+    allKeys.push(...dates)
+  }
+  return new Set(allKeys)
 }
 
 function formatDateKey(date: Date): string {

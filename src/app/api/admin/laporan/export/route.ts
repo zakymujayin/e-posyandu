@@ -21,6 +21,13 @@ export async function GET(req: Request) {
   const sampai = searchParams.get("sampai")
   const opdId = searchParams.get("opdId")
 
+  if (!dari) {
+    return new Response(
+      JSON.stringify({ success: false, error: "Parameter dari (tanggal awal) wajib diisi." }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    )
+  }
+
   const where: Record<string, unknown> = {}
   if (opdId) where.opdId = opdId
   if (dari || sampai) {

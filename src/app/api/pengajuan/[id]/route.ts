@@ -16,7 +16,7 @@ export async function GET(
       include: {
         opd: { select: { id: true, name: true, color: true, icon: true } },
         layananJenis: { select: { id: true, name: true } },
-        desa: { select: { id: true, name: true } },
+        desa: { select: { id: true, name: true, kecamatanId: true } },
         posyandu: { select: { id: true, name: true } },
         posyanduUser: { select: { id: true, name: true } },
         fieldValues: {
@@ -57,8 +57,7 @@ export async function GET(
     if (user.role === "PETUGAS_DESA" && pengajuan.desaId !== u?.desaId) return err("Akses ditolak", 403)
     if (user.role === "PETUGAS_OPD" && pengajuan.opdId !== u?.opdId) return err("Akses ditolak", 403)
     if (user.role === "PETUGAS_KECAMATAN") {
-      const desa = await prisma.desa.findUnique({ where: { id: pengajuan.desaId } })
-      if (desa?.kecamatanId !== u?.kecamatanId) return err("Akses ditolak", 403)
+      if (pengajuan.desa.kecamatanId !== u?.kecamatanId) return err("Akses ditolak", 403)
     }
 
     return ok(pengajuan)
