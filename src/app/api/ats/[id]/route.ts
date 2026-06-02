@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { invalidateATSRekap } from "@/lib/cache"
+import type { UserRole } from "@/types/next-auth"
 
 const updateSchema = z.object({
   namaAnak: z.string().min(1).optional(),
@@ -28,20 +29,75 @@ const updateSchema = z.object({
   keterangan: z.string().optional().nullable(),
 })
 
-async function getOwnedRecord(id: string, userId: string) {
-  return prisma.anakTidakSekolah.findFirst({
-    where: { id, posyanduUserId: userId, isActive: true },
+const ALL_ROLES: UserRole[] = ["POSYANDU", "PETUGAS_DESA", "PETUGAS_KECAMATAN", "ADMIN_DPMD"]
+
+async function authorizeAtsAccess(
+  atsId: string,
+  user: { id: string; role: UserRole }
+): Promise<boolean> {
+  if (user.role === "ADMIN_DPMD") {
+    const exists = await prisma.anakTidakSekolah.findFirst({
+      where: { id: atsId, isActive: true },
+      select: { id: true },
+    })
+    return !!exists
+  }
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { posyanduId: true, desaId: true, kecamatanId: true },
   })
+  if (!dbUser) return false
+
+  if (user.role === "POSYANDU") {
+    if (!dbUser.posyanduId) return false
+    const exists = await prisma.anakTidakSekolah.findFirst({
+      where: { id: atsId, posyanduUserId: user.id, isActive: true },
+      select: { id: true },
+    })
+    return !!exists
+  }
+
+  if (user.role === "PETUGAS_DESA") {
+    if (!dbUser.desaId) return false
+    const exists = await prisma.anakTidakSekolah.findFirst({
+      where: { id: atsId, desaId: dbUser.desaId, isActive: true },
+      select: { id: true },
+    })
+    return !!exists
+  }
+
+  if (user.role === "PETUGAS_KECAMATAN") {
+    if (!dbUser.kecamatanId) return false
+    const exists = await prisma.anakTidakSekolah.findFirst({
+      where: { id: atsId, kecamatanId: dbUser.kecamatanId, isActive: true },
+      select: { id: true },
+    })
+    return !!exists
+  }
+
+  return false
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { user, response } = await requireAuth(["POSYANDU"])
+  const { user, response } = await requireAuth(ALL_ROLES)
   if (!user) return response!
 
   try {
     const { id } = await params
-    const record = await getOwnedRecord(id, user.id)
-    if (!record) return err("Data tidak ditemukan", 404)
+
+    const authorized = await authorizeAtsAccess(id, user)
+    if (!authorized) return err("Data tidak ditemukan", 404)
+
+    const record = await prisma.anakTidakSekolah.findUnique({
+      where: { id },
+      include: {
+        posyandu: { select: { name: true } },
+        desa: { select: { name: true } },
+        kecamatan: { select: { name: true } },
+      },
+    })
+
     return ok(record)
   } catch (e) {
     console.error("[GET /api/ats/:id]", e)
@@ -50,12 +106,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { user, response } = await requireAuth(["POSYANDU"])
+  const { user, response } = await requireAuth(ALL_ROLES)
   if (!user) return response!
 
   try {
     const { id } = await params
-    const existing = await getOwnedRecord(id, user.id)
+
+    const authorized = await authorizeAtsAccess(id, user)
+    if (!authorized) return err("Data tidak ditemukan", 404)
+
+    const existing = await prisma.anakTidakSekolah.findUnique({ where: { id } })
     if (!existing) return err("Data tidak ditemukan", 404)
 
     const body = await req.json()
@@ -88,13 +148,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { user, response } = await requireAuth(["POSYANDU"])
+  const { user, response } = await requireAuth(ALL_ROLES)
   if (!user) return response!
 
   try {
     const { id } = await params
-    const existing = await getOwnedRecord(id, user.id)
-    if (!existing) return err("Data tidak ditemukan", 404)
+
+    const authorized = await authorizeAtsAccess(id, user)
+    if (!authorized) return err("Data tidak ditemukan", 404)
 
     await prisma.anakTidakSekolah.update({ where: { id }, data: { isActive: false } })
 

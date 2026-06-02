@@ -3,6 +3,7 @@ import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { invalidateRekap, invalidatePattern } from "@/lib/cache"
+import type { UserRole } from "@/types/next-auth"
 
 const updateSchema = z.object({
   namaBalita: z.string().min(1).optional(),
@@ -15,29 +16,62 @@ const updateSchema = z.object({
   catatanKesehatan: z.string().optional().nullable(),
 })
 
-async function getBalitaForUser(balitaId: string, userId: string) {
-  const user = await prisma.user.findUnique({ where: { id: userId }, select: { posyanduId: true } })
-  if (!user?.posyanduId) return null
-  return prisma.balita.findFirst({ where: { id: balitaId, posyanduId: user.posyanduId } })
+const ALL_ROLES: UserRole[] = ["POSYANDU", "PETUGAS_DESA", "PETUGAS_KECAMATAN", "ADMIN_DPMD"]
+
+async function authorizeBalitaAccess(
+  balitaId: string,
+  user: { id: string; role: UserRole }
+): Promise<boolean> {
+  if (user.role === "ADMIN_DPMD") {
+    const exists = await prisma.balita.findUnique({ where: { id: balitaId }, select: { id: true } })
+    return !!exists
+  }
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { posyanduId: true, desaId: true, kecamatanId: true },
+  })
+  if (!dbUser) return false
+
+  if (user.role === "POSYANDU") {
+    if (!dbUser.posyanduId) return false
+    const exists = await prisma.balita.findFirst({
+      where: { id: balitaId, posyanduId: dbUser.posyanduId },
+      select: { id: true },
+    })
+    return !!exists
+  }
+
+  if (user.role === "PETUGAS_DESA") {
+    if (!dbUser.desaId) return false
+    const exists = await prisma.balita.findFirst({
+      where: { id: balitaId, posyandu: { desaId: dbUser.desaId } },
+      select: { id: true },
+    })
+    return !!exists
+  }
+
+  if (user.role === "PETUGAS_KECAMATAN") {
+    if (!dbUser.kecamatanId) return false
+    const exists = await prisma.balita.findFirst({
+      where: { id: balitaId, posyandu: { desa: { kecamatanId: dbUser.kecamatanId } } },
+      select: { id: true },
+    })
+    return !!exists
+  }
+
+  return false
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { user, response } = await requireAuth(["POSYANDU", "ADMIN_DPMD"])
+  const { user, response } = await requireAuth(ALL_ROLES)
   if (!user) return response!
 
   try {
     const { id } = await params
 
-    if (user.role === "ADMIN_DPMD") {
-      const balita = await prisma.balita.findUnique({
-        where: { id },
-        select: { id: true, posyanduId: true },
-      })
-      if (!balita) return err("Data tidak ditemukan", 404)
-    } else {
-      const balita = await getBalitaForUser(id, user.id)
-      if (!balita) return err("Data tidak ditemukan", 404)
-    }
+    const authorized = await authorizeBalitaAccess(id, user)
+    if (!authorized) return err("Data tidak ditemukan", 404)
 
     const full = await prisma.balita.findUnique({
       where: { id },
@@ -61,13 +95,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { user, response } = await requireAuth(["POSYANDU"])
+  const { user, response } = await requireAuth(ALL_ROLES)
   if (!user) return response!
 
   try {
     const { id } = await params
-    const existing = await getBalitaForUser(id, user.id)
-    if (!existing) return err("Data tidak ditemukan", 404)
+
+    const authorized = await authorizeBalitaAccess(id, user)
+    if (!authorized) return err("Data tidak ditemukan", 404)
 
     const body = await req.json()
     const parsed = updateSchema.safeParse(body)
@@ -85,13 +120,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { user, response } = await requireAuth(["POSYANDU"])
+  const { user, response } = await requireAuth(ALL_ROLES)
   if (!user) return response!
 
   try {
     const { id } = await params
-    const existing = await getBalitaForUser(id, user.id)
-    if (!existing) return err("Data tidak ditemukan", 404)
+
+    const authorized = await authorizeBalitaAccess(id, user)
+    if (!authorized) return err("Data tidak ditemukan", 404)
 
     await prisma.balita.delete({ where: { id } })
     const now = new Date()
