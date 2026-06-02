@@ -84,7 +84,7 @@ export default async function BalitaListPage({
         backHref="/posyandu"
       />
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {stats.map((s) => (
           <StatCard key={s.label} title={s.label} value={s.value} icon={s.icon} colorVariant={s.variant} />
         ))}

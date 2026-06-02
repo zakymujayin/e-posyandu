@@ -74,7 +74,7 @@ export default async function VerifikasiDetailPage({
         backHref="/petugas-desa/verifikasi"
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <PengajuanDetail
             pengajuan={pengajuan}

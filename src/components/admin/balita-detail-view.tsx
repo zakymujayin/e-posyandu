@@ -84,7 +84,7 @@ export function BalitaDetailView({ balitaId }: { balitaId: string }) {
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-border bg-card p-5 space-y-3 text-sm">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <p className="text-xs text-muted-foreground">Posyandu</p>
             <p className="font-semibold mt-0.5">{balita.posyandu?.name ?? "—"}</p>
@@ -104,7 +104,7 @@ export function BalitaDetailView({ balitaId }: { balitaId: string }) {
           </div>
         </div>
         <hr className="border-border/50" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <p className="text-xs text-muted-foreground">Nama Orang Tua / Wali</p>
             <p className="font-semibold mt-0.5">{balita.namaOrangTua}</p>
@@ -159,7 +159,7 @@ export function BalitaDetailView({ balitaId }: { balitaId: string }) {
               <button onClick={() => setTahun((y) => y + 1)} disabled={tahun >= now.getFullYear()} className="px-2 py-1 rounded border border-border text-xs hover:bg-muted/40 disabled:opacity-30">›</button>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
               {BULAN_NAMES.map((name, i) => {
                 const bulan = i + 1
                 const data = penimbanganForBulan(bulan)

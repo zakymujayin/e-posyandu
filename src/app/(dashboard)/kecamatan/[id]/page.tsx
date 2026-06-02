@@ -60,7 +60,7 @@ export default async function KecamatanDetailPage({
         description={pengajuan.status === "DALAM_PROSES_KECAMATAN" ? "Tindak lanjut pengajuan yang dieskalasikan dari desa" : "Detail pengajuan — tampilan hanya baca"}
         backHref="/kecamatan"
       />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <PengajuanDetail pengajuan={pengajuan} sopInfo={null} />
           <PenyelesaianDesaSection

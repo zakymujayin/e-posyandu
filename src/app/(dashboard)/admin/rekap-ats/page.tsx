@@ -63,7 +63,7 @@ export default async function RekapATSAdminPage() {
   return (
     <PageContainer className="space-y-6">
       <PageHeader title="Rekap ATS — Kabupaten Lebak" description="Data anak tidak sekolah seluruh kecamatan" backHref="/admin" />
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total ATS" value={totalAll} icon={GraduationCap} colorVariant="primary" />
         <StatCard title="Putus Sekolah" value={totalPutus} icon={UserX} colorVariant="destructive" />
         <StatCard title="Tidak Pernah" value={totalTidakPernah} icon={BookOpen} colorVariant="accent" />

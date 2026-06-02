@@ -159,7 +159,7 @@ function PenimbanganModal({
               </div>
             </div>
           )}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs">BB (kg)</Label>
               <Input
@@ -409,7 +409,7 @@ export function BalitaDetail({ balita: initialBalita }: { balita: Balita }) {
     <>
       {/* Info Card */}
       <div className="rounded-xl border border-border bg-card p-5 space-y-3 text-sm">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <p className="text-xs text-muted-foreground">Posyandu</p>
             <p className="font-semibold mt-0.5">{balita.posyandu?.name ?? "—"}</p>
@@ -429,7 +429,7 @@ export function BalitaDetail({ balita: initialBalita }: { balita: Balita }) {
           </div>
         </div>
         <hr className="border-border/50" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <p className="text-xs text-muted-foreground">Nama Orang Tua / Wali</p>
             <p className="font-semibold mt-0.5">{balita.namaOrangTua}</p>
@@ -519,7 +519,7 @@ export function BalitaDetail({ balita: initialBalita }: { balita: Balita }) {
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
               {BULAN_NAMES.map((name, i) => {
                 const bulan = i + 1
                 const data = penimbanganForBulan(bulan)

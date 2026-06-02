@@ -56,7 +56,7 @@ export default async function RekapATSDesaPage() {
     <PageContainer className="space-y-6">
       <PageHeader title={`Rekap ATS — Desa ${desa?.name ?? ""}`} description="Data anak tidak sekolah per posyandu" backHref="/petugas-desa" />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total ATS" value={totalAll} icon={GraduationCap} colorVariant="primary" />
         <StatCard title="Putus Sekolah" value={totalPutus} icon={UserX} colorVariant="destructive" />
         <StatCard title="Tidak Pernah Sekolah" value={totalTidakPernah} icon={BookOpen} colorVariant="accent" />

@@ -93,7 +93,7 @@ export default async function PosyanduPage() {
       </div>
 
       {/* Stats Section */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s) => (
           <StatCard
             key={s.label}
@@ -116,7 +116,7 @@ export default async function PosyanduPage() {
             <Link href="/posyandu/balita">Lihat Data →</Link>
           </Button>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="rounded-lg bg-muted/40 px-4 py-3 text-center">
             <p className="text-2xl font-bold text-foreground">{totalBalita}</p>
             <p className="text-xs text-muted-foreground font-medium mt-0.5">Total Terdaftar</p>
@@ -155,7 +155,7 @@ export default async function PosyanduPage() {
             <Link href="/posyandu/ats">Lihat Data →</Link>
           </Button>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="rounded-lg bg-muted/40 px-4 py-3 text-center">
             <p className="text-2xl font-bold text-foreground">{totalATS}</p>
             <p className="text-xs text-muted-foreground font-medium mt-0.5">Total Terdaftar</p>

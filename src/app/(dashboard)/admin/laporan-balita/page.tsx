@@ -143,7 +143,7 @@ export default async function LaporanBalitaPage({
         />
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total Balita Aktif" value={totalBalita} icon={Baby} colorVariant="primary" />
         <StatCard title={`Ditimbang ${BULAN_LABEL}`} value={ditimbangBulanIni} icon={CheckCircle2} colorVariant="secondary" description={`${persentase}%`} />
         <StatCard title={`Belum ${BULAN_LABEL}`} value={belumDitimbang} icon={AlertCircle} colorVariant="destructive" />

@@ -122,7 +122,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
         </div>
 
         {/* Baris 2: OPD / Layanan / Tanggal / Deadline */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm border-t border-border pt-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm border-t border-border pt-3">
           <div>
             <MutedText>OPD Tujuan</MutedText>
             <p className="font-medium text-foreground mt-0.5">{pengajuan.opd?.name ?? "Layanan Desa"}</p>
@@ -149,7 +149,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
         </div>
 
         {/* Baris 3: Informasi Wilayah */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm border-t border-border pt-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm border-t border-border pt-3">
           {pengajuan.desa.kecamatan?.name && (
             <div>
               <MutedText>Kecamatan</MutedText>

@@ -128,7 +128,7 @@ export default async function LaporanPage({
       <LaporanFilter opds={allOpds} current={params} />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Total Pengajuan" value={totalAll} icon={ClipboardList} colorVariant="primary" />
         <StatCard title="Selesai" value={totalSelesai} icon={CheckCircle2} colorVariant="secondary" description={`${selesaiPct}% dari total`} />
         <StatCard title="Sedang Berjalan" value={totalBerjalan} icon={Clock} colorVariant="accent" />

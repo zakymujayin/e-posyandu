@@ -112,7 +112,7 @@ export default async function RekapBalitaKecamatanPage() {
         backHref="/kecamatan"
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s) => (
           <StatCard key={s.label} title={s.label} value={s.value} icon={s.icon} colorVariant={s.variant} />
         ))}
