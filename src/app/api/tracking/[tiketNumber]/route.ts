@@ -19,7 +19,7 @@ export async function GET(
         kategori: true,
         deskripsi: true,
         opd: { select: { name: true } },
-        layananJenis: { select: { name: true } },
+        layananJenis: { select: { name: true, isDesa: true, isKecamatan: true } },
         desa: { select: { name: true } },
         activityLogs: {
           orderBy: { createdAt: "asc" },

@@ -60,3 +60,30 @@ export async function generateDesaTicketNumber(desaId: string): Promise<string> 
   const sequenceStr = String(counter.lastSequence).padStart(5, "0")
   return `DS-${year}-${sequenceStr}`
 }
+
+export async function generateKecamatanTicketNumber(kecamatanId: string): Promise<string> {
+  const year = new Date().getFullYear()
+
+  const counter = await prisma.$transaction(async (tx) => {
+    let record = await tx.kecamatanTiketCounter.findUnique({
+      where: { kecamatanId_year: { kecamatanId, year } },
+    })
+
+    if (!record) {
+      record = await tx.kecamatanTiketCounter.create({
+        data: { kecamatanId, year, lastSequence: 0 },
+      })
+    }
+
+    const newSequence = record.lastSequence + 1
+    await tx.kecamatanTiketCounter.update({
+      where: { id: record.id },
+      data: { lastSequence: newSequence },
+    })
+
+    return { ...record, lastSequence: newSequence }
+  })
+
+  const sequenceStr = String(counter.lastSequence).padStart(5, "0")
+  return `KC-${year}-${sequenceStr}`
+}

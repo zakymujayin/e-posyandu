@@ -2,7 +2,7 @@ import { NextRequest } from "next/server"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
-import { generateTicketNumber, generateDesaTicketNumber } from "@/lib/ticket"
+import { generateTicketNumber, generateDesaTicketNumber, generateKecamatanTicketNumber } from "@/lib/ticket"
 import { calculateDeadline } from "@/lib/working-days"
 import { notifyPengajuanBaru } from "@/lib/notifications"
 import { sendNewPengajuanEmail } from "@/lib/email"
@@ -53,20 +53,22 @@ export async function POST(req: NextRequest) {
     const data = parsed.data
 
     let isDesa = false
+    let isKecamatan = false
     if (data.layananJenisId) {
       const layanan = await prisma.layananJenis.findUnique({
         where: { id: data.layananJenisId },
-        select: { isDesa: true },
+        select: { isDesa: true, isKecamatan: true },
       })
       isDesa = layanan?.isDesa ?? false
+      isKecamatan = layanan?.isKecamatan ?? false
     }
 
     if (!data.opdId && !data.layananJenisId) {
       isDesa = true
     }
 
-    if (!data.opdId && !isDesa && data.kategori !== "PENGADUAN") {
-      return err("OPD wajib dipilih untuk permohonan layanan non-desa")
+    if (!data.opdId && !isDesa && !isKecamatan && data.kategori !== "PENGADUAN") {
+      return err("OPD wajib dipilih untuk permohonan layanan non-desa/non-kecamatan")
     }
 
     if (ENABLE_LAYANAN_FEATURE && data.kategori === "PERMOHONAN" && !data.layananJenisId) {
@@ -76,7 +78,7 @@ export async function POST(req: NextRequest) {
     // Ambil posyandu dan desa dari user
     const posyanduUser = await prisma.user.findUnique({
       where: { id: user.id },
-      select: { name: true, posyanduId: true, posyandu: { select: { desaId: true } } },
+      select: { name: true, posyanduId: true, posyandu: { select: { desaId: true, desa: { select: { kecamatanId: true } } } } },
     })
 
     if (!posyanduUser?.posyanduId || !posyanduUser.posyandu?.desaId) {
@@ -85,8 +87,12 @@ export async function POST(req: NextRequest) {
 
     const tiketNumber = data.opdId
       ? await generateTicketNumber(data.opdId)
-      : await generateDesaTicketNumber(posyanduUser.posyandu.desaId)
+      : isKecamatan
+        ? await generateKecamatanTicketNumber(posyanduUser.posyandu!.desa.kecamatanId)
+        : await generateDesaTicketNumber(posyanduUser.posyandu.desaId)
     const deadlineAt = await calculateDeadline(new Date(), 7)
+
+    const initialStatus = isKecamatan ? "DALAM_PROSES_KECAMATAN" : "MENUNGGU_VERIFIKASI"
 
     const pengajuan = await prisma.pengajuan.create({
       data: {
@@ -104,6 +110,7 @@ export async function POST(req: NextRequest) {
         deskripsi: data.deskripsi,
         lokasiLat: data.lokasiLat ?? null,
         lokasiLng: data.lokasiLng ?? null,
+        status: initialStatus,
         deadlineAt,
         fieldValues: {
           create: data.fieldValues.map((fv) => ({
@@ -129,24 +136,49 @@ export async function POST(req: NextRequest) {
             userId: user.id,
             userRole: "POSYANDU",
             action: "Pengajuan dibuat",
-            newStatus: "MENUNGGU_VERIFIKASI",
+            newStatus: initialStatus,
           },
         },
       },
     })
 
-    await notifyPengajuanBaru(user.id, pengajuan.id, tiketNumber)
-
-    // Send email to Petugas Desa
-    try {
-      const officers = await prisma.user.findMany({
-        where: { role: "PETUGAS_DESA", desaId: posyanduUser.posyandu!.desaId, isActive: true },
-        select: { email: true, name: true },
+    if (isKecamatan) {
+      const kecamatanId = posyanduUser.posyandu!.desa.kecamatanId
+      const petugasKec = await prisma.user.findMany({
+        where: { role: "PETUGAS_KECAMATAN", kecamatanId, isActive: true },
+        select: { id: true, email: true, name: true },
       })
-      await Promise.allSettled(
-        officers.map((o) => sendNewPengajuanEmail(o.email, o.name, tiketNumber, posyanduUser.name ?? "Posyandu"))
+
+      const title = "Pengajuan Baru (Kecamatan)"
+      const message = `Pengajuan baru ${tiketNumber} menunggu verifikasi kecamatan.`
+
+      await Promise.all(
+        petugasKec.map((u) =>
+          prisma.notification.create({
+            data: { userId: u.id, type: "NEW_SUBMISSION", title, message, pengajuanId: pengajuan.id },
+          })
+        )
       )
-    } catch (e) { console.error("[email] Failed to notify desa officers:", e) }
+
+      try {
+        const kecamatan = await prisma.kecamatan.findUnique({ where: { id: kecamatanId }, select: { name: true } })
+        await Promise.allSettled(
+          petugasKec.map((o) => sendNewPengajuanEmail(o.email, o.name, tiketNumber, `${posyanduUser.name} (Kec. ${kecamatan?.name ?? "-"})`))
+        )
+      } catch (e) { console.error("[email] Failed to notify kecamatan officers:", e) }
+    } else {
+      await notifyPengajuanBaru(user.id, pengajuan.id, tiketNumber)
+
+      try {
+        const officers = await prisma.user.findMany({
+          where: { role: "PETUGAS_DESA", desaId: posyanduUser.posyandu!.desaId, isActive: true },
+          select: { email: true, name: true },
+        })
+        await Promise.allSettled(
+          officers.map((o) => sendNewPengajuanEmail(o.email, o.name, tiketNumber, posyanduUser.name ?? "Posyandu"))
+        )
+      } catch (e) { console.error("[email] Failed to notify desa officers:", e) }
+    }
 
     return ok({ id: pengajuan.id, tiketNumber }, "Pengajuan berhasil dikirim")
   } catch (e) {

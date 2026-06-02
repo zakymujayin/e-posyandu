@@ -18,6 +18,7 @@ import { ClientFilterForm } from "@/components/shared/client-filter-form"
 const STATUS_OPTIONS = [
   { value: "", label: "Semua Status" },
   { value: "MENUNGGU_VERIFIKASI", label: "Menunggu Verifikasi" },
+  { value: "DALAM_PROSES_KECAMATAN", label: "Dalam Proses Kecamatan" },
   { value: "DALAM_PROSES_OPD", label: "Dalam Proses OPD" },
   { value: "MENUNGGU_APPROVAL_DPMD", label: "Menunggu Approval" },
   { value: "SELESAI", label: "Selesai" },

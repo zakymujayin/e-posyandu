@@ -22,6 +22,7 @@ model Kecamatan {
   users     User[]
   verifikasiKecamatans  VerifikasiKecamatan[]
   noRegCounters         NoRegCounter[]
+  tiketCounters         KecamatanTiketCounter[]
   atsRecords            AnakTidakSekolah[]
 
   @@map("kecamatans")
@@ -97,6 +98,7 @@ model LayananJenis {
   description String?
   isActive    Boolean  @default(true) @map("is_active")
   isDesa      Boolean  @default(false) @map("is_desa")
+  isKecamatan Boolean  @default(false) @map("is_kecamatan")
   sortOrder   Int      @default(0) @map("sort_order")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -207,6 +209,18 @@ model DesaTiketCounter {
 
   @@unique([desaId, year])
   @@map("desa_tiket_counters")
+}
+
+model KecamatanTiketCounter {
+  id           String @id @default(uuid())
+  kecamatanId  String @map("kecamatan_id")
+  year         Int
+  lastSequence Int    @default(0) @map("last_sequence")
+
+  kecamatan    Kecamatan @relation(fields: [kecamatanId], references: [id])
+
+  @@unique([kecamatanId, year])
+  @@map("kecamatan_tiket_counters")
 }
 
 // =============================================

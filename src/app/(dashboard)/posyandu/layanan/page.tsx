@@ -11,6 +11,7 @@ import {
   GraduationCap,
   HardHat,
   Home as HomeIcon,
+  Building2,
   Shield,
   HandHeart,
   HelpCircle,
@@ -43,6 +44,41 @@ export default async function LayananPage() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+        {/* Layanan Kecamatan Card — selalu tampil */}
+        <Link
+            href="/posyandu/ajukan/kecamatan"
+            className="group relative flex flex-col overflow-hidden rounded-xl bg-card border border-teal-300 dark:border-teal-800 transition-all duration-300 hover:shadow-lg hover:border-teal-400 dark:hover:border-teal-600 hover:-translate-y-1"
+          >
+            <div className="h-1.5 w-full shrink-0 transition-all duration-300 group-hover:h-2 bg-teal-500" />
+
+            <div className="relative flex flex-col flex-1 p-5 md:p-6 gap-4 md:gap-5">
+              <Building2 className="absolute -right-3 -top-3 size-28 text-teal-500/10 dark:text-teal-400/10 pointer-events-none transition-all duration-500 group-hover:scale-110 group-hover:rotate-6" />
+
+              <div
+                className="size-14 md:size-16 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:rotate-2"
+                style={{ background: "linear-gradient(135deg, rgba(20,184,166,0.12), rgba(20,184,166,0.04))", color: "#14b8a6" }}
+              >
+                <Building2 className="size-7 md:size-8" />
+              </div>
+
+              <div className="flex-1 space-y-1.5">
+                <CardTitle className="text-sm md:text-[16px] group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-200">
+                  Layanan Kecamatan
+                </CardTitle>
+                <MutedText className="line-clamp-2 leading-relaxed text-xs md:text-sm">
+                  Layanan yang menjadi kewenangan kecamatan. Diselesaikan langsung oleh Petugas Kecamatan tanpa perlu diteruskan ke OPD.
+                </MutedText>
+              </div>
+
+              <div className="flex items-center gap-1.5 mt-auto pt-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-teal-300/50 dark:border-teal-700/50 text-[11px] md:text-[12px] font-bold text-teal-600 dark:text-teal-400 group-hover:bg-teal-500/10 transition-all duration-300">
+                  Pilih Layanan
+                  <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                </span>
+              </div>
+            </div>
+          </Link>
+
         {/* Layanan Desa Card — selalu tampil */}
         <Link
             href="/posyandu/ajukan/desa"

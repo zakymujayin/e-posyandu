@@ -339,6 +339,22 @@ async function main() {
   console.log("✅ 1 layanan desa created")
 
   // =====================
+  // 6c. Layanan Kecamatan
+  // =====================
+  await prisma.layananJenis.upsert({
+    where: { id: "layanan-kec-1" },
+    update: {},
+    create: {
+      id: "layanan-kec-1",
+      name: "Surat Keterangan Domisili",
+      description: "Penerbitan surat keterangan domisili warga di wilayah kecamatan",
+      isKecamatan: true,
+      sortOrder: 1,
+    },
+  })
+  console.log("✅ 1 layanan kecamatan created")
+
+  // =====================
   // 7. Tiket Counters
   // =====================
   for (const opd of opds) {
@@ -363,6 +379,16 @@ async function main() {
     create: { desaId: desa1.id, year: 2026, lastSequence: 0 },
   })
   console.log("✅ 1 desa tiket counter created")
+
+  // =====================
+  // 7b-2. Kecamatan Tiket Counters
+  // =====================
+  await prisma.kecamatanTiketCounter.upsert({
+    where: { kecamatanId_year: { kecamatanId: kecamatan.id, year: 2026 } },
+    update: {},
+    create: { kecamatanId: kecamatan.id, year: 2026, lastSequence: 0 },
+  })
+  console.log("✅ 1 kecamatan tiket counter created")
 
   // =====================
   // 7c. No Registrasi Counter
