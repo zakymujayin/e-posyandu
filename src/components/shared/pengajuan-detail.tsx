@@ -2,7 +2,7 @@ import { StatusBadge } from "@/components/shared/status-badge"
 import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import type { PengajuanStatus } from "@/lib/messages"
-import { CardTitle, MutedText } from "@/components/ui/typography"
+import { CardTitle, MutedText, SectionTitle } from "@/components/ui/typography"
 import { Paperclip, Video, AlertTriangle, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -170,6 +170,8 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
           </div>
         </div>
       </div>
+
+      <SectionTitle className="mb-4">Informasi Pengajuan</SectionTitle>
 
       {/* Data Pelapor */}
       <div className="bg-white dark:bg-card rounded-lg border border-border p-5 space-y-3">

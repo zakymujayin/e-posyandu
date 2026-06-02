@@ -5,7 +5,7 @@ import { PengajuanForm } from "@/components/posyandu/pengajuan-form"
 import { PageHeader } from "@/components/shared/page-header"
 import { PageContainer } from "@/components/layout/page-container"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
-import { CardTitle, MutedText } from "@/components/ui/typography"
+import { CardTitle, MutedText, SectionTitle } from "@/components/ui/typography"
 import { BookOpen, FileText, ShieldAlert, Activity, Building2 } from "lucide-react"
 
 export default async function AjukanKecamatanPage() {
@@ -51,6 +51,7 @@ export default async function AjukanKecamatanPage() {
         </div>
 
         <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-6">
+          <SectionTitle className="mb-4">Panduan &amp; Ketentuan</SectionTitle>
           <Card className="border border-border bg-card shadow-xs">
             <CardHeader className="border-b border-border/50 bg-muted/20 pb-4 px-5">
               <div className="flex items-center gap-2">

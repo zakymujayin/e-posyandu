@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 import { Loader2 } from "lucide-react"
+import { SectionTitle } from "@/components/ui/typography"
 
 interface StatData {
   summary: { totalBalita: number; ditimbangBulanIni: number; belumDitimbang: number; persentaseDitimbang: number }
@@ -38,7 +39,7 @@ export function LaporanBalitaCharts({ kecId, desaId, posyanduId }: { kecId?: str
   return (
     <div className="space-y-4">
       <div className="bg-card border border-border rounded-lg p-5">
-        <h2 className="text-base font-bold text-foreground mb-4">Tren Penimbangan 12 Bulan</h2>
+        <SectionTitle className="text-base font-bold text-foreground mb-4">Tren Penimbangan 12 Bulan</SectionTitle>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={data.monthlyTrend} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
             <defs>
@@ -58,7 +59,7 @@ export function LaporanBalitaCharts({ kecId, desaId, posyanduId }: { kecId?: str
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-card border border-border rounded-lg p-5">
-          <h2 className="text-base font-bold text-foreground mb-4">Distribusi Status Gizi</h2>
+          <SectionTitle className="text-base font-bold text-foreground mb-4">Distribusi Status Gizi</SectionTitle>
           {data.statusGizi.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">Belum ada data</p>
           ) : (
@@ -76,7 +77,7 @@ export function LaporanBalitaCharts({ kecId, desaId, posyanduId }: { kecId?: str
         </div>
 
         <div className="bg-card border border-border rounded-lg p-5">
-          <h2 className="text-base font-bold text-foreground mb-4">Penimbangan per Bulan</h2>
+          <SectionTitle className="text-base font-bold text-foreground mb-4">Penimbangan per Bulan</SectionTitle>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data.monthlyTrend} margin={{ top: 0, right: 8, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />

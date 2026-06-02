@@ -10,7 +10,7 @@ import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { PageHeader } from "@/components/shared/page-header"
 import { PageContainer } from "@/components/layout/page-container"
-import { CardTitle, MutedText, BodyText } from "@/components/ui/typography"
+import { CardTitle, MutedText, BodyText, SectionTitle } from "@/components/ui/typography"
 
 const ACTION_LABELS: Record<string, string> = {
   APPROVE: "Disetujui",
@@ -80,6 +80,8 @@ export default async function VerifikasiDetailPage({
             pengajuan={pengajuan}
             sopInfo={sopInfo ? { remainingDays: sopInfo.remainingDays, sopStatus: sopInfo.sopStatus } : null}
           />
+
+          <SectionTitle className="mb-4">Tindak Lanjut &amp; Riwayat</SectionTitle>
 
           {/* Tindak Lanjut OPD */}
           {pengajuan.tindakLanjuts.length > 0 && (

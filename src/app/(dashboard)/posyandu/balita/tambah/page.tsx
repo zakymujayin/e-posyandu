@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { CardTitle } from "@/components/ui/typography"
+import { CardTitle, SectionTitle } from "@/components/ui/typography"
 import { Loader2, User, Users, FileText } from "lucide-react"
 
 export default function TambahBalitaPage() {
@@ -69,6 +69,8 @@ export default function TambahBalitaPage() {
         description="Daftarkan data anak baru ke posyandu Anda"
         backHref="/posyandu/balita"
       />
+
+      <SectionTitle className="mb-4">Data Balita</SectionTitle>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Data Anak */}

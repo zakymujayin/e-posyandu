@@ -11,7 +11,7 @@ import { PageHeader } from "@/components/shared/page-header"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { FileText, PlayCircle } from "lucide-react"
 import { PageContainer } from "@/components/layout/page-container"
-import { CardTitle, MutedText, BodyText } from "@/components/ui/typography"
+import { CardTitle, MutedText, BodyText, SectionTitle } from "@/components/ui/typography"
 import type { PengajuanStatus } from "@/lib/messages"
 
 const ACTION_LABELS: Record<string, string> = {
@@ -81,6 +81,8 @@ export default async function AdminPengajuanDetailPage({
             verifikasiDesa={pengajuan.verifikasiDesa}
             attachments={pengajuan.attachments}
           />
+
+          <SectionTitle className="mb-4">Tindak Lanjut &amp; Riwayat</SectionTitle>
 
           {/* Tindak Lanjut OPD */}
           {pengajuan.tindakLanjuts.length > 0 && (

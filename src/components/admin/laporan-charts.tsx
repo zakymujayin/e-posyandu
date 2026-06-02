@@ -11,6 +11,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts"
+import { SectionTitle } from "@/components/ui/typography"
 
 interface MonthlyPoint {
   month: string
@@ -38,7 +39,7 @@ export function LaporanCharts({ monthlyData, byStatus, byOpd }: Props) {
     <div className="space-y-4">
       {/* Monthly Trend */}
       <div className="bg-white rounded-lg border border-gray-200 p-5">
-        <h2 className="text-base font-bold text-foreground mb-4">Tren Pengajuan 12 Bulan Terakhir</h2>
+        <SectionTitle className="text-base font-bold text-foreground mb-4">Tren Pengajuan 12 Bulan Terakhir</SectionTitle>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={monthlyData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
             <defs>
@@ -69,7 +70,7 @@ export function LaporanCharts({ monthlyData, byStatus, byOpd }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Status Distribution */}
         <div className="bg-white rounded-lg border border-gray-200 p-5">
-          <h2 className="text-base font-bold text-foreground mb-4">Distribusi Status</h2>
+          <SectionTitle className="text-base font-bold text-foreground mb-4">Distribusi Status</SectionTitle>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={byStatus} layout="vertical" margin={{ top: 0, right: 24, left: 4, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
@@ -83,7 +84,7 @@ export function LaporanCharts({ monthlyData, byStatus, byOpd }: Props) {
 
         {/* Top OPD */}
         <div className="bg-white rounded-lg border border-gray-200 p-5">
-          <h2 className="text-base font-bold text-foreground mb-4">Pengajuan per OPD</h2>
+          <SectionTitle className="text-base font-bold text-foreground mb-4">Pengajuan per OPD</SectionTitle>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={byOpd} layout="vertical" margin={{ top: 0, right: 24, left: 4, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />

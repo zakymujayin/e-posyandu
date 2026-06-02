@@ -11,7 +11,7 @@ import { format } from "date-fns"
 import { id as localeId } from "date-fns/locale"
 import { PageHeader } from "@/components/shared/page-header"
 import { PageContainer } from "@/components/layout/page-container"
-import { CardTitle, MutedText, BodyText } from "@/components/ui/typography"
+import { CardTitle, MutedText, BodyText, SectionTitle } from "@/components/ui/typography"
 
 export default async function TindakLanjutDetailPage({
   params,
@@ -80,6 +80,8 @@ export default async function TindakLanjutDetailPage({
             verifikasiDesa={pengajuan.verifikasiDesa}
             attachments={pengajuan.attachments}
           />
+
+          <SectionTitle className="mb-4">Riwayat</SectionTitle>
 
           {/* Riwayat tindak lanjut sebelumnya */}
           {pengajuan.tindakLanjuts.length > 0 && (
