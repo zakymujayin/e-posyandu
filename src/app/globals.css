@@ -147,6 +147,33 @@
 .animate-on-scroll-delay-3 { transition-delay: 0.3s; }
 .animate-on-scroll-delay-4 { transition-delay: 0.4s; }
 
+@keyframes hero-fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-fade {
+  animation: hero-fade-in-up 0.55s ease both;
+}
+.hero-fade-d1 {
+  animation: hero-fade-in-up 0.55s ease 0.08s both;
+}
+.hero-fade-d2 {
+  animation: hero-fade-in-up 0.55s ease 0.16s both;
+}
+.hero-fade-d3 {
+  animation: hero-fade-in-up 0.55s ease 0.24s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-fade,
+  .hero-fade-d1,
+  .hero-fade-d2,
+  .hero-fade-d3 {
+    animation: none;
+  }
+}
+
 @keyframes float-3d {
   0%, 100% { transform: perspective(800px) rotateY(-5deg) translateY(0); }
   50% { transform: perspective(800px) rotateY(-3deg) translateY(-8px); }
