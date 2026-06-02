@@ -51,10 +51,6 @@ export function Breadcrumbs() {
     icon: ICON_MAP[segments[i]],
   }))
 
-  const isDashboardPage = crumbs.length === 1 && crumbs[0].label === "Dashboard"
-  const current = crumbs[crumbs.length - 1]
-  const parent = crumbs.length > 1 ? crumbs[crumbs.length - 2] : null
-
   return (
     <>
       <nav aria-label="Breadcrumb" className="hidden md:flex items-center gap-1.5 text-sm font-medium text-muted-foreground min-w-0 overflow-hidden">
@@ -91,26 +87,6 @@ export function Breadcrumbs() {
             </span>
           )
         })}
-      </nav>
-
-      <nav aria-label="Breadcrumb" className="md:hidden flex items-center gap-1 text-[12px] font-medium text-muted-foreground min-w-0 overflow-hidden">
-        {parent && (
-          <Link href={parent.href} className="flex items-center gap-1 shrink-0 hover:text-blue-600/70 transition-colors truncate" aria-label={parent.label === "Dashboard" ? "Dashboard" : parent.label}>
-            {parent.label === "Dashboard" ? <Home className="size-3.5" /> : parent.label}
-          </Link>
-        )}
-        {parent && <span className="text-muted-foreground/20 select-none shrink-0">/</span>}
-        {isDashboardPage ? (
-          <span className="flex items-center gap-1 text-blue-600 font-bold shrink-0">
-            <Home className="size-3.5" aria-label="Dashboard" />
-            <span className="whitespace-nowrap">Dashboard</span>
-          </span>
-        ) : (
-          <span className="flex items-center gap-1 truncate text-blue-600 font-bold whitespace-nowrap">
-            {current.icon && <current.icon className="size-3.5 shrink-0" />}
-            {current.label}
-          </span>
-        )}
       </nav>
     </>
   )
