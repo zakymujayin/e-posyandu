@@ -46,7 +46,7 @@ interface Props {
   desas: { id: string; name: string; kecamatan: { name: string } }[]
   kecamatans: { id: string; name: string }[]
   opds: { id: string; name: string }[]
-  posyandus: { id: string; name: string }[]
+  posyandus: { id: string; name: string; desaId: string }[]
 }
 
 const emptyForm = {
@@ -140,6 +140,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
   const showDesa = ["POSYANDU", "PETUGAS_DESA"].includes(form.role)
   const showKec = form.role === "PETUGAS_KECAMATAN"
   const showOpd = form.role === "PETUGAS_OPD"
+  const showPosyandu = form.role === "POSYANDU"
 
   return (
     <div className="space-y-6">
@@ -268,11 +269,28 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                   <select
                     id="users-desaId"
                     value={form.desaId}
-                    onChange={(e) => setForm((f) => ({ ...f, desaId: e.target.value }))}
+                    onChange={(e) => setForm((f) => ({ ...f, desaId: e.target.value, posyanduId: "" }))}
                     className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
                   >
                     <option value="">Pilih Desa</option>
                     {desas.map((d) => <option key={d.id} value={d.id}>{d.name} ({d.kecamatan.name})</option>)}
+                  </select>
+                </div>
+              )}
+              {showPosyandu && (
+                <div className="space-y-1.5">
+                  <FormLabel htmlFor="users-posyanduId">Posyandu <span className="text-destructive">*</span></FormLabel>
+                  <select
+                    id="users-posyanduId"
+                    value={form.posyanduId}
+                    onChange={(e) => setForm((f) => ({ ...f, posyanduId: e.target.value }))}
+                    className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
+                    required
+                  >
+                    <option value="">Pilih Posyandu</option>
+                    {posyandus
+                      .filter((p) => !form.desaId || p.desaId === form.desaId)
+                      .map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </div>
               )}

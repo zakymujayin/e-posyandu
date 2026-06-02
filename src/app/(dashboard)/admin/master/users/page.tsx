@@ -24,7 +24,7 @@ export default async function MasterUsersPage() {
     prisma.desa.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kecamatan: { select: { name: true } } } }),
     prisma.kecamatan.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.opd.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" }, select: { id: true, name: true } }),
-    prisma.posyandu.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.posyandu.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, desaId: true } }),
   ])
   const serializedUsers = JSON.parse(JSON.stringify(users))
   const serializedDesas = JSON.parse(JSON.stringify(desas))

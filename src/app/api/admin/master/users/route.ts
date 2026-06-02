@@ -72,7 +72,7 @@ export async function POST(req: Request) {
     if (posyanduId) {
       const posyandu = await prisma.posyandu.findUnique({
         where: { id: posyanduId },
-        select: { desa: { select: { kecamatanId: true } } },
+        select: { desaId: true, desa: { select: { kecamatanId: true } } },
       })
       resolvedKecamatanId = posyandu?.desa.kecamatanId ?? null
     } else if (desaId) {
