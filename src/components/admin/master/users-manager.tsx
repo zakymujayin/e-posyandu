@@ -6,7 +6,7 @@ const UsersCsvImport = lazy(() =>
   import("@/components/admin/master/users-csv-import").then((m) => ({ default: m.UsersCsvImport }))
 )
 import { toast } from "sonner"
-import { Plus, Pencil, X, Check, Search, UserCheck, HelpCircle, Upload, Eye, EyeOff } from "lucide-react"
+import { Plus, Pencil, X, Check, Search, UserCheck, HelpCircle, Upload, Eye, EyeOff, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FormLabel, SubText } from "@/components/ui/typography"
@@ -136,6 +136,15 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
     if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
     setUsers((prev) => prev.map((x) => x.id === u.id ? { ...x, isActive: data.data.isActive } : x))
     toast.success(data.data.isActive ? "Akun diaktifkan" : "Akun dinonaktifkan")
+  }
+
+  async function handleDelete(u: User) {
+    if (!confirm(`Hapus pengguna "${u.name}"?`)) return
+    const res = await fetch(`/api/admin/master/users/${u.id}`, { method: "DELETE" })
+    const data = await res.json()
+    if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
+    setUsers((prev) => prev.filter((x) => x.id !== u.id))
+    toast.success("Pengguna berhasil dihapus")
   }
 
   const showDesa = ["POSYANDU", "PETUGAS_DESA"].includes(form.role)
@@ -429,6 +438,15 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
                     aria-label={`Edit ${u.name}`}
                   >
                     <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() => handleDelete(u)}
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                    aria-label={`Hapus ${u.name}`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
                   </Button>
                 </TableCell>
               </TableRow>

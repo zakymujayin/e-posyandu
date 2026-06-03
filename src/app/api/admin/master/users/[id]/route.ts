@@ -37,3 +37,38 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   })
   return ok(updated, "Pengguna diperbarui")
 }
+
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { user, response } = await requireAuth(["ADMIN_DPMD"])
+  if (!user) return response!
+
+  const { id } = await params
+
+  if (id === user.id) return err("Tidak dapat menghapus akun sendiri", 400)
+
+  const existing = await prisma.user.findUnique({ where: { id } })
+  if (!existing) return err("Pengguna tidak ditemukan", 404)
+
+  const [pengajuan, balita, ats, verDesa, verKec, tl, actions, notif] = await Promise.all([
+    prisma.pengajuan.count({ where: { posyanduUserId: id } }),
+    prisma.balita.count({ where: { posyanduUserId: id } }),
+    prisma.anakTidakSekolah.count({ where: { posyanduUserId: id } }),
+    prisma.verifikasiDesa.count({ where: { petugasDesaId: id } }),
+    prisma.verifikasiKecamatan.count({ where: { petugasKecId: id } }),
+    prisma.tindakLanjut.count({ where: { petugasOpdId: id } }),
+    prisma.adminAction.count({ where: { adminId: id } }),
+    prisma.notification.count({ where: { userId: id } }),
+  ])
+
+  if (pengajuan > 0) return err("Tidak dapat menghapus: user memiliki data pengajuan")
+  if (balita > 0) return err("Tidak dapat menghapus: user memiliki data balita")
+  if (ats > 0) return err("Tidak dapat menghapus: user memiliki data ATS")
+  if (verDesa > 0) return err("Tidak dapat menghapus: user memiliki data verifikasi desa")
+  if (verKec > 0) return err("Tidak dapat menghapus: user memiliki data verifikasi kecamatan")
+  if (tl > 0) return err("Tidak dapat menghapus: user memiliki data tindak lanjut")
+  if (actions > 0) return err("Tidak dapat menghapus: user memiliki data admin action")
+  if (notif > 0) return err("Tidak dapat menghapus: user memiliki data notifikasi")
+
+  await prisma.user.delete({ where: { id } })
+  return ok(null, "Pengguna berhasil dihapus")
+}
