@@ -69,7 +69,7 @@ export default async function PetugasDesaPage({
       take: limit,
       include: {
         opd: { select: { name: true } },
-        layananJenis: { select: { name: true } },
+        layananJenis: { select: { name: true, isKecamatan: true } },
       },
     }),
     prisma.pengajuan.count({ where }),
@@ -152,7 +152,7 @@ export default async function PetugasDesaPage({
         ) : (
           <>
             <DataTable
-              columns={["No. Tiket", "Nama Pelapor", "OPD Tujuan", "Status", "Tanggal", "Aksi"]}
+              columns={["No. Tiket", "Nama Pelapor", "Tujuan Instansi", "Status", "Tanggal", "Aksi"]}
               dataLength={pengajuans.length}
             >
               {pengajuans.map((p) => (
@@ -166,7 +166,7 @@ export default async function PetugasDesaPage({
                     {p.namaPelapor}
                   </TableCell>
                   <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
-                    {p.opd?.name ?? "Layanan Desa"}
+                    {p.opd?.name ?? (p.layananJenis?.isKecamatan ? "Kecamatan" : "Desa")}
                   </TableCell>
                   <TableCell className="px-4 py-3.5">
                     <StatusBadge status={p.status as PengajuanStatus} />

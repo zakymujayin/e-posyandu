@@ -60,15 +60,26 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     prisma.notification.count({ where: { userId: id } }),
   ])
 
-  if (pengajuan > 0) return err("Tidak dapat menghapus: user memiliki data pengajuan")
-  if (balita > 0) return err("Tidak dapat menghapus: user memiliki data balita")
-  if (ats > 0) return err("Tidak dapat menghapus: user memiliki data ATS")
-  if (verDesa > 0) return err("Tidak dapat menghapus: user memiliki data verifikasi desa")
-  if (verKec > 0) return err("Tidak dapat menghapus: user memiliki data verifikasi kecamatan")
-  if (tl > 0) return err("Tidak dapat menghapus: user memiliki data tindak lanjut")
-  if (actions > 0) return err("Tidak dapat menghapus: user memiliki data admin action")
-  if (notif > 0) return err("Tidak dapat menghapus: user memiliki data notifikasi")
+  const total = pengajuan + balita + ats + verDesa + verKec + tl + actions + notif
 
-  await prisma.user.delete({ where: { id } })
-  return ok(null, "Pengguna berhasil dihapus")
+  if (total === 0) {
+    await prisma.user.delete({ where: { id } })
+    return ok(null, "Pengguna dihapus permanen")
+  }
+
+  const parts: string[] = []
+  if (pengajuan > 0) parts.push(`${pengajuan} pengajuan`)
+  if (balita > 0) parts.push(`${balita} balita`)
+  if (ats > 0) parts.push(`${ats} ATS`)
+  if (verDesa > 0) parts.push(`${verDesa} verifikasi desa`)
+  if (verKec > 0) parts.push(`${verKec} verifikasi kecamatan`)
+  if (tl > 0) parts.push(`${tl} tindak lanjut`)
+  if (actions > 0) parts.push(`${actions} admin action`)
+  if (notif > 0) parts.push(`${notif} notifikasi`)
+
+  await prisma.user.update({ where: { id }, data: { isActive: false } })
+  return ok(
+    { isActive: false },
+    `Akun dinonaktifkan (memiliki histori: ${parts.join(", ")})`
+  )
 }

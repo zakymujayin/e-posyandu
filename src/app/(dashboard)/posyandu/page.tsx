@@ -40,7 +40,7 @@ export default async function PosyanduPage() {
     where: { posyanduUserId: session.user.id },
     orderBy: { submittedAt: "desc" },
     take: 5,
-    include: { opd: { select: { name: true } }, layananJenis: { select: { name: true } } },
+    include: { opd: { select: { name: true } }, layananJenis: { select: { name: true, isKecamatan: true } } },
   })
 
   // Balita stats
@@ -193,7 +193,7 @@ export default async function PosyanduPage() {
         </div>
 
         <DataTable
-          columns={["No. Tiket", "OPD", "Status", "Waktu"]}
+          columns={["No. Tiket", "Tujuan Instansi", "Status", "Waktu"]}
           dataLength={recentPengajuan.length}
           emptyState={
             <EmptyState
@@ -210,7 +210,7 @@ export default async function PosyanduPage() {
                 </Link>
               </TableCell>
               <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
-                {p.opd?.name ?? "Layanan Desa"}
+                {p.opd?.name ?? (p.layananJenis?.isKecamatan ? "Kecamatan" : "Desa")}
               </TableCell>
               <TableCell className="px-4 py-3.5">
                 <StatusBadge status={p.status as PengajuanStatus} />

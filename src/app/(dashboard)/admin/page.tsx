@@ -54,7 +54,7 @@ export default async function AdminPage({
       take: limit,
       include: {
         opd: { select: { name: true } },
-        layananJenis: { select: { name: true } },
+        layananJenis: { select: { name: true, isKecamatan: true } },
         desa: { select: { name: true } },
       },
     }),
@@ -169,7 +169,7 @@ export default async function AdminPage({
         ) : (
           <>
             <DataTable
-              columns={["No. Tiket", "Pelapor", "OPD Tujuan", "Desa", "Status", "Tanggal", "Aksi"]}
+              columns={["No. Tiket", "Pelapor", "Tujuan Instansi", "Desa", "Status", "Tanggal", "Aksi"]}
               dataLength={pengajuans.length}
             >
               {pengajuans.map((p) => (
@@ -183,7 +183,7 @@ export default async function AdminPage({
                     {p.namaPelapor}
                   </TableCell>
                   <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
-                    {p.opd?.name ?? "Layanan Desa"}
+                    {p.opd?.name ?? (p.layananJenis?.isKecamatan ? "Kecamatan" : "Desa")}
                   </TableCell>
                   <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
                     {p.desa.name}

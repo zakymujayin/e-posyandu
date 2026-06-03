@@ -67,7 +67,7 @@ export default async function AdminPengajuanListPage({
       take: limit,
       include: {
         opd: { select: { name: true } },
-        layananJenis: { select: { name: true } },
+        layananJenis: { select: { name: true, isKecamatan: true } },
         desa: { select: { name: true } },
         posyanduUser: { select: { name: true } },
       },
@@ -167,7 +167,7 @@ export default async function AdminPengajuanListPage({
       ) : (
         <div className="space-y-4">
           <DataTable
-            columns={["No. Tiket", "Nama Pelapor", "OPD", "Desa", "Status", "Tanggal", "Aksi"]}
+            columns={["No. Tiket", "Nama Pelapor", "Tujuan Instansi", "Desa", "Status", "Tanggal", "Aksi"]}
             dataLength={pengajuans.length}
           >
             {pengajuans.map((p) => (
@@ -181,7 +181,7 @@ export default async function AdminPengajuanListPage({
                   {p.namaPelapor}
                 </TableCell>
                 <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
-                  {p.opd?.name ?? <span className="italic text-muted-foreground/60">Layanan Desa</span>}
+                  {p.opd?.name ?? (p.layananJenis?.isKecamatan ? "Kecamatan" : "Desa")}
                 </TableCell>
                 <TableCell className="px-4 py-3.5 text-xs md:text-sm text-muted-foreground font-medium">
                   {p.desa.name}

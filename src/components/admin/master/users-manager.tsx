@@ -139,12 +139,16 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
   }
 
   async function handleDelete(u: User) {
-    if (!confirm(`Hapus pengguna "${u.name}"?`)) return
+    if (!confirm(`Hapus pengguna "${u.name}"?\n\nAkun dengan histori data akan dinonaktifkan. Akun tanpa data akan dihapus permanen.`)) return
     const res = await fetch(`/api/admin/master/users/${u.id}`, { method: "DELETE" })
     const data = await res.json()
     if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
-    setUsers((prev) => prev.filter((x) => x.id !== u.id))
-    toast.success("Pengguna berhasil dihapus")
+    if (data.data?.isActive === false) {
+      setUsers((prev) => prev.map((x) => x.id === u.id ? { ...x, isActive: false } : x))
+    } else {
+      setUsers((prev) => prev.filter((x) => x.id !== u.id))
+    }
+    toast.success(data.message ?? "Pengguna berhasil dihapus")
   }
 
   const showDesa = ["POSYANDU", "PETUGAS_DESA"].includes(form.role)

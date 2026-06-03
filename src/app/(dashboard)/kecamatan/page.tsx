@@ -94,7 +94,7 @@ export default async function KecamatanPage({
       take: limit,
       include: {
         opd: { select: { name: true } },
-        layananJenis: { select: { name: true } },
+        layananJenis: { select: { name: true, isKecamatan: true } },
         desa: { select: { name: true } },
       },
     }),
@@ -197,7 +197,7 @@ export default async function KecamatanPage({
         ) : (
           <div className="space-y-4">
             <DataTable
-              columns={["No. Tiket", "Pelapor", "OPD Tujuan", "Desa asal", "Status", "Tanggal"]}
+              columns={["No. Tiket", "Pelapor", "Tujuan Instansi", "Desa asal", "Status", "Tanggal"]}
               dataLength={pengajuans.length}
             >
               {pengajuans.map((p) => (
@@ -211,7 +211,7 @@ export default async function KecamatanPage({
                     {p.namaPelapor}
                   </TableCell>
                   <TableCell className="px-4 py-3.5 text-muted-foreground text-xs md:text-sm font-medium">
-                    {p.opd?.name ?? "Layanan Desa"}
+                    {p.opd?.name ?? (p.layananJenis?.isKecamatan ? "Kecamatan" : "Desa")}
                   </TableCell>
                   <TableCell className="px-4 py-3.5 text-muted-foreground text-xs md:text-sm">
                     {p.desa.name}
