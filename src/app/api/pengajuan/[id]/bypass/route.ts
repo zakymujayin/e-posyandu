@@ -2,8 +2,9 @@ import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { createNotificationsForUsers } from "@/lib/notifications"
+import { stripHtml } from "@/lib/sanitize"
 
-const schema = z.object({ catatan: z.string().min(1, "Catatan bypass wajib diisi") })
+const schema = z.object({ catatan: z.string().min(1, "Catatan bypass wajib diisi").transform(stripHtml) })
 
 export async function POST(
   req: Request,

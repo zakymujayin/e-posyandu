@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { createNotificationsForUsers, notifySelesaiDesa } from "@/lib/notifications"
 import { sendStatusChangeEmail } from "@/lib/email"
+import { stripHtml } from "@/lib/sanitize"
 
 const attachmentSchema = z.object({
   attachmentType: z.enum(["FILE", "VIDEO_LINK"]),
@@ -17,15 +18,15 @@ const attachmentSchema = z.object({
 const schema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("APPROVE"),
-    catatan: z.string().optional(),
+    catatan: z.string().transform(stripHtml).optional(),
   }),
   z.object({
     action: z.literal("REJECT"),
-    catatan: z.string().min(1, "Alasan penolakan wajib diisi"),
+    catatan: z.string().min(1, "Alasan penolakan wajib diisi").transform(stripHtml),
   }),
   z.object({
     action: z.literal("SELESAI_DESA"),
-    catatan: z.string().optional(),
+    catatan: z.string().transform(stripHtml).optional(),
     attachments: z
       .array(attachmentSchema)
       .min(1, "Wajib upload minimal 1 file bukti")
@@ -34,11 +35,11 @@ const schema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("ESKALASI_OPD"),
     opdId: z.string().min(1, "OPD tujuan wajib dipilih"),
-    catatan: z.string().optional(),
+    catatan: z.string().transform(stripHtml).optional(),
   }),
   z.object({
     action: z.literal("ESKALASI_KECAMATAN"),
-    catatan: z.string().optional(),
+    catatan: z.string().transform(stripHtml).optional(),
   }),
 ])
 

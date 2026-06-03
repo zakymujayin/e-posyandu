@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { createNotificationsForUsers } from "@/lib/notifications"
 import { sendStatusChangeEmail } from "@/lib/email"
+import { stripHtml } from "@/lib/sanitize"
 
 const attachmentSchema = z.object({
   attachmentType: z.enum(["FILE", "VIDEO_LINK"]),
@@ -17,7 +18,7 @@ const attachmentSchema = z.object({
 const schema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("SELESAI_KECAMATAN"),
-    catatan: z.string().optional(),
+    catatan: z.string().transform(stripHtml).optional(),
     attachments: z
       .array(attachmentSchema)
       .min(1, "Wajib upload minimal 1 file bukti")
@@ -26,7 +27,7 @@ const schema = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("ESKALASI_OPD_DARI_KECAMATAN"),
     opdId: z.string().min(1, "OPD tujuan wajib dipilih"),
-    catatan: z.string().optional(),
+    catatan: z.string().transform(stripHtml).optional(),
   }),
 ])
 

@@ -2,9 +2,10 @@ import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { createNotificationsForUsers } from "@/lib/notifications"
+import { stripHtml } from "@/lib/sanitize"
 
 const schema = z.object({
-  catatan: z.string().min(1, "Isi teguran wajib diisi"),
+  catatan: z.string().min(1, "Isi teguran wajib diisi").transform(stripHtml),
   targetRole: z.enum(["PETUGAS_DESA", "PETUGAS_OPD"]),
 })
 

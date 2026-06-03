@@ -3,9 +3,10 @@ import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { createNotificationsForUsers } from "@/lib/notifications"
 import { sendStatusChangeEmail } from "@/lib/email"
+import { stripHtml } from "@/lib/sanitize"
 
 const schema = z.object({
-  deskripsi: z.string().min(1, "Deskripsi wajib diisi"),
+  deskripsi: z.string().min(1, "Deskripsi wajib diisi").transform(stripHtml),
   attachments: z.array(z.object({
     attachmentType: z.enum(["FILE", "VIDEO_LINK"]),
     filePath: z.string().optional(),

@@ -57,7 +57,7 @@ interface PengajuanDetailProps {
     submittedAt: Date | string
     deadlineAt: Date | string
     opd: { name: string } | null
-    layananJenis: { name: string } | null
+    layananJenis: { name: string; isKecamatan?: boolean } | null
     kategori?: string | null
     lokasiLat?: number | null
     lokasiLng?: number | null
@@ -125,7 +125,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm border-t border-border pt-3">
           <div>
             <MutedText>OPD Tujuan</MutedText>
-            <p className="font-medium text-foreground mt-0.5">{pengajuan.opd?.name ?? "Layanan Desa"}</p>
+            <p className="font-medium text-foreground mt-0.5">{pengajuan.opd?.name ?? (pengajuan.layananJenis?.isKecamatan ? "Kecamatan" : "Desa")}</p>
           </div>
           <div>
             <MutedText>Jenis Layanan</MutedText>

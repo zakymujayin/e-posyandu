@@ -3,9 +3,10 @@ import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { createNotificationsForUsers } from "@/lib/notifications"
 import { sendStatusChangeEmail } from "@/lib/email"
+import { stripHtml } from "@/lib/sanitize"
 
 const schema = z.object({
-  catatan: z.string().min(1, "Alasan penolakan wajib diisi"),
+  catatan: z.string().min(1, "Alasan penolakan wajib diisi").transform(stripHtml),
 })
 
 export async function POST(

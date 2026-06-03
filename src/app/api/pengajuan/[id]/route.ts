@@ -15,7 +15,7 @@ export async function GET(
       where: { id },
       include: {
         opd: { select: { id: true, name: true, color: true, icon: true } },
-        layananJenis: { select: { id: true, name: true } },
+        layananJenis: { select: { id: true, name: true, isKecamatan: true } },
         desa: { select: { id: true, name: true, kecamatanId: true } },
         posyandu: { select: { id: true, name: true } },
         posyanduUser: { select: { id: true, name: true } },

@@ -60,7 +60,7 @@ export async function GET(req: Request) {
     orderBy: { submittedAt: "desc" },
     include: {
       opd: { select: { name: true } },
-      layananJenis: { select: { name: true } },
+      layananJenis: { select: { name: true, isKecamatan: true } },
       desa: { select: { name: true } },
       posyanduUser: { select: { name: true } },
     },

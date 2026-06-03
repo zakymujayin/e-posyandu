@@ -21,7 +21,7 @@ export default async function PosyanduRiwayatDetailPage({
     where: { id },
     include: {
       opd: { select: { id: true, name: true, color: true, icon: true } },
-      layananJenis: { select: { id: true, name: true } },
+      layananJenis: { select: { id: true, name: true, isKecamatan: true } },
       desa: { select: { id: true, name: true, kecamatan: { select: { name: true } } } },
       posyandu: { select: { id: true, name: true } },
       posyanduUser: { select: { id: true, name: true } },

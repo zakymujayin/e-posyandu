@@ -7,21 +7,22 @@ import { calculateDeadline } from "@/lib/working-days"
 import { notifyPengajuanBaru } from "@/lib/notifications"
 import { sendNewPengajuanEmail } from "@/lib/email"
 import { rateLimit } from "@/lib/cache"
+import { stripHtml } from "@/lib/sanitize"
 
 const createSchema = z.object({
   opdId: z.string().optional(),
   kategori: z.enum(["PENGADUAN", "PERMOHONAN"]).default("PENGADUAN"),
   layananJenisId: z.string().optional(),
-  namaPelapor: z.string().min(1, "Nama pelapor wajib diisi"),
-  nikPelapor: z.string().optional(),
-  noHpPelapor: z.string().optional(),
-  alamatPelapor: z.string().min(1, "Alamat wajib diisi"),
-  deskripsi: z.string().min(20, "Deskripsi minimal 20 karakter"),
+  namaPelapor: z.string().min(1, "Nama pelapor wajib diisi").transform(stripHtml),
+  nikPelapor: z.string().optional().transform((v) => v ? stripHtml(v) : v),
+  noHpPelapor: z.string().optional().transform((v) => v ? stripHtml(v) : v),
+  alamatPelapor: z.string().min(1, "Alamat wajib diisi").transform(stripHtml),
+  deskripsi: z.string().min(20, "Deskripsi minimal 20 karakter").transform(stripHtml),
   lokasiLat: z.number().optional().nullable(),
   lokasiLng: z.number().optional().nullable(),
   fieldValues: z.array(z.object({
-    formFieldId: z.string(),
-    fieldValue: z.string(),
+      formFieldId: z.string(),
+      fieldValue: z.string().transform(stripHtml),
   })).optional().default([]),
   attachments: z.array(z.object({
     attachmentType: z.enum(["FILE", "VIDEO_LINK"]),
@@ -230,7 +231,7 @@ export async function GET(req: NextRequest) {
           submittedAt: true,
           deadlineAt: true,
           opd: { select: { name: true, color: true } },
-          layananJenis: { select: { name: true } },
+          layananJenis: { select: { name: true, isKecamatan: true } },
           desa: { select: { name: true } },
         },
       }),
