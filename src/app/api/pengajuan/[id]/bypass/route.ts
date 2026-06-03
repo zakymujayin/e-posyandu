@@ -70,5 +70,22 @@ export async function POST(
     pengajuanId: id,
   })
 
+  // Kalau bypass ke DALAM_PROSES_OPD, notif OPD juga
+  if (newStatus === "DALAM_PROSES_OPD" && pengajuan.opdId) {
+    const opdUsers = await prisma.user.findMany({
+      where: { role: "PETUGAS_OPD", opdId: pengajuan.opdId, isActive: true },
+      select: { id: true },
+    })
+    await createNotificationsForUsers(
+      opdUsers.map((u) => u.id),
+      {
+        type: "OPD_RECEIVED",
+        title: "Pengajuan Baru Masuk",
+        message: `Pengajuan ${pengajuan.tiketNumber} telah masuk ke OPD (bypass oleh Admin DPMD).`,
+        pengajuanId: id,
+      }
+    )
+  }
+
   return ok({ status: newStatus }, "Bypass berhasil dilakukan")
 }

@@ -73,5 +73,13 @@ export async function POST(
     })
   }
 
+  // Notif ke akun posyandu
+  await createNotificationsForUsers([pengajuan.posyanduUserId], {
+    type: "REVISION_REQUESTED",
+    title: "Diminta Revisi",
+    message: `Admin DPMD meminta revisi untuk pengajuan ${pengajuan.tiketNumber}: ${parsed.data.catatan}`,
+    pengajuanId: id,
+  })
+
   return ok({ status: "DALAM_PROSES_OPD" }, "Permintaan revisi dikirim")
 }

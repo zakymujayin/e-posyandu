@@ -114,6 +114,16 @@ export async function PATCH(
       }
     )
 
+    await createNotificationsForUsers(
+      [pengajuan.posyanduUserId],
+      {
+        type: "VERIFIED",
+        title: "Pengajuan Diverifikasi",
+        message: `Pengajuan ${pengajuan.tiketNumber} telah diverifikasi oleh Petugas Desa dan diteruskan ke OPD.`,
+        pengajuanId: id,
+      }
+    )
+
     sendStatusChangeEmail(
       pengajuan.posyanduUser.email,
       pengajuan.posyanduUser.name,

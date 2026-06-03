@@ -97,6 +97,14 @@ export async function POST(
     pengajuanId: id,
   })
 
+  // Notif ke akun posyandu
+  await createNotificationsForUsers([pengajuan.posyanduUserId], {
+    type: "FOLLOWUP_SUBMITTED",
+    title: "Tindak Lanjut Disubmit",
+    message: `Tindak lanjut untuk pengajuan ${pengajuan.tiketNumber} telah disubmit dan menunggu persetujuan Admin DPMD.`,
+    pengajuanId: id,
+  })
+
   // Email to posyandu: status now MENUNGGU_APPROVAL_DPMD (fire-and-forget)
   sendStatusChangeEmail(
     pengajuan.posyanduUser.email,
