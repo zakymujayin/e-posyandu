@@ -39,6 +39,7 @@ export async function PATCH(req: NextRequest) {
       create: { key: parsed.data.key, value: parsed.data.value },
     })
     invalidatePattern("app:settings")
+    invalidatePattern("app_setting:")
     return ok(null, "Pengaturan disimpan")
   } catch (e) {
     console.error(e)

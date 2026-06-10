@@ -1,9 +1,13 @@
 import Link from "next/link"
 import { ArrowRight, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { PosyanduIllustration } from "./posyandu-illustration"
+import { IbuBupatiSlider, type Slide } from "@/components/shared/ibu-bupati-slider"
 
-export function HeroSection() {
+interface Props {
+  slides?: Slide[]
+}
+
+export function HeroSection({ slides }: Props) {
   return (
     <section className="relative overflow-hidden bg-slate-50 pt-16 pb-20 lg:pt-24 lg:pb-28">
       <div
@@ -78,9 +82,7 @@ export function HeroSection() {
           </div>
 
           <div className="hero-fade-d2 flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md">
-              <PosyanduIllustration className="relative w-full h-auto drop-shadow-xl rounded-2xl" />
-            </div>
+            <IbuBupatiSlider variant="hero" slides={slides} className="w-full" />
           </div>
         </div>
       </div>

@@ -12,6 +12,16 @@ export default async function PengaturanPage() {
   const logoSetting = await prisma.appSetting.findUnique({ where: { key: "logo_url" } })
   const logoUrl = logoSetting?.value || null
 
+  const sliderSetting = await prisma.appSetting.findUnique({ where: { key: "slider_photos" } })
+  let sliderPhotos: { url: string; alt: string; caption?: string }[] = []
+  if (sliderSetting?.value) {
+    try {
+      sliderPhotos = JSON.parse(sliderSetting.value)
+    } catch {
+      sliderPhotos = []
+    }
+  }
+
   return (
     <PageContainer className="space-y-6">
       <PageHeader
@@ -20,7 +30,7 @@ export default async function PengaturanPage() {
         backHref="/admin/master"
       />
       <div className="max-w-xl">
-        <AppSettingsManager initialLogoUrl={logoUrl} />
+        <AppSettingsManager initialLogoUrl={logoUrl} initialSliderPhotos={sliderPhotos} />
       </div>
     </PageContainer>
   )

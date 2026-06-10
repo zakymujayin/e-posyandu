@@ -4,18 +4,30 @@
 
 import { useRef, useState } from "react"
 import { toast } from "sonner"
-import { Upload, Trash2, ImageIcon } from "lucide-react"
+import { Upload, Trash2, ImageIcon, ChevronUp, ChevronDown, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
+
+type SlidePhoto = {
+  url: string
+  alt: string
+  caption?: string
+}
 
 interface Props {
   initialLogoUrl: string | null
+  initialSliderPhotos: SlidePhoto[]
 }
 
-export function AppSettingsManager({ initialLogoUrl }: Props) {
+export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Props) {
   const [logoUrl, setLogoUrl] = useState<string | null>(initialLogoUrl)
   const [uploading, setUploading] = useState(false)
   const [removing, setRemoving] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const [sliderPhotos, setSliderPhotos] = useState<SlidePhoto[]>(initialSliderPhotos)
+  const [sliderUploading, setSliderUploading] = useState(false)
+  const [sliderSaving, setSliderSaving] = useState(false)
+  const sliderFileRef = useRef<HTMLInputElement>(null)
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -69,56 +81,211 @@ export function AppSettingsManager({ initialLogoUrl }: Props) {
     }
   }
 
+  async function saveSlider(photos: SlidePhoto[]) {
+    setSliderSaving(true)
+    try {
+      await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "slider_photos", value: JSON.stringify(photos) }),
+      })
+    } catch {
+      toast.error("Gagal menyimpan slider")
+    } finally {
+      setSliderSaving(false)
+    }
+  }
+
+  async function handleSliderUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setSliderUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append("file", file)
+
+      const uploadRes = await fetch("/api/upload", { method: "POST", body: fd })
+      const uploadJson = await uploadRes.json()
+      if (!uploadRes.ok) throw new Error(uploadJson.error ?? "Upload gagal")
+
+      const url: string = uploadJson.data.url
+      const updated = [...sliderPhotos, { url, alt: "", caption: "" }]
+      setSliderPhotos(updated)
+      await saveSlider(updated)
+      toast.success("Foto berhasil ditambahkan")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Terjadi kesalahan")
+    } finally {
+      setSliderUploading(false)
+      if (sliderFileRef.current) sliderFileRef.current.value = ""
+    }
+  }
+
+  async function handleSliderDelete(index: number) {
+    const updated = sliderPhotos.filter((_, i) => i !== index)
+    setSliderPhotos(updated)
+    await saveSlider(updated)
+    toast.success("Foto dihapus")
+  }
+
+  async function handleMoveUp(index: number) {
+    if (index === 0) return
+    const updated = [...sliderPhotos]
+    ;[updated[index - 1], updated[index]] = [updated[index], updated[index - 1]]
+    setSliderPhotos(updated)
+    await saveSlider(updated)
+  }
+
+  async function handleMoveDown(index: number) {
+    if (index === sliderPhotos.length - 1) return
+    const updated = [...sliderPhotos]
+    ;[updated[index], updated[index + 1]] = [updated[index + 1], updated[index]]
+    setSliderPhotos(updated)
+    await saveSlider(updated)
+  }
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-5 space-y-5">
-      <div>
-        <h2 className="text-sm font-semibold text-gray-700">Logo Aplikasi</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Logo akan ditampilkan di halaman login dan sidebar dashboard. Format: PNG, JPG, SVG, WebP. Maks 5MB.
-        </p>
+    <div className="space-y-6">
+      {/* Logo Section */}
+      <div className="bg-white rounded-lg border border-gray-200 p-5 space-y-5">
+        <div>
+          <h2 className="text-sm font-semibold text-gray-700">Logo Aplikasi</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Logo akan ditampilkan di halaman login dan sidebar dashboard. Format: PNG, JPG, SVG, WebP. Maks 5MB.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="w-20 h-20 rounded-xl border-2 border-dashed border-border flex items-center justify-center bg-muted/30 shrink-0 overflow-hidden">
+            {logoUrl ? (
+              <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-1" />
+            ) : (
+              <ImageIcon className="w-8 h-8 text-muted-foreground/40" />
+            )}
+          </div>
+          <div className="space-y-2">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/png,image/jpeg,image/svg+xml,image/webp"
+              onChange={handleFileChange}
+              className="hidden"
+              id="logo-upload"
+            />
+            <Button
+              type="button"
+              size="sm"
+              className="text-xs gap-1.5"
+              disabled={uploading}
+              onClick={() => fileRef.current?.click()}
+            >
+              <Upload className="w-3.5 h-3.5" />
+              {uploading ? "Mengupload..." : logoUrl ? "Ganti Logo" : "Upload Logo"}
+            </Button>
+            {logoUrl && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="text-xs gap-1.5 text-destructive hover:text-destructive"
+                disabled={removing}
+                onClick={handleRemove}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                {removing ? "Menghapus..." : "Hapus Logo"}
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Preview */}
-      <div className="flex items-center gap-4">
-        <div className="w-20 h-20 rounded-xl border-2 border-dashed border-border flex items-center justify-center bg-muted/30 shrink-0 overflow-hidden">
-          {logoUrl ? (
-            <img src={logoUrl} alt="Logo" className="w-full h-full object-contain p-1" />
-          ) : (
-            <ImageIcon className="w-8 h-8 text-muted-foreground/40" />
+      {/* Slider Photos Section */}
+      <div className="bg-white rounded-lg border border-gray-200 p-5 space-y-5">
+        <div>
+          <h2 className="text-sm font-semibold text-gray-700">Slider Foto Landing Page</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Foto akan ditampilkan sebagai slider di halaman utama. Urutan foto dapat diatur dengan tombol panah.
+            Format: PNG, JPG, WebP. Maks 5MB per foto.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {sliderPhotos.map((photo, i) => (
+            <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 bg-gray-50/50">
+              <div className="w-16 h-16 rounded-lg border border-gray-200 bg-white shrink-0 overflow-hidden">
+                <img src={photo.url} alt={photo.alt || `Foto ${i + 1}`} className="w-full h-full object-cover" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-gray-600 truncate">
+                  {photo.alt || `Foto ${i + 1}`}
+                </p>
+                <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                  {photo.url.split("/").pop()}
+                </p>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <Button
+                  type="button"
+                  size="icon-xs"
+                  variant="ghost"
+                  disabled={i === 0 || sliderSaving}
+                  onClick={() => handleMoveUp(i)}
+                  className="size-7"
+                >
+                  <ChevronUp className="size-3.5" />
+                </Button>
+                <Button
+                  type="button"
+                  size="icon-xs"
+                  variant="ghost"
+                  disabled={i === sliderPhotos.length - 1 || sliderSaving}
+                  onClick={() => handleMoveDown(i)}
+                  className="size-7"
+                >
+                  <ChevronDown className="size-3.5" />
+                </Button>
+                <Button
+                  type="button"
+                  size="icon-xs"
+                  variant="ghost"
+                  disabled={sliderSaving}
+                  onClick={() => handleSliderDelete(i)}
+                  className="size-7 text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              </div>
+            </div>
+          ))}
+
+          {sliderPhotos.length === 0 && (
+            <div className="flex items-center justify-center p-6 rounded-lg border-2 border-dashed border-gray-200">
+              <p className="text-xs text-muted-foreground">Belum ada foto. Klik tombol di bawah untuk menambahkan.</p>
+            </div>
           )}
         </div>
-        <div className="space-y-2">
+
+        <div>
           <input
-            ref={fileRef}
+            ref={sliderFileRef}
             type="file"
-            accept="image/png,image/jpeg,image/svg+xml,image/webp"
-            onChange={handleFileChange}
+            accept="image/png,image/jpeg,image/webp"
+            onChange={handleSliderUpload}
             className="hidden"
-            id="logo-upload"
+            id="slider-upload"
           />
           <Button
             type="button"
             size="sm"
+            variant="outline"
             className="text-xs gap-1.5"
-            disabled={uploading}
-            onClick={() => fileRef.current?.click()}
+            disabled={sliderUploading || sliderSaving}
+            onClick={() => sliderFileRef.current?.click()}
           >
-            <Upload className="w-3.5 h-3.5" />
-            {uploading ? "Mengupload..." : logoUrl ? "Ganti Logo" : "Upload Logo"}
+            <Plus className="w-3.5 h-3.5" />
+            {sliderUploading ? "Mengupload..." : "Tambah Foto"}
           </Button>
-          {logoUrl && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="text-xs gap-1.5 text-destructive hover:text-destructive"
-              disabled={removing}
-              onClick={handleRemove}
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              {removing ? "Menghapus..." : "Hapus Logo"}
-            </Button>
-          )}
         </div>
       </div>
     </div>
