@@ -290,12 +290,16 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               </div>
               {showDesa && (
                 <div className="space-y-1.5">
-                  <FormLabel htmlFor="users-desaId">Wilayah Kerja Desa</FormLabel>
+                  <FormLabel htmlFor="users-desaId">
+                    Wilayah Kerja Desa
+                    {form.role === "PETUGAS_DESA" && <span className="text-destructive"> *</span>}
+                  </FormLabel>
                   <select
                     id="users-desaId"
                     value={form.desaId}
                     onChange={(e) => setForm((f) => ({ ...f, desaId: e.target.value, posyanduId: "" }))}
                     className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
+                    required={form.role === "PETUGAS_DESA"}
                   >
                     <option value="">Pilih Desa</option>
                     {desas.map((d) => <option key={d.id} value={d.id}>{d.name} ({d.kecamatan.name})</option>)}
@@ -321,12 +325,13 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               )}
               {showKec && (
                 <div className="space-y-1.5">
-                  <FormLabel htmlFor="users-kecamatanId">Wilayah Kerja Kecamatan</FormLabel>
+                  <FormLabel htmlFor="users-kecamatanId">Wilayah Kerja Kecamatan <span className="text-destructive">*</span></FormLabel>
                   <select
                     id="users-kecamatanId"
                     value={form.kecamatanId}
                     onChange={(e) => setForm((f) => ({ ...f, kecamatanId: e.target.value }))}
                     className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
+                    required
                   >
                     <option value="">Pilih Kecamatan</option>
                     {kecamatans.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
@@ -335,12 +340,13 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               )}
               {showOpd && (
                 <div className="space-y-1.5">
-                  <FormLabel htmlFor="users-opdId">Dinas / OPD Instansi</FormLabel>
+                  <FormLabel htmlFor="users-opdId">Dinas / OPD Instansi <span className="text-destructive">*</span></FormLabel>
                   <select
                     id="users-opdId"
                     value={form.opdId}
                     onChange={(e) => setForm((f) => ({ ...f, opdId: e.target.value }))}
                     className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
+                    required
                   >
                     <option value="">Pilih OPD</option>
                     {opds.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}

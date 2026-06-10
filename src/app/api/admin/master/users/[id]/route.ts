@@ -27,7 +27,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (!existing) return err("Pengguna tidak ditemukan", 404)
 
   const { password, ...rest } = parsed.data
-  const data: Record<string, unknown> = { ...rest }
+  const data: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(rest)) {
+    if (value !== null && value !== undefined) {
+      data[key] = value
+    }
+  }
   if (password) data.password = await bcrypt.hash(password, 12)
 
   const updated = await prisma.user.update({

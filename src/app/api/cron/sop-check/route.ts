@@ -9,8 +9,9 @@ const ACTIVE_STATUSES = ["MENUNGGU_VERIFIKASI", "DALAM_PROSES_OPD", "MENUNGGU_AP
 
 export async function POST(req: Request) {
   const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret) return err("CRON_SECRET not configured", 500)
   const auth = req.headers.get("authorization")
-  if (cronSecret && auth !== `Bearer ${cronSecret}`) {
+  if (auth !== `Bearer ${cronSecret}`) {
     return err("Unauthorized", 401)
   }
 

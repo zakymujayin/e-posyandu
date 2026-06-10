@@ -33,7 +33,7 @@ const nextAuth = NextAuth({
           throw new CredentialsSignin()
         }
 
-        const username = credentials.username as string
+        const username = (credentials.username as string).trim().toLowerCase()
         const password = credentials.password as string
 
         const allowed = await rateLimit(`rl:login:${username}`, 5, 60)
@@ -41,7 +41,7 @@ const nextAuth = NextAuth({
           throw new CredentialsSignin()
         }
 
-        const user = await prisma.user.findUnique({ where: { username } })
+        const user = await prisma.user.findUnique({ where: { username, isActive: true } })
 
         if (!user) {
           throw new CredentialsSignin()

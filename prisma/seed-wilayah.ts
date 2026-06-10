@@ -5,50 +5,44 @@ config()
 import { PrismaClient } from "@prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
 import { Pool } from "pg"
-import * as XLSX from "xlsx"
+import ExcelJS from "exceljs"
 import * as path from "path"
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
 
-function normalizeKecName(name: string): string {
-  return name.replace(/^Kecamatan\s+/i, "").trim()
-}
-
 async function main() {
-  console.log("🌱 Seeding kecamatan & desa dari Excel...")
+  console.log("🌱 Seeding kecamatan & desa from Excel...")
 
   const filePath = path.resolve(__dirname, "../docs/DAFTAR NAMA DESA DAN KELURAHAN.xlsx")
-  const workbook = XLSX.readFile(filePath)
-  const sheet = workbook.Sheets[workbook.SheetNames[0]]
+  const workbook = new ExcelJS.Workbook()
+  await workbook.xlsx.readFile(filePath)
+  const sheet = workbook.worksheets[0]
 
-  const rows: (string | null)[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 })
+  const rows: { colA: string; colB: string; colG: string }[] = []
+  sheet.eachRow((row, i) => {
+    if (i < 6) return
+    const colA = String(row.getCell(1).value || "").trim()
+    const colB = String(row.getCell(2).value || "").trim()
+    const colG = String(row.getCell(7).value || "").trim()
+    if (!colG || colG === "Daftar" || colG === "Desa/Kelurahan" || colB === "TOTAL") return
+    if (!/^\d+\.\d+\.\d+$/.test(colA)) return
+    rows.push({ colA, colB, colG })
+  })
 
   let kecamatanCount = 0
   let desaCount = 0
-
   let currentKecId: string | null = null
   let currentKecCode: string | null = null
-  let currentKecName: string | null = null
   let desaSeq = 0
 
-  for (let i = 0; i < rows.length; i++) {
-    const row = rows[i]
-    if (!row || row.length === 0) continue
+  for (const { colA, colB, colG } of rows) {
+    const kecCode = colA.replace(/\./g, "")
+    const namaKecamatan = colB
+    const namaDesa = colG
 
-    const kodeKemendagri = row[0] ? String(row[0]).trim() : null
-    const namaKecamatan = row[1] ? String(row[1]).trim() : null
-    const namaDesa = row[6] ? String(row[6]).trim() : null
-
-    if (!namaDesa) continue
-
-    const isTotal = namaKecamatan === "TOTAL"
-    if (isTotal) break
-
-    if (kodeKemendagri && /^\d+\.\d+\.\d+$/.test(kodeKemendagri) && namaKecamatan) {
-      const kecCode = kodeKemendagri.replace(/\./g, "")
-
+    if (kecCode !== currentKecCode) {
       const existingKec = await prisma.kecamatan.findFirst({
         where: { name: { contains: namaKecamatan, mode: "insensitive" } },
       })
@@ -56,19 +50,17 @@ async function main() {
       if (existingKec) {
         currentKecId = existingKec.id
         currentKecCode = kecCode
-        currentKecName = namaKecamatan
         await prisma.kecamatan.update({
           where: { id: existingKec.id },
           data: { code: kecCode, name: namaKecamatan },
         })
-        console.log(`  ↻ Update kecamatan: ${existingKec.name} → ${namaKecamatan} (${kecCode})`)
+        console.log(`  ↻ Update: ${existingKec.name} → ${namaKecamatan} (${kecCode})`)
       } else {
         const created = await prisma.kecamatan.create({
           data: { name: namaKecamatan, code: kecCode },
         })
         currentKecId = created.id
         currentKecCode = kecCode
-        currentKecName = namaKecamatan
         console.log(`  + Kecamatan: ${namaKecamatan} (${kecCode})`)
       }
       kecamatanCount++
@@ -90,11 +82,7 @@ async function main() {
         })
       } else {
         await prisma.desa.create({
-          data: {
-            name: namaDesa,
-            code: desaCode,
-            kecamatanId: currentKecId,
-          },
+          data: { name: namaDesa, code: desaCode, kecamatanId: currentKecId },
         })
         desaCount++
       }

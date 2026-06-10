@@ -83,6 +83,7 @@ export async function rateLimit(key: string, limit: number, windowSec: number): 
     if (count === 1) await redis.expire(key, windowSec)
     return count <= limit
   } catch {
-    return true // Redis unavailable — allow request
+    console.warn("[cache] Redis unavailable — rate limiting disabled")
+    return true
   }
 }

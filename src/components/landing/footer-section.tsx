@@ -40,8 +40,8 @@ export function FooterSection({ logoUrl }: Props) {
             <p className="text-[13px] leading-relaxed text-slate-500">
               Dinas Pemberdayaan Masyarakat dan Desa (DPMD) Kabupaten Lebak, Banten.
             </p>
-            <p className="text-[12px] text-slate-600 mt-2">
-              Posyandu Maju, Layanan Prima, Masyarakat Sejahtera
+            <p className="text-sm text-amber-200/80 italic mt-2">
+              Posyandu maju, layanan prima, masyarakat sejahtera, Lebak ruhay
             </p>
           </div>
 

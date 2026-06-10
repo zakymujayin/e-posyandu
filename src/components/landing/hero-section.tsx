@@ -45,9 +45,12 @@ export function HeroSection({ slides }: Props) {
             </h1>
 
             <div className="hero-fade-d1">
-              <div className="border-l-2 border-blue-300 pl-3 mb-4">
-                <p className="text-sm text-slate-500 italic">
-                  &ldquo;Posyandu Maju, Layanan Prima, Masyarakat Sejahtera&rdquo;
+              <div className="border-l-4 border-amber-500 pl-5 mb-6">
+                <p
+                  className="text-xl sm:text-2xl font-bold italic tracking-wide text-amber-600"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  &ldquo;Posyandu maju, layanan prima, masyarakat sejahtera, Lebak ruhay&rdquo;
                 </p>
               </div>
               <p className="text-[15px] text-slate-600 leading-relaxed mb-8">
