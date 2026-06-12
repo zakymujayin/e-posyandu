@@ -122,6 +122,12 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Prop
     }
   }
 
+  function handleCaptionChange(index: number, value: string) {
+    setSliderPhotos((prev) =>
+      prev.map((p, i) => (i === index ? { ...p, caption: value, alt: value } : p)),
+    )
+  }
+
   async function handleSliderDelete(index: number) {
     const updated = sliderPhotos.filter((_, i) => i !== index)
     setSliderPhotos(updated)
@@ -205,8 +211,8 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Prop
         <div>
           <h2 className="text-sm font-semibold text-gray-700">Slider Foto Landing Page</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Foto akan ditampilkan sebagai slider di halaman utama. Urutan foto dapat diatur dengan tombol panah.
-            Format: PNG, JPG, WebP. Maks 5MB per foto.
+            Foto akan ditampilkan sebagai slider di halaman utama. Isi deskripsi tiap foto sebagai keterangan
+            yang tampil di bawah foto. Urutan dapat diatur dengan tombol panah. Format: PNG, JPG, WebP. Maks 5MB per foto.
           </p>
         </div>
 
@@ -216,11 +222,17 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Prop
               <div className="w-16 h-16 rounded-lg border border-gray-200 bg-white shrink-0 overflow-hidden">
                 <img src={photo.url} alt={photo.alt || `Foto ${i + 1}`} className="w-full h-full object-cover" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-gray-600 truncate">
-                  {photo.alt || `Foto ${i + 1}`}
-                </p>
-                <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+              <div className="flex-1 min-w-0 space-y-1">
+                <input
+                  type="text"
+                  value={photo.caption ?? ""}
+                  onChange={(e) => handleCaptionChange(i, e.target.value)}
+                  onBlur={() => saveSlider(sliderPhotos)}
+                  placeholder={`Deskripsi Foto ${i + 1}`}
+                  disabled={sliderSaving}
+                  className="w-full text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 disabled:opacity-60"
+                />
+                <p className="text-[10px] text-muted-foreground truncate">
                   {photo.url.split("/").pop()}
                 </p>
               </div>
