@@ -28,13 +28,29 @@ Edit `.env` — isi variabel wajib berikut:
 npm install
 ```
 
+> Repo sudah menyertakan `.npmrc` (`legacy-peer-deps=true`), jadi `npm install`
+> langsung jalan. **Jangan** pakai `--production` / `--omit=dev` — tool seeder
+> (`prisma`, `tsx`, `dotenv`) memang dibutuhkan dan sudah ada di `dependencies`.
+
 ### 3. Setup Database (Schema + Data Inti)
 
+Satu perintah untuk membuat semua tabel + mengisi data inti:
+
 ```bash
-npx prisma db push              # Bikin semua tabel
-npx tsx prisma/seed-wilayah.ts  # Isi 28 kecamatan + 345 desa/kelurahan
-npx tsx prisma/seed-production.ts  # Isi user, OPD, layanan, counter
+npm run db:setup
 ```
+
+Setara dengan menjalankan berurutan:
+
+```bash
+npm run db:push            # Bikin semua tabel (28 kecamatan + 345 desa diisi via seeder)
+npm run db:seed-wilayah    # Isi 28 kecamatan + 345 desa/kelurahan (dari Excel)
+npm run db:seed-production # Isi user, OPD, layanan, posyandu, counter
+```
+
+> Data yang di-seed: wilayah, semua user, OPD, layanan, counter — **tanpa**
+> data dummy pengajuan/balita/ATS. Pastikan `DATABASE_URL` di `.env` sudah benar
+> sebelum menjalankan langkah ini.
 
 ### 4. Build
 
