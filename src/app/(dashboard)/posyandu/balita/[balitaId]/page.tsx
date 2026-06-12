@@ -4,8 +4,6 @@ import { prisma } from "@/lib/prisma"
 import { PageContainer } from "@/components/layout/page-container"
 import { PageHeader } from "@/components/shared/page-header"
 import { BalitaDetail } from "@/components/posyandu/balita-detail"
-import { format } from "date-fns"
-import { id as localeId } from "date-fns/locale"
 
 export default async function BalitaDetailPage({
   params,

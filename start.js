@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 process.argv = [
   process.argv[0],
   require.resolve('next/dist/bin/next'),

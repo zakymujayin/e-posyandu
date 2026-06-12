@@ -1,7 +1,6 @@
 import Redis from "ioredis"
 
 declare global {
-  // eslint-disable-next-line no-var
   var _redis: Redis | undefined
 }
 

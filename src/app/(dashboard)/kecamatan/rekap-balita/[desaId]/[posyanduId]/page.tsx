@@ -10,8 +10,6 @@ import { Badge } from "@/components/ui/badge"
 import { Pagination } from "@/components/ui/pagination"
 import { differenceInMonths } from "date-fns"
 import { CheckCircle2, XCircle } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle as AlertCircleIcon } from "lucide-react"
 
 export default async function RekapBalitaKecPosyanduPage({
   params,

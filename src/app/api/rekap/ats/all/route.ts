@@ -1,9 +1,8 @@
-import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { withCache } from "@/lib/cache"
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   const { user, response } = await requireAuth(["ADMIN_DPMD"])
   if (!user) return response!
 

@@ -527,8 +527,6 @@ async function main() {
   // =====================
   // 10. Sample Data Balita — Posyandu Mawar
   // =====================
-  const tglBalita = new Date("2026-05-25")
-
   const balita1 = await prisma.balita.upsert({
     where: { id: "3f8c2e1a-1001-4000-a001-000000000001" },
     update: {},
@@ -585,7 +583,7 @@ async function main() {
     },
   })
 
-  const balita4 = await prisma.balita.upsert({
+  await prisma.balita.upsert({
     where: { id: "3f8c2e1a-1001-4000-a001-000000000004" },
     update: {},
     create: {
