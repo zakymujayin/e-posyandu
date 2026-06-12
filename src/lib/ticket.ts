@@ -35,6 +35,16 @@ export async function generateTicketNumber(opdId: string): Promise<string> {
 }
 
 export async function generateDesaTicketNumber(desaId: string): Promise<string> {
+  const desa = await prisma.desa.findUnique({
+    where: { id: desaId },
+    select: { code: true },
+  })
+
+  if (!desa) throw new Error("Desa tidak ditemukan")
+
+  // Buang 4 digit kode kabupaten (mis. "3602") → tersisa kode kec+desa
+  // yang unik se-kabupaten, mis. "140006".
+  const wilayahCode = desa.code.slice(4)
   const year = new Date().getFullYear()
 
   const counter = await prisma.$transaction(async (tx) => {
@@ -57,11 +67,21 @@ export async function generateDesaTicketNumber(desaId: string): Promise<string> 
     return { ...record, lastSequence: newSequence }
   })
 
-  const sequenceStr = String(counter.lastSequence).padStart(5, "0")
-  return `DS-${year}-${sequenceStr}`
+  const sequenceStr = String(counter.lastSequence).padStart(4, "0")
+  return `DS-${wilayahCode}-${year}-${sequenceStr}`
 }
 
 export async function generateKecamatanTicketNumber(kecamatanId: string): Promise<string> {
+  const kecamatan = await prisma.kecamatan.findUnique({
+    where: { id: kecamatanId },
+    select: { code: true },
+  })
+
+  if (!kecamatan) throw new Error("Kecamatan tidak ditemukan")
+
+  // Buang 4 digit kode kabupaten (mis. "3602") → tersisa kode kecamatan
+  // yang unik se-kabupaten, mis. "14".
+  const wilayahCode = kecamatan.code.slice(4)
   const year = new Date().getFullYear()
 
   const counter = await prisma.$transaction(async (tx) => {
@@ -84,6 +104,6 @@ export async function generateKecamatanTicketNumber(kecamatanId: string): Promis
     return { ...record, lastSequence: newSequence }
   })
 
-  const sequenceStr = String(counter.lastSequence).padStart(5, "0")
-  return `KC-${year}-${sequenceStr}`
+  const sequenceStr = String(counter.lastSequence).padStart(4, "0")
+  return `KC-${wilayahCode}-${year}-${sequenceStr}`
 }
