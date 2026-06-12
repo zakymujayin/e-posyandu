@@ -15,7 +15,7 @@
 cp .env.example .env
 ```
 
-Edit `.env` — isi minimal 4 variabel wajib:
+Edit `.env` — isi variabel wajib berikut:
 - `DATABASE_URL` — koneksi PostgreSQL
 - `AUTH_SECRET` — generate dengan `openssl rand -base64 32`
 - `AUTH_URL` & `NEXTAUTH_URL` — domain aplikasi Anda
@@ -56,10 +56,11 @@ Buka `http://localhost:3000` (atau domain Anda). Login dengan kredensial default
 
 | Role | Username | Password |
 |------|----------|----------|
-| Admin DPMD | `admin` | `admin123` |
-| Petugas OPD | `opd-dinas-kesehatan` | `opd123` |
-| Petugas Kecamatan | `kec-banjarsari` | `kecamatan123` |
-| Petugas Desa | `desa-bendungan` | `petugas123` |
+| Admin DPMD | `admin_dpmd` | `admin123` |
+| Petugas OPD | `opd_dinkes` | `opd123` |
+| Petugas Kecamatan | `kec_360214` | `kecamatan123` |
+| Petugas Desa | `desa_3602140006` | `petugas123` |
+| Posyandu | `posyandu-nameng` | `posyandu123` |
 
 **⚠️ Segera ganti password admin setelah login pertama.**
 
