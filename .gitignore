@@ -65,6 +65,8 @@ deploy/
 .env
 .env.production
 .env.production.example
+.env.vercel.backup
+.env*.backup
 
 # local uploads (dev/test only)
 public/uploads/
