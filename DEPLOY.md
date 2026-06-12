@@ -7,7 +7,32 @@
 - **Redis** (opsional, untuk caching & rate limiting)
 - **PM2** (opsional, untuk production process manager)
 
-## Deployment (6 Langkah)
+---
+
+## ⚡ Cara Cepat (1 perintah)
+
+Setelah `.env` diisi (lihat langkah 1 di bawah), cukup jalankan **satu perintah** ini:
+
+```bash
+npm run setup      # = install + buat tabel + seed data inti + build
+```
+
+Lalu jalankan aplikasinya:
+
+```bash
+npm start          # atau: pm2 start start.js --name e-posyandu
+```
+
+`npm run setup` otomatis: install dependencies → `prisma db push` → seed wilayah →
+seed data inti (user/OPD/layanan/counter, **tanpa** dummy pengajuan/balita/ATS) →
+build produksi. Skrip akan berhenti dengan pesan jelas jika `.env`/`DATABASE_URL`
+belum diisi.
+
+> Langkah manual di bawah hanya diperlukan kalau ingin menjalankan tiap tahap terpisah.
+
+---
+
+## Deployment Manual (per langkah)
 
 ### 1. Siapkan Environment
 

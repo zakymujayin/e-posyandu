@@ -15,6 +15,7 @@
     "db:seed-production": "tsx prisma/seed-production.ts",
     "db:setup": "prisma db push && tsx prisma/seed-wilayah.ts && tsx prisma/seed-production.ts",
     "db:export-users": "tsx prisma/export-users.ts",
+    "setup": "bash setup.sh",
     "postinstall": "prisma generate"
   },
   "dependencies": {
