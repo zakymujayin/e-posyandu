@@ -14,8 +14,8 @@ if [ ! -f .env ] && [ ! -f .env.local ]; then
   exit 1
 fi
 
-# 2. Pastikan DATABASE_URL terisi
-if ! cat .env .env.local 2>/dev/null | grep -qE '^DATABASE_URL=.+'; then
+# 2. Pastikan DATABASE_URL terisi (grep -qs: aman walau salah satu file tak ada)
+if ! grep -qsE '^DATABASE_URL=.+' .env .env.local; then
   echo "❌ DATABASE_URL belum diisi di .env / .env.local"
   exit 1
 fi
