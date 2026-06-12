@@ -2,7 +2,6 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { AppSettingsManager } from "@/components/admin/master/app-settings-manager"
-import { defaultSlides } from "@/components/shared/ibu-bupati-slider"
 import { PageHeader } from "@/components/shared/page-header"
 import { PageContainer } from "@/components/layout/page-container"
 
@@ -22,9 +21,6 @@ export default async function PengaturanPage() {
       sliderPhotos = []
     }
   }
-  // Belum pernah diatur → tampilkan foto default (Ibu PKK) agar tetap terkelola
-  // saat admin menambah foto lain, bukan hilang tergantikan.
-  if (sliderPhotos.length === 0) sliderPhotos = defaultSlides
 
   return (
     <PageContainer className="space-y-6">

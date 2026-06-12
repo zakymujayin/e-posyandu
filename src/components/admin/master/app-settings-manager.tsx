@@ -29,6 +29,56 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Prop
   const [sliderSaving, setSliderSaving] = useState(false)
   const sliderFileRef = useRef<HTMLInputElement>(null)
 
+  // Perkecil & kompres gambar di browser sebelum dikirim, agar ukurannya
+  // selalu kecil dan tidak ditolak batas upload server (yang bisa muncul
+  // sebagai "error html"). forceJpeg=true untuk foto slider (tak butuh
+  // transparansi); logo PNG dibiarkan PNG agar transparansi tetap terjaga.
+  async function compressImage(file: File, forceJpeg: boolean): Promise<File> {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) return file
+    try {
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const image = new window.Image()
+        image.onload = () => resolve(image)
+        image.onerror = reject
+        image.src = dataUrl
+      })
+
+      const maxDim = 1600
+      let { width, height } = img
+      if (Math.max(width, height) > maxDim) {
+        const scale = maxDim / Math.max(width, height)
+        width = Math.round(width * scale)
+        height = Math.round(height * scale)
+      }
+
+      const canvas = document.createElement("canvas")
+      canvas.width = width
+      canvas.height = height
+      const ctx = canvas.getContext("2d")
+      if (!ctx) return file
+      ctx.drawImage(img, 0, 0, width, height)
+
+      const keepPng = file.type === "image/png" && !forceJpeg
+      const outType = keepPng ? "image/png" : "image/jpeg"
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, outType, outType === "image/jpeg" ? 0.82 : undefined),
+      )
+      if (!blob || blob.size >= file.size) return file
+
+      const ext = outType === "image/jpeg" ? "jpg" : "png"
+      const name = file.name.replace(/\.[^.]+$/, "") + "." + ext
+      return new File([blob], name, { type: outType })
+    } catch {
+      return file
+    }
+  }
+
   async function uploadImage(file: File): Promise<string> {
     const fd = new FormData()
     fd.append("file", file)
@@ -53,7 +103,7 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Prop
 
     setUploading(true)
     try {
-      const url = await uploadImage(file)
+      const url = await uploadImage(await compressImage(file, false))
 
       const saveRes = await fetch("/api/admin/settings", {
         method: "PATCH",
@@ -113,7 +163,7 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Prop
 
     setSliderUploading(true)
     try {
-      const url = await uploadImage(file)
+      const url = await uploadImage(await compressImage(file, true))
       const updated = [...sliderPhotos, { url, alt: "", caption: "" }]
       setSliderPhotos(updated)
       await saveSlider(updated)
@@ -215,8 +265,9 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Prop
         <div>
           <h2 className="text-sm font-semibold text-gray-700">Slider Foto Landing Page</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Foto akan ditampilkan sebagai slider di halaman utama. Isi deskripsi tiap foto sebagai keterangan
-            yang tampil di bawah foto. Urutan dapat diatur dengan tombol panah. Format: PNG, JPG, WebP. Maks 5MB per foto.
+            Foto Ibu Ketua TP PKK selalu tampil paling depan secara otomatis. Foto yang Anda tambahkan di bawah
+            ini akan tampil setelahnya. Isi deskripsi tiap foto sebagai keterangan di bawah foto. Urutan dapat
+            diatur dengan tombol panah. Format: PNG, JPG, WebP. Maks 5MB per foto.
           </p>
         </div>
 

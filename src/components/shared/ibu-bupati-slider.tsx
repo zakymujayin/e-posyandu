@@ -62,7 +62,9 @@ function SlideImage({ slide, isHero, priority }: { slide: Slide; isHero: boolean
 }
 
 export function IbuBupatiSlider({ variant, slides: slidesProp, className }: IbuBupatiSliderProps) {
-  const slides = slidesProp?.length ? slidesProp : defaultSlides
+  // Foto default (Ibu Ketua TP PKK) selalu tampil paling depan, lalu diikuti
+  // foto tambahan dari admin — agar tidak pernah tertimpa/hilang.
+  const slides = [...defaultSlides, ...(slidesProp ?? [])]
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: slides.length > 1 },
