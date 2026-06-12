@@ -19,7 +19,7 @@ interface IbuBupatiSliderProps {
   className?: string
 }
 
-const defaultSlides: Slide[] = [
+export const defaultSlides: Slide[] = [
   {
     url: "/images/ibu-bupati.png",
     alt: "Ketua Tim Penggerak (TP) PKK sekaligus Ketua Tim Pembina Posyandu Kabupaten Lebak",

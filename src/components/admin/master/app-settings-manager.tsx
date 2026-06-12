@@ -29,20 +29,31 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Prop
   const [sliderSaving, setSliderSaving] = useState(false)
   const sliderFileRef = useRef<HTMLInputElement>(null)
 
+  async function uploadImage(file: File): Promise<string> {
+    const fd = new FormData()
+    fd.append("file", file)
+    const res = await fetch("/api/upload", { method: "POST", body: fd })
+    if (!res.ok) {
+      if (res.status === 413) throw new Error("Ukuran foto terlalu besar (maksimal 5MB).")
+      let msg = "Upload gagal"
+      try {
+        msg = (await res.json()).error ?? msg
+      } catch {
+        // respons bukan JSON (mis. halaman error proxy) — pakai pesan default
+      }
+      throw new Error(msg)
+    }
+    const json = await res.json()
+    return json.data.url as string
+  }
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
 
     setUploading(true)
     try {
-      const fd = new FormData()
-      fd.append("file", file)
-
-      const uploadRes = await fetch("/api/upload", { method: "POST", body: fd })
-      const uploadJson = await uploadRes.json()
-      if (!uploadRes.ok) throw new Error(uploadJson.error ?? "Upload gagal")
-
-      const url: string = uploadJson.data.url
+      const url = await uploadImage(file)
 
       const saveRes = await fetch("/api/admin/settings", {
         method: "PATCH",
@@ -102,14 +113,7 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Prop
 
     setSliderUploading(true)
     try {
-      const fd = new FormData()
-      fd.append("file", file)
-
-      const uploadRes = await fetch("/api/upload", { method: "POST", body: fd })
-      const uploadJson = await uploadRes.json()
-      if (!uploadRes.ok) throw new Error(uploadJson.error ?? "Upload gagal")
-
-      const url: string = uploadJson.data.url
+      const url = await uploadImage(file)
       const updated = [...sliderPhotos, { url, alt: "", caption: "" }]
       setSliderPhotos(updated)
       await saveSlider(updated)
