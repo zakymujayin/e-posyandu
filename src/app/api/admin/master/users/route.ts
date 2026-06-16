@@ -101,7 +101,14 @@ export async function POST(req: Request) {
       kecamatanId: resolvedKecamatanId ?? inputKecId ?? null,
       noRegistrasi,
     },
-    select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true },
+    select: {
+      id: true, name: true, email: true, username: true, role: true,
+      isActive: true, createdAt: true, lastLoginAt: true,
+      desa: { select: { name: true, kecamatan: { select: { name: true } } } },
+      kecamatan: { select: { name: true } },
+      opd: { select: { name: true } },
+      posyandu: { select: { name: true, desa: { select: { name: true, kecamatan: { select: { name: true } } } } } },
+    },
   })
   return ok(newUser, "Pengguna berhasil ditambahkan")
 }

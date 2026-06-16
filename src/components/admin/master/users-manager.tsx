@@ -117,7 +117,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
         setUsers((prev) => prev.map((u) => u.id === editing.id ? { ...u, ...data.data } : u))
         toast.success("Pengguna diperbarui")
       } else {
-        setUsers((prev) => [{ ...data.data, desa: null, kecamatan: null, opd: null, posyandu: null }, ...prev])
+        setUsers((prev) => [data.data, ...prev])
         toast.success("Pengguna ditambahkan")
       }
       setShowForm(false)
