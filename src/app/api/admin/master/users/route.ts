@@ -36,6 +36,7 @@ export async function GET(req: Request) {
     select: {
       id: true, name: true, email: true, username: true, role: true,
       isActive: true, createdAt: true, lastLoginAt: true,
+      desaId: true, kecamatanId: true, opdId: true, posyanduId: true,
       desa: { select: { name: true, kecamatan: { select: { name: true } } } },
       kecamatan: { select: { name: true } },
       opd: { select: { name: true } },
@@ -104,6 +105,7 @@ export async function POST(req: Request) {
     select: {
       id: true, name: true, email: true, username: true, role: true,
       isActive: true, createdAt: true, lastLoginAt: true,
+      desaId: true, kecamatanId: true, opdId: true, posyanduId: true,
       desa: { select: { name: true, kecamatan: { select: { name: true } } } },
       kecamatan: { select: { name: true } },
       opd: { select: { name: true } },

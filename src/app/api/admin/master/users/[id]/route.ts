@@ -26,10 +26,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const existing = await prisma.user.findUnique({ where: { id } })
   if (!existing) return err("Pengguna tidak ditemukan", 404)
 
+  const WILAYAH_KEYS = ["desaId", "kecamatanId", "opdId", "posyanduId"]
   const { password, ...rest } = parsed.data
   const data: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(rest)) {
-    if (value !== null && value !== undefined) {
+    if (WILAYAH_KEYS.includes(key)) {
+      data[key] = value ?? null
+    } else if (value !== null && value !== undefined) {
       data[key] = value
     }
   }
@@ -38,7 +41,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const updated = await prisma.user.update({
     where: { id },
     data,
-    select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true, lastLoginAt: true },
+    select: {
+      id: true, name: true, email: true, username: true, role: true,
+      isActive: true, createdAt: true, lastLoginAt: true,
+      desaId: true, kecamatanId: true, opdId: true, posyanduId: true,
+      desa: { select: { name: true, kecamatan: { select: { name: true } } } },
+      kecamatan: { select: { name: true } },
+      opd: { select: { name: true } },
+      posyandu: { select: { name: true, desa: { select: { name: true, kecamatan: { select: { name: true } } } } } },
+    },
   })
   return ok(updated, "Pengguna diperbarui")
 }

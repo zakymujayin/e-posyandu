@@ -35,6 +35,10 @@ interface User {
   isActive: boolean
   createdAt: Date | string
   lastLoginAt: Date | string | null
+  desaId?: string | null
+  kecamatanId?: string | null
+  opdId?: string | null
+  posyanduId?: string | null
   desa: { name: string; kecamatan: { name: string } } | null
   kecamatan: { name: string } | null
   opd: { name: string } | null
@@ -86,7 +90,15 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
 
   function openEdit(u: User) {
     setEditing(u)
-    setForm({ ...emptyForm, name: u.name, role: u.role, phone: "" })
+    setForm({
+      ...emptyForm,
+      name: u.name,
+      role: u.role,
+      desaId: u.desaId ?? "",
+      kecamatanId: u.kecamatanId ?? "",
+      opdId: u.opdId ?? "",
+      posyanduId: u.posyanduId ?? "",
+    })
     setShowForm(true)
   }
 
