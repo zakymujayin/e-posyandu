@@ -28,20 +28,20 @@ const ROLE_LABELS: Record<ImportRole, string> = {
 
 const TEMPLATES: Record<ImportRole, { headers: string[]; example: string[] }> = {
   POSYANDU: {
-    headers: ["nama_posyandu", "email", "password", "desa_id"],
-    example: ["Posyandu Melati", "melati001@example.com", "password123", "uuid-desa"],
+    headers: ["nama_posyandu", "username", "email", "password", "desa_id"],
+    example: ["Posyandu Melati", "posyandu_melati", "melati001@example.com", "password123", "uuid-desa"],
   },
   PETUGAS_DESA: {
-    headers: ["nama", "email", "password", "desa_id"],
-    example: ["Ahmad Fauzi", "ahmad@example.com", "password123", "uuid-desa"],
+    headers: ["nama", "username", "email", "password", "desa_id"],
+    example: ["Ahmad Fauzi", "ahmad_fauzi", "ahmad@example.com", "password123", "uuid-desa"],
   },
   PETUGAS_KECAMATAN: {
-    headers: ["nama", "email", "password", "kecamatan_id"],
-    example: ["Budi Santoso", "budi@example.com", "password123", "uuid-kecamatan"],
+    headers: ["nama", "username", "email", "password", "kecamatan_id"],
+    example: ["Budi Santoso", "budi_santoso", "budi@example.com", "password123", "uuid-kecamatan"],
   },
   PETUGAS_OPD: {
-    headers: ["nama", "email", "password", "opd_id"],
-    example: ["Dewi Kusuma", "dewi@example.com", "password123", "uuid-opd"],
+    headers: ["nama", "username", "email", "password", "opd_id"],
+    example: ["Dewi Kusuma", "dewi_kusuma", "dewi@example.com", "password123", "uuid-opd"],
   },
 }
 

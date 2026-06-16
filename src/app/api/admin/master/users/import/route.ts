@@ -9,6 +9,7 @@ type ImportRole = (typeof VALID_ROLES)[number]
 interface CsvRow {
   nama_posyandu?: string
   nama?: string
+  username?: string
   email: string
   password: string
   posyandu_id?: string
@@ -31,12 +32,15 @@ export async function POST(req: Request) {
 
     const results: { row: number; status: "ok" | "error"; email: string; message?: string }[] = []
 
-    // Ambil semua email yang sudah ada di DB
-    const existingEmails = new Set(
-      (await prisma.user.findMany({ select: { email: true } })).map((u) => u.email)
+    // Ambil semua email & username yang sudah ada di DB
+    const existingUsers = await prisma.user.findMany({ select: { email: true, username: true } })
+    const existingEmails = new Set(existingUsers.map((u) => u.email))
+    const existingUsernames = new Set(
+      existingUsers.map((u) => u.username).filter((u): u is string => !!u)
     )
-    // Track email dalam file (untuk deteksi duplikat dalam CSV)
+    // Track email & username dalam file (untuk deteksi duplikat dalam CSV)
     const seenEmails = new Set<string>()
+    const seenUsernames = new Set<string>()
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]
@@ -56,12 +60,27 @@ export async function POST(req: Request) {
         results.push({ row: rowNum, status: "error", email: row.email, message: "Password wajib diisi" })
         continue
       }
+      if (row.password.trim().length < 8) {
+        results.push({ row: rowNum, status: "error", email: row.email, message: "Password minimal 8 karakter" })
+        continue
+      }
 
       const email = row.email.trim().toLowerCase()
+      const username = row.username?.trim().toLowerCase() ?? ""
 
       // Validasi format email
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         results.push({ row: rowNum, status: "error", email, message: "Format email tidak valid" })
+        continue
+      }
+
+      // Validasi username
+      if (!username) {
+        results.push({ row: rowNum, status: "error", email, message: "Username wajib diisi" })
+        continue
+      }
+      if (username.length < 3 || !/^[a-z0-9_]+$/.test(username)) {
+        results.push({ row: rowNum, status: "error", email, message: "Username minimal 3 karakter (huruf kecil, angka, underscore)" })
         continue
       }
 
@@ -70,11 +89,20 @@ export async function POST(req: Request) {
         results.push({ row: rowNum, status: "error", email, message: "Email duplikat dalam file CSV" })
         continue
       }
+      if (seenUsernames.has(username)) {
+        results.push({ row: rowNum, status: "error", email, message: `Username "${username}" duplikat dalam file CSV` })
+        continue
+      }
       seenEmails.add(email)
+      seenUsernames.add(username)
 
       // Cek duplikat di database
       if (existingEmails.has(email)) {
         results.push({ row: rowNum, status: "error", email, message: "Email sudah terdaftar di sistem" })
+        continue
+      }
+      if (existingUsernames.has(username)) {
+        results.push({ row: rowNum, status: "error", email, message: `Username "${username}" sudah digunakan` })
         continue
       }
 
@@ -154,6 +182,7 @@ export async function POST(req: Request) {
       await prisma.user.create({
         data: {
           name: rowNama,
+          username: row.username!.trim().toLowerCase(),
           email: row.email.trim().toLowerCase(),
           password: hashed,
           role,
