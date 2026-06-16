@@ -1,11 +1,19 @@
 import { prisma } from "@/lib/prisma"
 import { ok, err } from "@/lib/api-helpers"
+import { rateLimit } from "@/lib/cache"
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ tiketNumber: string }> }
 ) {
   const { tiketNumber } = await params
+
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("x-real-ip") ||
+    "unknown"
+  const allowed = await rateLimit(`rl:tracking:${ip}`, 20, 60)
+  if (!allowed) return err("Terlalu banyak permintaan. Coba lagi nanti.", 429)
 
   try {
     const pengajuan = await prisma.pengajuan.findUnique({

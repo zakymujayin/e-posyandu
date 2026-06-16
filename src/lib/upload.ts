@@ -9,6 +9,19 @@ export interface UploadResult {
   size: number
 }
 
+const EXT_BY_MIME: Record<string, string> = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+  "application/pdf": ".pdf",
+}
+
+function safeBaseName(fileName: string): string {
+  const raw = path.basename(fileName, path.extname(fileName))
+  const cleaned = raw.replace(/[^a-zA-Z0-9-_]+/g, "-").replace(/^-+|-+$/g, "")
+  return cleaned.slice(0, 60) || "file"
+}
+
 async function uploadLocal(file: File): Promise<UploadResult> {
   const bytes = await file.arrayBuffer()
   const buffer = Buffer.from(bytes)
@@ -16,9 +29,9 @@ async function uploadLocal(file: File): Promise<UploadResult> {
   const uploadDir = path.join(process.cwd(), "public", "uploads")
   await mkdir(uploadDir, { recursive: true })
 
-  const ext = path.extname(file.name)
-  const base = path.basename(file.name, ext)
-  const safeName = `${base}-${Date.now()}${ext}`
+  const ext = EXT_BY_MIME[file.type] ?? ""
+  const base = safeBaseName(file.name)
+  const safeName = `${base}-${Date.now()}-${crypto.randomBytes(4).toString("hex")}${ext}`
   const filePath = path.join(uploadDir, safeName)
 
   await writeFile(filePath, buffer)

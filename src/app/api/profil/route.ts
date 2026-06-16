@@ -31,7 +31,7 @@ export async function PATCH(req: Request) {
 
   if (newPassword) {
     if (!currentPassword) return err("Password lama wajib diisi", 400)
-    if (newPassword.length < 6) return err("Password baru minimal 6 karakter", 400)
+    if (newPassword.length < 8) return err("Password baru minimal 8 karakter", 400)
 
     const dbUser = await prisma.user.findUnique({ where: { id: user.id } })
     if (!dbUser) return err("User tidak ditemukan", 404)

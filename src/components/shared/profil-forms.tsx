@@ -46,8 +46,8 @@ export function ProfilForms({ initialName, initialEmail }: { initialName: string
       toast.error("Password lama wajib diisi")
       return
     }
-    if (pw.new.length < 6) {
-      toast.error("Password baru minimal 6 karakter")
+    if (pw.new.length < 8) {
+      toast.error("Password baru minimal 8 karakter")
       return
     }
     if (pw.new !== pw.confirm) {
@@ -127,7 +127,7 @@ export function ProfilForms({ initialName, initialEmail }: { initialName: string
                 value={pw[field]}
                 onChange={(e) => setPw((p) => ({ ...p, [field]: e.target.value }))}
                 required
-                minLength={field === "current" ? 1 : 6}
+                minLength={field === "current" ? 1 : 8}
                 className="w-full h-9 rounded-lg border border-gray-200 pr-9 pl-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
