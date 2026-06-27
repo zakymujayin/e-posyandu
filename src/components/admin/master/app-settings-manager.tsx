@@ -142,16 +142,28 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Prop
     }
   }
 
+  const sliderPhotosRef = useRef(sliderPhotos)
+  sliderPhotosRef.current = sliderPhotos
+
   async function saveSlider(photos: SlidePhoto[]) {
     setSliderSaving(true)
     try {
-      await fetch("/api/admin/settings", {
+      const res = await fetch("/api/admin/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ key: "slider_photos", value: JSON.stringify(photos) }),
       })
-    } catch {
-      toast.error("Gagal menyimpan slider")
+      if (!res.ok) {
+        let msg = "Gagal menyimpan slider"
+        try {
+          msg = (await res.json()).error ?? msg
+        } catch {
+          // respons bukan JSON
+        }
+        throw new Error(msg)
+      }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Gagal menyimpan slider")
     } finally {
       setSliderSaving(false)
     }
@@ -282,7 +294,7 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Prop
                   type="text"
                   value={photo.caption ?? ""}
                   onChange={(e) => handleCaptionChange(i, e.target.value)}
-                  onBlur={() => saveSlider(sliderPhotos)}
+                  onBlur={() => saveSlider(sliderPhotosRef.current)}
                   placeholder={`Deskripsi Foto ${i + 1}`}
                   disabled={sliderSaving}
                   className="w-full text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 disabled:opacity-60"

@@ -239,7 +239,7 @@ async function main() {
     where: { code: "POS_NAMENG_1" },
     update: {},
     create: {
-      id: "2c532614-35c9-4dde-92ad-c6a384665c51",
+      id: "8ff15378-1304-4d2d-a358-49d6ded3c330",
       name: "Posyandu Nameng",
       code: "POS_NAMENG_1",
       desaId: desaNameng.id,
@@ -250,7 +250,7 @@ async function main() {
     where: { email: "posyandu-nameng@example.com" },
     update: { username: "posyandu-nameng", name: "Posyandu Nameng" },
     create: {
-      id: "b71ddd56-615a-46b8-8b82-c03b4484f13f",
+      id: "35478aa1-6e84-48e0-9e74-86a0707dd372",
       name: "Posyandu Nameng",
       email: "posyandu-nameng@example.com",
       username: "posyandu-nameng",
