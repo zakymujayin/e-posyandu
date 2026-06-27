@@ -69,7 +69,8 @@ deploy/
 .env*.backup
 
 # local uploads (dev/test only)
-public/uploads/
+public/uploads/*
+!public/uploads/.gitkeep
 
 # pm2 logs
 logs/

@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Eye, EyeOff, Loader2, Landmark, CheckCircle, ShieldAlert } from "lucide-react"
+import { Eye, EyeOff, Loader2, Landmark, CheckCircle, ShieldAlert, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -23,6 +23,8 @@ import {
 const loginSchema = z.object({
   username: z.string().min(1, "Username wajib diisi"),
   password: z.string().min(1, "Password wajib diisi"),
+  captchaToken: z.string().min(1, "Kode keamanan tidak ditemukan"),
+  captchaAnswer: z.string().min(1, "Kode keamanan wajib diisi"),
 })
 
 type LoginForm = z.infer<typeof loginSchema>
@@ -35,24 +37,54 @@ export default function LoginForm({ logoUrl }: Props) {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [captcha, setCaptcha] = useState<{ token: string; question: string } | null>(null)
+  const [captchaKey, setCaptchaKey] = useState(0)
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setValue,
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
   })
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("/api/captcha")
+        if (!res.ok) return
+        const data = await res.json()
+        setCaptcha(data)
+        setValue("captchaToken", data.token)
+        setValue("captchaAnswer", "")
+      } catch {
+        // silent fail
+      }
+    }
+    load()
+  }, [captchaKey, setValue])
+
+  const fetchCaptcha = () => {
+    setCaptchaKey((k) => k + 1)
+  }
 
   const onSubmit = async (data: LoginForm) => {
     setError(null)
     const result = await signIn("credentials", {
       username: data.username,
       password: data.password,
+      captchaToken: data.captchaToken,
+      captchaAnswer: data.captchaAnswer,
       redirect: false,
     })
 
     if (result?.error) {
+      fetchCaptcha()
+      if (result.code === "captcha_invalid") {
+        setError("Kode keamanan tidak valid. Silakan periksa kembali jawaban Anda.")
+        return
+      }
       if (result.code?.startsWith("lockout:")) {
         const minutes = result.code.split(":")[1]
         setError(`Terlalu banyak percobaan. Coba lagi dalam ${minutes} menit.`)
@@ -176,6 +208,7 @@ export default function LoginForm({ logoUrl }: Props) {
           </CardHeader>
           <CardContent className="pb-8">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <input type="hidden" {...register("captchaToken")} />
               {error && (
                 <Alert variant="destructive" className="py-3 animate-in fade-in duration-300">
                   <ShieldAlert className="size-4" />
@@ -227,6 +260,47 @@ export default function LoginForm({ logoUrl }: Props) {
                 {errors.password && (
                   <p className="text-xs font-medium text-destructive mt-1">
                     {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="captcha" className="text-[13px] font-semibold text-slate-700">
+                  Kode Keamanan
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="captcha"
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="Jawaban"
+                    autoComplete="off"
+                    className="rounded-xl border-slate-200 bg-white focus:ring-primary focus:border-primary"
+                    {...register("captchaAnswer")}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="shrink-0 rounded-xl"
+                    onClick={fetchCaptcha}
+                  >
+                    <RefreshCw className="size-4" />
+                  </Button>
+                </div>
+                {captcha?.question && (
+                  <p className="text-xs text-muted-foreground">
+                    Jawab: <strong className="text-foreground">{captcha.question}</strong>
+                  </p>
+                )}
+                {errors.captchaAnswer && (
+                  <p className="text-xs font-medium text-destructive mt-1">
+                    {errors.captchaAnswer.message}
+                  </p>
+                )}
+                {errors.captchaToken && (
+                  <p className="text-xs font-medium text-destructive mt-1">
+                    {errors.captchaToken.message}
                   </p>
                 )}
               </div>

@@ -3,8 +3,16 @@ import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 import { rateLimit } from "@/lib/cache"
+import { redis } from "@/lib/redis"
 import { authConfig } from "./auth.config"
 import type { UserRole } from "@/types/next-auth"
+
+class CaptchaError extends CredentialsSignin {
+  constructor() {
+    super()
+    this.code = "captcha_invalid"
+  }
+}
 
 class LockoutError extends CredentialsSignin {
   constructor(minutesLeft: number) {
@@ -27,10 +35,33 @@ const nextAuth = NextAuth({
       credentials: {
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
+        captchaToken: { label: "Captcha Token", type: "text" },
+        captchaAnswer: { label: "Captcha Answer", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) {
           throw new CredentialsSignin()
+        }
+
+        const captchaToken = credentials?.captchaToken as string | undefined
+        const captchaAnswer = credentials?.captchaAnswer as string | undefined
+
+        if (!captchaToken || !captchaAnswer) {
+          throw new CaptchaError()
+        }
+
+        try {
+          const key = `captcha:${captchaToken}`
+          const expected = await redis.get(key)
+          if (expected) {
+            await redis.del(key)
+          }
+          if (!expected || expected !== captchaAnswer) {
+            throw new CaptchaError()
+          }
+        } catch (e) {
+          if (e instanceof CredentialsSignin) throw e
+          console.warn("[auth] Redis unavailable — captcha skipped")
         }
 
         const username = (credentials.username as string).trim().toLowerCase()
