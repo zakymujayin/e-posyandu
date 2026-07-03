@@ -57,6 +57,7 @@ export function WilayahManager({
   const [kecForm, setKecForm] = useState({ name: "", code: "" })
   const [desaForm, setDesaForm] = useState({ kecamatanId: "", name: "", code: "" })
   const [posyanduForm, setPosyanduForm] = useState({ desaId: "", name: "", code: "" })
+  const [posyanduKecId, setPosyanduKecId] = useState("")
   const [loading, setLoading] = useState(false)
 
   // Edit/delete state
@@ -251,6 +252,7 @@ export function WilayahManager({
       if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
       setPosyandus((prev) => [...prev, data.data])
       setPosyanduForm({ desaId: "", name: "", code: "" })
+      setPosyanduKecId("")
       setShowPosyandu(false)
       toast.success("Posyandu berhasil ditambahkan")
     } finally {
@@ -557,7 +559,11 @@ export function WilayahManager({
                 <Upload className="w-4 h-4" /> Import CSV
               </Button>
               <Button
-                onClick={() => setShowPosyandu(true)}
+                onClick={() => {
+                  setPosyanduForm({ desaId: "", name: "", code: "" })
+                  setPosyanduKecId("")
+                  setShowPosyandu(true)
+                }}
                 size="sm"
                 className="font-bold text-xs gap-1.5 flex-1 sm:flex-none"
               >
@@ -572,7 +578,22 @@ export function WilayahManager({
                 title="Tambah Posyandu Baru"
                 description="Daftarkan unit posyandu ke desa terkait."
               >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-1.5">
+                    <FormLabel>Kecamatan <span className="text-destructive">*</span></FormLabel>
+                    <select
+                      value={posyanduKecId}
+                      onChange={(e) => {
+                        setPosyanduKecId(e.target.value)
+                        setPosyanduForm((f) => ({ ...f, desaId: "" }))
+                      }}
+                      className="w-full border border-border/80 rounded-lg px-3 py-2 text-[15px] xl:text-[16px] bg-card font-normal focus:outline-none focus:border-primary text-foreground"
+                      required
+                    >
+                      <option value="">Pilih Kecamatan</option>
+                      {kecamatans.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
+                    </select>
+                  </div>
                   <div className="space-y-1.5">
                     <FormLabel>Desa Induk <span className="text-destructive">*</span></FormLabel>
                     <select
@@ -582,7 +603,9 @@ export function WilayahManager({
                       required
                     >
                       <option value="">Pilih Desa</option>
-                      {desas.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                      {desas
+                        .filter((d) => d.kecamatanId === posyanduKecId)
+                        .map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
                     </select>
                   </div>
                   <div className="space-y-1.5">
@@ -610,7 +633,11 @@ export function WilayahManager({
                   <Button type="submit" size="sm" disabled={loading} className="font-bold text-xs gap-1">
                     <Check className="w-3.5 h-3.5" /> Simpan
                   </Button>
-                  <Button type="button" variant="outline" size="sm" onClick={() => setShowPosyandu(false)} className="font-bold text-xs gap-1">
+                  <Button type="button" variant="outline" size="sm" onClick={() => {
+                    setPosyanduForm({ desaId: "", name: "", code: "" })
+                    setPosyanduKecId("")
+                    setShowPosyandu(false)
+                  }} className="font-bold text-xs gap-1">
                     <X className="w-3.5 h-3.5" /> Batal
                   </Button>
                 </div>
