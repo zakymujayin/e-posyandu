@@ -14,10 +14,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Terlalu banyak permintaan" }, { status: 429 })
   }
 
-  const a = Math.floor(Math.random() * 25) + 1
-  const b = Math.floor(Math.random() * 25) + 1
-  const op = Math.random() < 0.5 ? "+" : "\u00d7"
-  const answer = String(op === "+" ? a + b : a * b)
+  const a = Math.floor(Math.random() * 15) + 1
+  const b = Math.floor(Math.random() * 15) + 1
+  const answer = String(a + b)
 
   const token = crypto.randomBytes(8).toString("hex")
 
@@ -29,6 +28,6 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     token,
-    question: `${a} ${op} ${b} = ?`,
+    question: `${a} + ${b} = ?`,
   })
 }

@@ -7,16 +7,16 @@ export async function PATCH(req: Request) {
   if (!user) return response!
 
   const body = await req.json()
-  const { name, email, currentPassword, newPassword } = body as {
-    name: string
+  const { email, currentPassword, newPassword } = body as {
     email?: string
     currentPassword?: string
     newPassword?: string
   }
+  let { name } = body as { name: string }
 
   if (!name?.trim()) return err("Nama tidak boleh kosong", 400)
   if (name.length > 100) return err("Nama maksimal 100 karakter", 400)
-  if (/[<>]/.test(name)) return err("Nama mengandung karakter tidak valid", 400)
+  name = name.replace(/[<>]/g, "")
 
   if (email !== undefined) {
     if (!email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
