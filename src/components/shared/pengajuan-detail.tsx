@@ -6,6 +6,12 @@ import { CardTitle, MutedText, SectionTitle } from "@/components/ui/typography"
 import { Paperclip, Video, AlertTriangle, MapPin } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+function safeUrl(url: string | null | undefined): string {
+  if (!url) return "#"
+  if (/^(javascript|data):/i.test(url)) return "#"
+  return url
+}
+
 const ROLE_LABELS: Record<string, string> = {
   POSYANDU: "Posyandu",
   PETUGAS_DESA: "Petugas Desa",
@@ -246,7 +252,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
               att.attachmentType === "FILE" ? (
                 <a
                   key={att.id}
-                  href={att.filePath ?? "#"}
+                  href={safeUrl(att.filePath)}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border/60 bg-muted/20 hover:border-primary/30 hover:bg-muted/40 transition-all text-xs md:text-sm font-semibold text-primary"
@@ -260,7 +266,7 @@ export function PengajuanDetail({ pengajuan, sopInfo }: PengajuanDetailProps) {
               ) : (
                 <a
                   key={att.id}
-                  href={att.videoUrl ?? "#"}
+                  href={safeUrl(att.videoUrl)}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border/60 bg-muted/20 hover:border-primary/30 hover:bg-muted/40 transition-all text-xs md:text-sm font-semibold text-primary"

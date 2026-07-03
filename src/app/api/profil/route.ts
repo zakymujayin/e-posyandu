@@ -15,6 +15,8 @@ export async function PATCH(req: Request) {
   }
 
   if (!name?.trim()) return err("Nama tidak boleh kosong", 400)
+  if (name.length > 100) return err("Nama maksimal 100 karakter", 400)
+  if (/[<>]/.test(name)) return err("Nama mengandung karakter tidak valid", 400)
 
   if (email !== undefined) {
     if (!email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {

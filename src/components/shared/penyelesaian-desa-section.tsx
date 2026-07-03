@@ -3,6 +3,12 @@ import { id as localeId } from "date-fns/locale"
 import { CheckCircle2, FileText } from "lucide-react"
 import { CardTitle, MutedText, BodyText } from "@/components/ui/typography"
 
+function safeUrl(url: string | null | undefined): string {
+  if (!url) return "#"
+  if (/^(javascript|data):/i.test(url)) return "#"
+  return url
+}
+
 interface Attachment {
   id: string
   attachmentType: string
@@ -89,7 +95,7 @@ export function PenyelesaianDesaSection({ selesaiOleh, verifikasiDesa, verifikas
               >
                 <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
                 <a
-                  href={att.filePath ?? "#"}
+                  href={safeUrl(att.filePath)}
                   target="_blank"
                   rel="noreferrer"
                   className="text-primary hover:underline truncate"

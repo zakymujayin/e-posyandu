@@ -1,5 +1,9 @@
 import nodemailer from "nodemailer"
 
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
+}
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST ?? "smtp.resend.com",
   port: Number(process.env.SMTP_PORT ?? 587),
@@ -35,8 +39,8 @@ export async function sendStatusChangeEmail(
     to,
     subject: `[E-Posyandu] Status Pengajuan ${tiketNumber} — ${statusLabel}`,
     html: `
-      <p>Halo <strong>${name}</strong>,</p>
-      <p>Status pengajuan <strong>${tiketNumber}</strong> telah diperbarui menjadi: <strong>${statusLabel}</strong></p>
+      <p>Halo <strong>${escapeHtml(name)}</strong>,</p>
+      <p>Status pengajuan <strong>${escapeHtml(tiketNumber)}</strong> telah diperbarui menjadi: <strong>${escapeHtml(statusLabel)}</strong></p>
       <p><a href="${link}" style="color:#2563eb">Lihat detail pengajuan →</a></p>
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0"/>
       <p style="color:#9ca3af;font-size:12px">E-Posyandu — DPMD Kabupaten Lebak</p>
@@ -56,8 +60,8 @@ export async function sendNewPengajuanEmail(
     to,
     subject: `[E-Posyandu] Pengajuan Baru Menunggu Verifikasi — ${tiketNumber}`,
     html: `
-      <p>Halo <strong>${officerName}</strong>,</p>
-      <p>Pengajuan baru <strong>${tiketNumber}</strong> dari posyandu <strong>${kaderName}</strong> sedang menunggu verifikasi.</p>
+      <p>Halo <strong>${escapeHtml(officerName)}</strong>,</p>
+      <p>Pengajuan baru <strong>${escapeHtml(tiketNumber)}</strong> dari posyandu <strong>${escapeHtml(kaderName)}</strong> sedang menunggu verifikasi.</p>
       <p><a href="${appUrl}/petugas-desa/verifikasi" style="color:#2563eb">Buka halaman verifikasi →</a></p>
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0"/>
       <p style="color:#9ca3af;font-size:12px">E-Posyandu — DPMD Kabupaten Lebak</p>
@@ -79,8 +83,8 @@ export async function sendDeadlineReminderEmail(
     to,
     subject: `[E-Posyandu] Pengingat Deadline SOP — ${tiketNumber} (${daysLeft} hari lagi)`,
     html: `
-      <p>Halo <strong>${name}</strong>,</p>
-      <p>Pengajuan <strong>${tiketNumber}</strong> akan melewati deadline SOP dalam <strong>${daysLeft} hari</strong>.</p>
+      <p>Halo <strong>${escapeHtml(name)}</strong>,</p>
+      <p>Pengajuan <strong>${escapeHtml(tiketNumber)}</strong> akan melewati deadline SOP dalam <strong>${daysLeft} hari</strong>.</p>
       <p>Harap segera tindak lanjuti sebelum deadline terlewat.</p>
       <p><a href="${link}" style="color:#2563eb">Lihat pengajuan →</a></p>
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0"/>

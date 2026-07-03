@@ -61,7 +61,8 @@ const nextAuth = NextAuth({
           }
         } catch (e) {
           if (e instanceof CredentialsSignin) throw e
-          console.warn("[auth] Redis unavailable — captcha skipped")
+          console.error("[auth] Redis unavailable — captcha verification failed")
+          throw new CaptchaError()
         }
 
         const username = (credentials.username as string).trim().toLowerCase()

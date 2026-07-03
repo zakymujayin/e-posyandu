@@ -9,11 +9,17 @@ const schema = z.object({
   deskripsi: z.string().min(1, "Deskripsi wajib diisi").transform(stripHtml),
   attachments: z.array(z.object({
     attachmentType: z.enum(["FILE", "VIDEO_LINK"]),
-    filePath: z.string().optional(),
+    filePath: z.string().optional().refine(
+      p => !p || /^\/uploads\//.test(p) || /^https:\/\/res\.cloudinary\.com\//.test(p),
+      "filePath tidak valid"
+    ),
     fileName: z.string().optional(),
     fileSize: z.number().optional(),
     mimeType: z.string().optional(),
-    videoUrl: z.string().optional(),
+    videoUrl: z.string().optional().refine(
+      u => !u || /^https?:\/\//.test(u),
+      "videoUrl harus diawali https://"
+    ),
     videoPlatform: z.string().optional(),
   })).refine((arr) => arr.some((a) => a.attachmentType === "FILE"), "Wajib upload minimal 1 file bukti"),
 })

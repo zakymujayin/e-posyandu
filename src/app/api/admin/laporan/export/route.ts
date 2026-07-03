@@ -85,7 +85,12 @@ export async function GET(req: Request) {
   ])
 
   const csv = [headers, ...rows]
-    .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+    .map((row) => row.map((cell) => {
+      const s = String(cell)
+      const escaped = s.replace(/"/g, '""')
+      if (/^[=+\-@\t\r]/.test(s)) return `"'${escaped}"`
+      return `"${escaped}"`
+    }).join(","))
     .join("\n")
 
   const filename = `laporan-pengajuan-${format(new Date(), "yyyy-MM-dd")}.csv`

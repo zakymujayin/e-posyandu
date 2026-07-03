@@ -22,7 +22,13 @@ export async function GET() {
 
 const patchSchema = z.object({
   key: z.string().min(1),
-  value: z.string(),
+  value: z.string().superRefine((v, ctx) => {
+    if (v === "") return
+    if (v.startsWith("[") || v.startsWith("{")) return
+    try { new URL(v) } catch {
+      ctx.addIssue({ code: "custom", message: "URL tidak valid" })
+    }
+  }),
 })
 
 export async function PATCH(req: NextRequest) {

@@ -26,11 +26,17 @@ const createSchema = z.object({
   })).optional().default([]),
   attachments: z.array(z.object({
     attachmentType: z.enum(["FILE", "VIDEO_LINK"]),
-    filePath: z.string().optional(),
+    filePath: z.string().optional().refine(
+      p => !p || /^\/uploads\//.test(p) || /^https:\/\/res\.cloudinary\.com\//.test(p),
+      "filePath tidak valid"
+    ),
     fileName: z.string().optional(),
     fileSize: z.number().optional(),
     mimeType: z.string().optional(),
-    videoUrl: z.string().optional(),
+    videoUrl: z.string().optional().refine(
+      u => !u || /^https?:\/\//.test(u),
+      "videoUrl harus diawali https://"
+    ),
     videoPlatform: z.string().optional(),
   })).optional().default([]),
 })

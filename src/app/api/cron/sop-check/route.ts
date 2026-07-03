@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { timingSafeEqual } from "crypto"
 import { getRemainingWorkingDays } from "@/lib/working-days"
 import { sendDeadlineReminderEmail } from "@/lib/email"
 import { differenceInCalendarDays } from "date-fns"
@@ -11,7 +12,8 @@ export async function POST(req: Request) {
   const cronSecret = process.env.CRON_SECRET
   if (!cronSecret) return err("CRON_SECRET not configured", 500)
   const auth = req.headers.get("authorization")
-  if (auth !== `Bearer ${cronSecret}`) {
+  if (!auth?.startsWith("Bearer ") ||
+      !timingSafeEqual(Buffer.from(auth.slice(7)), Buffer.from(cronSecret))) {
     return err("Unauthorized", 401)
   }
 
