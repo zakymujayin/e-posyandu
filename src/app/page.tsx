@@ -59,11 +59,7 @@ export default async function RootPage() {
     <LandingPage
       logoUrl={logoUrl}
       sliderPhotos={sliderPhotos.length > 0 ? sliderPhotos : undefined}
-      bupatiPhoto={bupatiPhoto ?? {
-        url: "/images/ibu-bupati.png",
-        alt: "Ketua Tim Penggerak (TP) PKK sekaligus Ketua Tim Pembina Posyandu Kabupaten Lebak",
-        caption: "Ketua Tim Penggerak (TP) PKK sekaligus Ketua Tim Pembina Posyandu Kabupaten Lebak",
-      }}
+      bupatiPhoto={bupatiPhoto ?? undefined}
     />
   )
 }
