@@ -5,9 +5,10 @@ import { IbuBupatiSlider, type Slide } from "@/components/shared/ibu-bupati-slid
 
 interface Props {
   slides?: Slide[]
+  bupatiPhoto?: Slide
 }
 
-export function HeroSection({ slides }: Props) {
+export function HeroSection({ slides, bupatiPhoto }: Props) {
   return (
     <section className="relative overflow-hidden bg-slate-50 pt-16 pb-20 lg:pt-24 lg:pb-28">
       <div
@@ -85,7 +86,7 @@ export function HeroSection({ slides }: Props) {
           </div>
 
           <div className="hero-fade-d2 flex justify-center lg:justify-end">
-            <IbuBupatiSlider variant="hero" slides={slides} className="w-full" />
+            <IbuBupatiSlider variant="hero" slides={slides} defaultSlide={bupatiPhoto} className="w-full" />
           </div>
         </div>
       </div>

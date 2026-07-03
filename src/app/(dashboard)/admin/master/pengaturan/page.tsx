@@ -22,6 +22,16 @@ export default async function PengaturanPage() {
     }
   }
 
+  const bupatiSetting = await prisma.appSetting.findUnique({ where: { key: "bupati_photo" } })
+  let bupatiPhoto: { url: string; alt: string; caption?: string } | null = null
+  if (bupatiSetting?.value) {
+    try {
+      bupatiPhoto = JSON.parse(bupatiSetting.value)
+    } catch {
+      bupatiPhoto = null
+    }
+  }
+
   return (
     <PageContainer className="space-y-6">
       <PageHeader
@@ -30,7 +40,7 @@ export default async function PengaturanPage() {
         backHref="/admin/master"
       />
       <div className="max-w-xl">
-        <AppSettingsManager initialLogoUrl={logoUrl} initialSliderPhotos={sliderPhotos} />
+        <AppSettingsManager initialLogoUrl={logoUrl} initialSliderPhotos={sliderPhotos} initialBupatiPhoto={bupatiPhoto} />
       </div>
     </PageContainer>
   )

@@ -20,7 +20,7 @@ export default async function RootPage() {
     redirect(redirects[role] ?? "/login")
   }
 
-  const [logoUrl, sliderPhotos] = await Promise.all([
+  const [logoUrl, sliderPhotos, bupatiPhoto] = await Promise.all([
     withCache<string | null>(
       "app_setting:logo_url",
       3600,
@@ -42,7 +42,28 @@ export default async function RootPage() {
         }
       },
     ),
+    withCache<Slide | null>(
+      "app_setting:bupati_photo",
+      3600,
+      async () => {
+        const row = await prisma.appSetting.findUnique({ where: { key: "bupati_photo" } })
+        if (row?.value) {
+          try { return JSON.parse(row.value) as Slide } catch { /* fallback */ }
+        }
+        return null
+      },
+    ),
   ])
 
-  return <LandingPage logoUrl={logoUrl} sliderPhotos={sliderPhotos.length > 0 ? sliderPhotos : undefined} />
+  return (
+    <LandingPage
+      logoUrl={logoUrl}
+      sliderPhotos={sliderPhotos.length > 0 ? sliderPhotos : undefined}
+      bupatiPhoto={bupatiPhoto ?? {
+        url: "/images/ibu-bupati.png",
+        alt: "Ketua Tim Penggerak (TP) PKK sekaligus Ketua Tim Pembina Posyandu Kabupaten Lebak",
+        caption: "Ketua Tim Penggerak (TP) PKK sekaligus Ketua Tim Pembina Posyandu Kabupaten Lebak",
+      }}
+    />
+  )
 }

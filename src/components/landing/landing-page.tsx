@@ -9,14 +9,15 @@ import type { Slide } from "@/components/shared/ibu-bupati-slider"
 interface Props {
   logoUrl?: string | null
   sliderPhotos?: Slide[]
+  bupatiPhoto?: Slide
 }
 
-export function LandingPage({ logoUrl, sliderPhotos }: Props) {
+export function LandingPage({ logoUrl, sliderPhotos, bupatiPhoto }: Props) {
   return (
     <div className="min-h-screen flex flex-col">
       <LandingNavbar logoUrl={logoUrl} />
       <main id="main-content" className="flex-1">
-        <HeroSection slides={sliderPhotos} />
+        <HeroSection slides={sliderPhotos} bupatiPhoto={bupatiPhoto} />
         <FeaturesSection />
         <HowItWorksSection />
         <TicketCheckerSection />

@@ -16,16 +16,9 @@ export type Slide = {
 interface IbuBupatiSliderProps {
   variant: "hero" | "login"
   slides?: Slide[]
+  defaultSlide?: Slide
   className?: string
 }
-
-export const defaultSlides: Slide[] = [
-  {
-    url: "/images/ibu-bupati.png",
-    alt: "Ketua Tim Penggerak (TP) PKK sekaligus Ketua Tim Pembina Posyandu Kabupaten Lebak",
-    caption: "Ketua Tim Penggerak (TP) PKK sekaligus Ketua Tim Pembina Posyandu Kabupaten Lebak",
-  },
-]
 
 function SlideImage({ slide, isHero, priority }: { slide: Slide; isHero: boolean; priority: boolean }) {
   const [hasError, setHasError] = useState(false)
@@ -61,10 +54,10 @@ function SlideImage({ slide, isHero, priority }: { slide: Slide; isHero: boolean
   )
 }
 
-export function IbuBupatiSlider({ variant, slides: slidesProp, className }: IbuBupatiSliderProps) {
+export function IbuBupatiSlider({ variant, slides: slidesProp, defaultSlide, className }: IbuBupatiSliderProps) {
   // Foto default (Ibu Ketua TP PKK) selalu tampil paling depan, lalu diikuti
   // foto tambahan dari admin — agar tidak pernah tertimpa/hilang.
-  const slides = [...defaultSlides, ...(slidesProp ?? [])]
+  const slides = defaultSlide ? [defaultSlide, ...(slidesProp ?? [])] : (slidesProp ?? [])
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: slides.length > 1 },

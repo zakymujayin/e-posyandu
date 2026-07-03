@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { Upload, Trash2, ImageIcon, ChevronUp, ChevronDown, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -16,13 +16,19 @@ type SlidePhoto = {
 interface Props {
   initialLogoUrl: string | null
   initialSliderPhotos: SlidePhoto[]
+  initialBupatiPhoto?: SlidePhoto | null
 }
 
-export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Props) {
+export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos, initialBupatiPhoto }: Props) {
   const [logoUrl, setLogoUrl] = useState<string | null>(initialLogoUrl)
   const [uploading, setUploading] = useState(false)
   const [removing, setRemoving] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const [bupatiPhoto, setBupatiPhoto] = useState<SlidePhoto | null>(initialBupatiPhoto ?? null)
+  const [bupatiUploading, setBupatiUploading] = useState(false)
+  const [bupatiRemoving, setBupatiRemoving] = useState(false)
+  const bupatiFileRef = useRef<HTMLInputElement>(null)
 
   const [sliderPhotos, setSliderPhotos] = useState<SlidePhoto[]>(initialSliderPhotos)
   const [sliderUploading, setSliderUploading] = useState(false)
@@ -142,8 +148,49 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Prop
     }
   }
 
+  async function handleBupatiUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setBupatiUploading(true)
+    try {
+      const url = await uploadImage(await compressImage(file, true))
+      const photo: SlidePhoto = { url, alt: "", caption: "" }
+      setBupatiPhoto(photo)
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "bupati_photo", value: JSON.stringify(photo) }),
+      })
+      if (!res.ok) throw new Error((await res.json()).error ?? "Gagal menyimpan")
+      toast.success("Foto berhasil diupload")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Terjadi kesalahan")
+    } finally {
+      setBupatiUploading(false)
+      if (bupatiFileRef.current) bupatiFileRef.current.value = ""
+    }
+  }
+
+  async function handleBupatiRemove() {
+    setBupatiRemoving(true)
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "bupati_photo", value: "" }),
+      })
+      if (!res.ok) throw new Error((await res.json()).error ?? "Gagal menghapus")
+      setBupatiPhoto(null)
+      toast.success("Foto dihapus, menggunakan foto default")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Terjadi kesalahan")
+    } finally {
+      setBupatiRemoving(false)
+    }
+  }
+
   const sliderPhotosRef = useRef(sliderPhotos)
-  sliderPhotosRef.current = sliderPhotos
+  useEffect(() => { sliderPhotosRef.current = sliderPhotos }, [sliderPhotos])
 
   async function saveSlider(photos: SlidePhoto[]) {
     setSliderSaving(true)
@@ -272,14 +319,88 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos }: Prop
         </div>
       </div>
 
+      {/* Bupati Photo Section */}
+      <div className="bg-white rounded-lg border border-gray-200 p-5 space-y-5">
+        <div>
+          <h2 className="text-sm font-semibold text-gray-700">Foto Ketua TP PKK</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Foto akan ditampilkan di halaman utama sebagai slide paling depan. Format: PNG, JPG, WebP. Maks 5MB.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="w-20 h-20 rounded-xl border-2 border-dashed border-border flex items-center justify-center bg-muted/30 shrink-0 overflow-hidden">
+            {bupatiPhoto ? (
+              <img src={bupatiPhoto.url} alt={bupatiPhoto.alt || "Foto Ketua TP PKK"} className="w-full h-full object-contain p-1" />
+            ) : (
+              <ImageIcon className="w-8 h-8 text-muted-foreground/40" />
+            )}
+          </div>
+          <div className="space-y-2">
+            <input
+              ref={bupatiFileRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={handleBupatiUpload}
+              className="hidden"
+              id="bupati-upload"
+            />
+            <Button
+              type="button"
+              size="sm"
+              className="text-xs gap-1.5"
+              disabled={bupatiUploading}
+              onClick={() => bupatiFileRef.current?.click()}
+            >
+              <Upload className="w-3.5 h-3.5" />
+              {bupatiUploading ? "Mengupload..." : bupatiPhoto ? "Ganti Foto" : "Upload Foto"}
+            </Button>
+            {bupatiPhoto && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="text-xs gap-1.5 text-destructive hover:text-destructive"
+                disabled={bupatiRemoving}
+                onClick={handleBupatiRemove}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                {bupatiRemoving ? "Menghapus..." : "Hapus Foto"}
+              </Button>
+            )}
+          </div>
+        </div>
+        {bupatiPhoto && (
+          <div>
+            <input
+              type="text"
+              value={bupatiPhoto.caption ?? ""}
+              onChange={(e) => {
+                const updated = { ...bupatiPhoto, caption: e.target.value, alt: e.target.value }
+                setBupatiPhoto(updated)
+              }}
+              onBlur={async () => {
+                if (!bupatiPhoto) return
+                await fetch("/api/admin/settings", {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ key: "bupati_photo", value: JSON.stringify(bupatiPhoto) }),
+                })
+              }}
+              placeholder="Deskripsi foto (caption)"
+              className="w-full text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400"
+            />
+          </div>
+        )}
+      </div>
+
       {/* Slider Photos Section */}
       <div className="bg-white rounded-lg border border-gray-200 p-5 space-y-5">
         <div>
           <h2 className="text-sm font-semibold text-gray-700">Slider Foto Landing Page</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Foto Ibu Ketua TP PKK selalu tampil paling depan secara otomatis. Foto yang Anda tambahkan di bawah
-            ini akan tampil setelahnya. Isi deskripsi tiap foto sebagai keterangan di bawah foto. Urutan dapat
-            diatur dengan tombol panah. Format: PNG, JPG, WebP. Maks 5MB per foto.
+            Foto tambahan yang akan tampil setelah foto Ketua TP PKK. Isi deskripsi tiap foto sebagai keterangan
+            di bawah foto. Urutan dapat diatur dengan tombol panah. Format: PNG, JPG, WebP. Maks 5MB per foto.
           </p>
         </div>
 
