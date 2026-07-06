@@ -9,7 +9,7 @@ const MAX_ROWS = 700
 
 interface ImportRow {
   nama_posyandu: string
-  alamat: string
+  alamat?: string
   desa: string
   kecamatan: string
 }
@@ -73,7 +73,6 @@ export async function POST(req: Request) {
     }
 
     const seenUsernames = new Set<string>()
-    const seenPosyanduInDesa = new Map<string, Set<string>>()
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]
@@ -102,22 +101,6 @@ export async function POST(req: Request) {
           continue
         }
       }
-
-      if (!seenPosyanduInDesa.has(desa.id)) {
-        const existing = await prisma.posyandu.findMany({
-          where: { desaId: desa.id }, select: { name: true }
-        })
-        seenPosyanduInDesa.set(desa.id, new Set(existing.map(p => p.name.toUpperCase())))
-      }
-
-      const posNamesInDesa = seenPosyanduInDesa.get(desa.id)!
-      const namaUpper = nama.toUpperCase()
-
-      if (posNamesInDesa.has(namaUpper)) {
-        results.push({ row: rowNum, status: "error", name: nama, message: `Posyandu "${nama}" sudah ada di desa ${desa.name}` })
-        continue
-      }
-      posNamesInDesa.add(namaUpper)
 
       results.push({ row: rowNum, status: "ok", name: nama })
     }
