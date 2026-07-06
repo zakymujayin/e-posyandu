@@ -29,7 +29,7 @@ function parseDateDDMMYYYY(raw: string): Date | null {
   const d = parseInt(parts[0], 10)
   const m = parseInt(parts[1], 10)
   const y = parseInt(parts[2], 10)
-  if (isNaN(d) || isNaN(m) || isNaN(y) || d < 1 || d > 31 || m < 1 || m > 12) return null
+  if (isNaN(d) || isNaN(m) || isNaN(y) || d < 1 || d > 31 || m < 1 || m > 12 || y < 2000 || y > 2100) return null
   return new Date(y, m - 1, d)
 }
 
@@ -38,7 +38,7 @@ function parseDateYYYYMMDD(raw: string): { bulan: number; tahun: number } | null
   if (parts.length !== 3) return null
   const y = parseInt(parts[0], 10)
   const m = parseInt(parts[1], 10)
-  if (isNaN(m) || isNaN(y) || m < 1 || m > 12) return null
+  if (isNaN(m) || isNaN(y) || m < 1 || m > 12 || y < 2000 || y > 2100) return null
   return { bulan: m, tahun: y }
 }
 
@@ -155,6 +155,8 @@ export async function POST(req: Request) {
           isActive: true,
         },
       })
+
+      existingSet.add(`${nama.toUpperCase()}|${tglLahirDate.toISOString().slice(0, 10)}`)
 
       await prisma.penimbanganBalita.upsert({
         where: {

@@ -32,6 +32,9 @@ interface BalitaImportProps {
   posyanduName: string
 }
 
+const MAX_ROWS = 500
+const MAX_FILE_SIZE = 10 * 1024 * 1024
+
 export function BalitaImport({ open, onClose, onSuccess, posyanduId, posyanduName }: BalitaImportProps) {
   const [parsedRows, setParsedRows] = useState<ParsedRow[]>([])
   const [fileName, setFileName] = useState("")
@@ -50,6 +53,7 @@ export function BalitaImport({ open, onClose, onSuccess, posyanduId, posyanduNam
     setStep("upload")
 
     try {
+      if (file.size > MAX_FILE_SIZE) { toast.error("File terlalu besar (maksimal 10MB)"); return }
       const text = await file.text()
       const parser = new DOMParser()
       const doc = parser.parseFromString(text, "text/html")
@@ -97,6 +101,7 @@ export function BalitaImport({ open, onClose, onSuccess, posyanduId, posyanduNam
 
   async function handlePreview() {
     if (parsedRows.length === 0) { toast.error("File kosong atau format tidak valid"); return }
+    if (parsedRows.length > MAX_ROWS) { toast.error(`Maksimal ${MAX_ROWS} baris per import`); return }
     setLoading(true)
     try {
       const res = await fetch("/api/admin/master/balita/import", {
@@ -114,6 +119,7 @@ export function BalitaImport({ open, onClose, onSuccess, posyanduId, posyanduNam
   }
 
   async function handleImport() {
+    if (parsedRows.length > MAX_ROWS) { toast.error(`Maksimal ${MAX_ROWS} baris per import`); return }
     setLoading(true)
     try {
       const res = await fetch("/api/admin/master/balita/import", {
