@@ -93,68 +93,140 @@ function extractPdfData(filePath: string): ParsedPdfRow[] {
       encoding: "utf-8",
       timeout: 10000,
     })
-    const lines = stdout.split("\n").map(l => l.trim())
-    if (lines.length === 0) return []
+    const lines = stdout.split("\n").map(l => l.trim()).filter(Boolean)
+    if (lines.length === 0) {
+      const result = tryOcr(filePath)
+      if (result) return result
+      return []
+    }
 
-    let headerIdx = -1
+    return parsePdfLines(lines)
+  } catch {
+    const result = tryOcr(filePath)
+    if (result) return result
+    return []
+  }
+}
+
+function tryOcr(filePath: string): ParsedPdfRow[] | null {
+  try {
+    const tmpBase = "/tmp/ocr-" + Date.now()
+    execSync("pdftoppm -png -r 200 \"" + filePath + "\" " + tmpBase, { timeout: 15000 })
+    const stdout = execSync("tesseract " + tmpBase + "-1.png -", {
+      encoding: "utf-8",
+      timeout: 15000,
+    })
+    execSync("rm -f " + tmpBase + "-*.png", { timeout: 5000 })
+
+    const lines = stdout.split("\n").map(l => l.trim()).filter(Boolean)
+    if (lines.length === 0) return null
+
+    // Clean OCR junk characters
+    const cleaned = lines.map(l => l.replace(/[|{}[\]_]/g, " ").replace(/[—–]/g, "").replace(/\s+/g, " ").trim())
+
+    return parseOcrLines(cleaned)
+  } catch {
+    return null
+  }
+}
+
+function parseOcrLines(lines: string[]): ParsedPdfRow[] {
+  // Find first data row (starts with "1 " — posyandu #1)
+  let startIdx = -1
+  for (let i = 0; i < lines.length; i++) {
+    if (/^1\s/.test(lines[i])) { startIdx = i; break }
+  }
+  if (startIdx < 0) return []
+
+  const rows: ParsedPdfRow[] = []
+  for (let i = startIdx; i < lines.length; i++) {
+    const line = lines[i]
+    if (!line || /^(Mengetahui|Kepala|TTD|Kades|Dipindai|CamScanner)/i.test(line)) continue
+
+    const noMatch = line.match(/^(\d+)\s/)
+    if (!noMatch) continue
+
+    const rest = line.slice(noMatch[0].length).trim()
+    if (!rest) continue
+
+    // Find address marker (KP. or Kp or KP)
+    const kpIdx = rest.search(/\bK[Pp]\b\.?/)
+    if (kpIdx < 0) continue
+
+    const nama = rest.slice(0, kpIdx).trim()
+    const afterKp = rest.slice(kpIdx).trim()
+
+    // The last two words in afterKp are DESA and KECAMATAN
+    const words = afterKp.split(/\s+/)
+    if (words.length < 3) continue
+
+    const kec = words[words.length - 1] || ""
+    const desa = words[words.length - 2] || ""
+    const alamat = words.slice(0, words.length - 2).join(" ")
+
+    if (!nama || nama.length < 2 || /^[\d\s,]+$/.test(nama)) continue
+
+    rows.push({ nama, alamat, desa, kecamatan: kec })
+  }
+  return rows
+}
+
+function parsePdfLines(lines: string[]): ParsedPdfRow[] {
+  let headerIdx = -1
+  for (let i = 0; i < lines.length; i++) {
+    if (/^NO\s+(?:NAMA\s+)?POSYANDU/i.test(lines[i]) && lines[i].includes("ALAMAT")) {
+      headerIdx = i
+      break
+    }
+  }
+  if (headerIdx < 0) {
     for (let i = 0; i < lines.length; i++) {
-      if (/^NO\s+(?:NAMA\s+)?POSYANDU/i.test(lines[i]) && lines[i].includes("ALAMAT")) {
+      if (/\bNO\b/.test(lines[i]) && /\bNAMA\b/.test(lines[i]) && /\bALAMAT\b/.test(lines[i])) {
         headerIdx = i
         break
       }
     }
-    if (headerIdx < 0) {
-      // try alternative: "NO" immediately followed by "NAMA"
-      for (let i = 0; i < lines.length; i++) {
-        if (/\bNO\b/.test(lines[i]) && /\bNAMA\b/.test(lines[i]) && /\bALAMAT\b/.test(lines[i])) {
-          headerIdx = i
-          break
-        }
-      }
-    }
-    if (headerIdx < 0) return []
-
-    const rows: ParsedPdfRow[] = []
-    let cur: ParsedPdfRow | null = null
-    let addrLines: string[] = []
-
-    const pushRow = () => {
-      if (cur) {
-        const addr = addrLines.join(" ").replace(/\s+/g, " ").trim()
-        if (addr) cur.alamat = addr
-        if (cur.nama && cur.desa) rows.push(cur)
-      }
-      cur = null
-      addrLines = []
-    }
-
-    for (let i = headerIdx + 1; i < lines.length; i++) {
-      const line = lines[i]
-      if (!line) continue
-      if (/^(?:Mengetahui|Kepala|TTD|Kades|[\d\s,]+\s*(?:Juni|Juli|Januari|Februari))/i.test(line)) { pushRow(); continue }
-
-      const noMatch = line.match(/^(\d+)\s+/)
-      if (noMatch) {
-        pushRow()
-        const afterNo = line.slice(noMatch[0].length).trim()
-        if (!afterNo) continue
-        const parts = afterNo.split(/\s{2,}/)
-        if (parts.length < 3) continue
-        const kec = parts[parts.length - 1] || ""
-        const desa = parts[parts.length - 2] || ""
-        const nama = parts[0] || ""
-        const alamat = parts.slice(1, parts.length - 2).join(" ")
-        cur = { nama, alamat, desa, kecamatan: kec }
-        addrLines = [alamat]
-      } else if (cur && line.length > 2) {
-        addrLines.push(line)
-      }
-    }
-    pushRow()
-    return rows
-  } catch {
-    return []
   }
+  if (headerIdx < 0) return []
+
+  const rows: ParsedPdfRow[] = []
+  let cur: ParsedPdfRow | null = null
+  let addrLines: string[] = []
+
+  const pushRow = () => {
+    if (cur) {
+      const addr = addrLines.join(" ").replace(/\s+/g, " ").trim()
+      if (addr) cur.alamat = addr
+      if (cur.nama && cur.desa) rows.push(cur)
+    }
+    cur = null
+    addrLines = []
+  }
+
+  for (let i = headerIdx + 1; i < lines.length; i++) {
+    const line = lines[i]
+    if (!line) continue
+    if (/^(?:Mengetahui|Kepala|TTD|Kades|[\d\s,]+\s*(?:Juni|Juli|Januari|Februari))/i.test(line)) { pushRow(); continue }
+
+    const noMatch = line.match(/^(\d+)\s+/)
+    if (noMatch) {
+      pushRow()
+      const afterNo = line.slice(noMatch[0].length).trim()
+      if (!afterNo) continue
+      const parts = afterNo.split(/\s{2,}/)
+      if (parts.length < 3) continue
+      const kec = parts[parts.length - 1] || ""
+      const desa = parts[parts.length - 2] || ""
+      const nama = parts[0] || ""
+      const alamat = parts.slice(1, parts.length - 2).join(" ")
+      cur = { nama, alamat, desa, kecamatan: kec }
+      addrLines = [alamat]
+    } else if (cur && line.length > 2) {
+      addrLines.push(line)
+    }
+  }
+  pushRow()
+  return rows
 }
 
 async function main() {
