@@ -134,7 +134,7 @@ export default function LoginForm({ logoUrl }: Props) {
         <div className="flex items-center gap-3 relative z-10">
           {logoUrl ? (
             <div className="size-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg overflow-hidden relative">
-              <Image src={logoUrl} alt="Logo" fill className="object-contain p-1" sizes="40px" />
+              <Image src={logoUrl} alt="Logo" fill className="object-contain p-1" sizes="40px" unoptimized />
             </div>
           ) : (
             <div className="size-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center font-black border border-white/20 shadow-lg text-white text-sm tracking-wide">
