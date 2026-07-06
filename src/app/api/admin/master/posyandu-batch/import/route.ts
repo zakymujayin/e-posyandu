@@ -19,6 +19,7 @@ interface ImportResult {
   status: "ok" | "error"
   name: string
   message?: string
+  action?: "create" | "skip"
 }
 
 function generateUsername(nama: string): string {
@@ -46,6 +47,17 @@ export async function POST(req: Request) {
         .map(u => u.username)
         .filter((u): u is string => !!u)
     )
+
+    const allExistingPosyandu = await prisma.posyandu.findMany({
+      select: { name: true, desaId: true }
+    })
+    const existingPosyanduByDesa = new Map<string, Set<string>>()
+    for (const p of allExistingPosyandu) {
+      if (!existingPosyanduByDesa.has(p.desaId)) {
+        existingPosyanduByDesa.set(p.desaId, new Set())
+      }
+      existingPosyanduByDesa.get(p.desaId)!.add(p.name.toUpperCase())
+    }
 
     const allDesa = await prisma.desa.findMany({
       select: { id: true, name: true, kecamatanId: true, kecamatan: { select: { id: true, name: true } } }
@@ -86,6 +98,12 @@ export async function POST(req: Request) {
       const desa = lookupDesa(row.desa, row.kecamatan)
       if (!desa) { results.push({ row: rowNum, status: "error", name: nama, message: `Desa "${row.desa}" / Kec "${row.kecamatan}" tidak ditemukan` }); continue }
 
+      const existingNames = existingPosyanduByDesa.get(desa.id)
+      if (existingNames?.has(nama.toUpperCase())) {
+        results.push({ row: rowNum, status: "ok", name: nama, action: "skip", message: "Sudah ada — dilewati" })
+        continue
+      }
+
       const username = generateUsername(nama)
       if (seenUsernames.has(username)) {
         const alt = `${username}${i + 1}`
@@ -102,20 +120,24 @@ export async function POST(req: Request) {
         }
       }
 
-      results.push({ row: rowNum, status: "ok", name: nama })
+      results.push({ row: rowNum, status: "ok", name: nama, action: "create" })
     }
 
     if (body.previewOnly) {
-      const valid = results.filter(r => r.status === "ok").length
+      const valid = results.filter(r => r.status === "ok" && r.action !== "skip").length
+      const skipped = results.filter(r => r.action === "skip").length
       const errors = results.filter(r => r.status === "error").length
-      return ok({ results, valid, errors })
+      return ok({ results, valid, skipped, errors })
     }
 
     let imported = 0
+    let skipped = 0
     const hashedPassword = await bcrypt.hash(DEFAULT_PASSWORD, 12)
 
     for (let i = 0; i < rows.length; i++) {
-      if (results[i].status !== "ok") continue
+      const r = results[i]
+      if (r.status !== "ok") continue
+      if (r.action === "skip") { skipped++; continue }
       const row = rows[i]
       const nama = row.nama_posyandu.trim()
       const desaKey = row.desa.trim().toUpperCase()
@@ -163,7 +185,7 @@ export async function POST(req: Request) {
     invalidatePattern("master:users*")
 
     const errors = results.filter(r => r.status === "error").length
-    return ok({ results, imported, errors })
+    return ok({ results, imported, skipped, errors })
 
   } catch (e) {
     console.error(e)

@@ -18,6 +18,7 @@ interface ImportResult {
   status: "ok" | "error"
   name: string
   message?: string
+  action?: "create" | "skip"
 }
 
 interface PosyanduImportProps {
@@ -139,7 +140,8 @@ export function PosyanduImport({ open, onClose, onSuccess }: PosyanduImportProps
   }
 
   const displayResults = results ?? previewResults
-  const validCount = displayResults?.filter(r => r.status === "ok").length ?? 0
+  const validCount = displayResults?.filter(r => r.status === "ok" && r.action !== "skip").length ?? 0
+  const skippedCount = displayResults?.filter(r => r.action === "skip").length ?? 0
   const errorCount = displayResults?.filter(r => r.status === "error").length ?? 0
 
   if (!open) return null
@@ -199,6 +201,13 @@ export function PosyanduImport({ open, onClose, onSuccess }: PosyanduImportProps
                 </div>
               </div>
 
+              {skippedCount > 0 && !results && (
+                <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-lg px-4 py-3 text-xs font-semibold text-amber-700">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  {skippedCount} posyandu sudah ada di sistem — akan dilewati.
+                </div>
+              )}
+
               {errorCount > 0 && (
                 <div className="space-y-1.5 max-h-48 overflow-y-auto">
                   <p className="text-xs font-bold text-foreground">Detail Error:</p>
@@ -216,7 +225,7 @@ export function PosyanduImport({ open, onClose, onSuccess }: PosyanduImportProps
               {step === "done" && (
                 <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-4 py-3 text-xs font-semibold text-emerald-700">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  {validCount} posyandu + akun berhasil diimport ke sistem.
+                  {validCount} posyandu baru diimport{skippedCount > 0 ? `, ${skippedCount} dilewati (sudah ada)` : ""}.
                 </div>
               )}
             </div>
