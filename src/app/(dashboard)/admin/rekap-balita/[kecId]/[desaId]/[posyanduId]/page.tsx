@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Pagination } from "@/components/ui/pagination"
 import { differenceInMonths } from "date-fns"
 import { CheckCircle2, XCircle } from "lucide-react"
+import { BalitaImportButton } from "@/components/admin/master/balita-import-button"
 
 export default async function RekapBalitaPosyanduDetailPage({
   params,
@@ -68,6 +69,10 @@ export default async function RekapBalitaPosyanduDetailPage({
         description={`Desa ${posyandu.desa.name} · Status penimbangan ${BULAN_LABEL} ${tahunIni}`}
         backHref={`/admin/rekap-balita/${kecId}/${desaId}`}
       />
+
+      <div className="flex justify-end">
+        <BalitaImportButton posyanduId={posyanduId} posyanduName={posyandu.name} />
+      </div>
 
       <DataTable columns={["Nama Balita", "Usia", "JK", "Orang Tua", "Ditimbang", "BB", "Status Gizi"]} dataLength={balitas.length}>
         {balitas.map((b) => {

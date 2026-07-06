@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
-import { Plus, X, Check, MapPin, Building, HelpCircle, Heart, Pencil, Trash2, Upload, Search } from "lucide-react"
+import { Plus, X, Check, MapPin, Building, HelpCircle, Heart, Pencil, Trash2, Upload, Search, Download } from "lucide-react"
+import ExcelJS from "exceljs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FormLabel } from "@/components/ui/typography"
@@ -126,6 +127,52 @@ export function WilayahManager({
   const totalPos = Math.ceil(filteredPosyandus.length / limit) || 1
   const posPage = Math.min(rawPos, totalPos)
   const paginatedPos = filteredPosyandus.slice((posPage - 1) * limit, posPage * limit)
+
+  function downloadExport(type: "kecamatan" | "desa" | "posyandu") {
+    const wb = new ExcelJS.Workbook()
+
+    if (type === "kecamatan") {
+      const ws = wb.addWorksheet("Kecamatan")
+      ws.columns = [
+        { header: "NO", key: "no", width: 8 },
+        { header: "NAMA KECAMATAN", key: "nama", width: 35 },
+        { header: "KODE", key: "kode", width: 20 },
+        { header: "JUMLAH DESA", key: "jml_desa", width: 15 },
+      ]
+      filteredKecamatans.forEach((k, i) => ws.addRow({ no: i + 1, nama: k.name, kode: k.code, jml_desa: k._count.desas }))
+    } else if (type === "desa") {
+      const ws = wb.addWorksheet("Desa")
+      ws.columns = [
+        { header: "NO", key: "no", width: 8 },
+        { header: "NAMA DESA", key: "nama", width: 35 },
+        { header: "KECAMATAN", key: "kecamatan", width: 30 },
+        { header: "KODE", key: "kode", width: 20 },
+        { header: "JUMLAH POSYANDU", key: "jml_posyandu", width: 18 },
+      ]
+      filteredDesas.forEach((d, i) => ws.addRow({ no: i + 1, nama: d.name, kecamatan: d.kecamatan.name, kode: d.code, jml_posyandu: d._count?.posyandus ?? 0 }))
+    } else {
+      const ws = wb.addWorksheet("Posyandu")
+      ws.columns = [
+        { header: "NO", key: "no", width: 8 },
+        { header: "NAMA POSYANDU", key: "nama", width: 35 },
+        { header: "DESA", key: "desa", width: 30 },
+        { header: "KECAMATAN", key: "kecamatan", width: 30 },
+        { header: "KODE", key: "kode", width: 20 },
+        { header: "STATUS", key: "status", width: 12 },
+      ]
+      filteredPosyandus.forEach((p, i) => ws.addRow({ no: i + 1, nama: p.name, desa: p.desa.name, kecamatan: p.desa.kecamatan.name, kode: p.code, status: p.isActive ? "Aktif" : "Nonaktif" }))
+    }
+
+    wb.xlsx.writeBuffer().then(buffer => {
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `daftar_${type}_${new Date().toISOString().slice(0, 10)}.xlsx`
+      a.click()
+      URL.revokeObjectURL(url)
+    })
+  }
 
   async function handleAddKecamatan(e: React.FormEvent) {
     e.preventDefault()
@@ -423,7 +470,16 @@ export function WilayahManager({
                 onChange={(e) => { setKecSearch(e.target.value); setRawKec(1) }}
                 className="pl-9 py-2 text-xs w-full"
               />
-            </div>
+              </div>
+            <div className="flex gap-2 w-full sm:w-auto">
+            <Button
+              onClick={() => downloadExport("kecamatan")}
+              variant="outline"
+              size="sm"
+              className="font-bold text-xs gap-1.5"
+            >
+              <Download className="w-4 h-4" /> Download
+            </Button>
             <Button
               onClick={() => setShowImport("kecamatan")}
               variant="outline"
@@ -439,6 +495,7 @@ export function WilayahManager({
             >
               <Plus className="w-4 h-4" /> Tambah Kecamatan
             </Button>
+          </div>
           </div>
 
           {showKecForm && (
@@ -608,6 +665,14 @@ export function WilayahManager({
               </div>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
+              <Button
+                onClick={() => downloadExport("posyandu")}
+                variant="outline"
+                size="sm"
+                className="font-bold text-xs gap-1.5 flex-1 sm:flex-none"
+              >
+                <Download className="w-4 h-4" /> Download
+              </Button>
               <Button
                 onClick={() => setShowImport("posyandu")}
                 variant="outline"
@@ -874,6 +939,14 @@ export function WilayahManager({
               </div>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
+              <Button
+                onClick={() => downloadExport("desa")}
+                variant="outline"
+                size="sm"
+                className="font-bold text-xs gap-1.5 flex-1 sm:flex-none"
+              >
+                <Download className="w-4 h-4" /> Download
+              </Button>
               <Button
                 onClick={() => setShowImport("desa")}
                 variant="outline"
