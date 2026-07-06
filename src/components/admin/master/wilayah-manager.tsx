@@ -213,6 +213,9 @@ export function WilayahManager({
       if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
       const updatedDesa = data.data
       setDesas((prev) => prev.map((d) => d.id === editingDesa.id ? { ...d, name: updatedDesa.name, code: updatedDesa.code } : d))
+      setPosyandus((prev) => prev.map((p) =>
+        p.desaId === editingDesa.id ? { ...p, desa: { ...p.desa, name: updatedDesa.name } } : p
+      ))
       setEditingDesa(null)
       toast.success("Desa diperbarui")
     } finally {
