@@ -11,6 +11,7 @@ import { Pagination } from "@/components/ui/pagination"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
 import { MasterCsvImport } from "./master-csv-import"
+import { PosyanduImport } from "./posyandu-import"
 
 interface Kecamatan {
   id: string
@@ -66,6 +67,7 @@ export function WilayahManager({
   const [editingPos, setEditingPos] = useState<Posyandu | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [showImport, setShowImport] = useState<"kecamatan" | "desa" | "posyandu" | null>(null)
+  const [showPosyanduImport, setShowPosyanduImport] = useState(false)
 
   const [rawKec, setRawKec] = useState(1)
   const [rawDesa, setRawDesa] = useState(1)
@@ -345,6 +347,13 @@ export function WilayahManager({
           onSuccess={() => refreshData("posyandu")}
         />
       )}
+      {showPosyanduImport && (
+        <PosyanduImport
+          open={showPosyanduImport}
+          onClose={() => setShowPosyanduImport(false)}
+          onSuccess={() => refreshData("posyandu")}
+        />
+      )}
 
       {/* Premium Tabs */}
       <div className="flex bg-muted/65 border border-border p-1 rounded-lg w-fit select-none shadow-xs">
@@ -557,6 +566,14 @@ export function WilayahManager({
                 className="font-bold text-xs gap-1.5 flex-1 sm:flex-none"
               >
                 <Upload className="w-4 h-4" /> Import CSV
+              </Button>
+              <Button
+                onClick={() => setShowPosyanduImport(true)}
+                variant="outline"
+                size="sm"
+                className="font-bold text-xs gap-1.5 flex-1 sm:flex-none"
+              >
+                <Upload className="w-4 h-4" /> Import Excel
               </Button>
               <Button
                 onClick={() => {
