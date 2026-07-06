@@ -26,6 +26,7 @@ interface Desa {
   name: string
   code: string
   kecamatan: { name: string }
+  _count: { posyandus: number }
 }
 
 interface Posyandu {
@@ -862,12 +863,12 @@ export function WilayahManager({
           )}
 
           <DataTable
-            columns={["Nama Desa", "Kecamatan", "Kode Wilayah", ""]}
+            columns={["Nama Desa", "Kecamatan", "Kode Wilayah", "Jumlah Posyandu", ""]}
             dataLength={paginatedDesa.length}
           >
             {paginatedDesa.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
+                <TableCell colSpan={5} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
                   <HelpCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-55" />
                   Belum ada data desa terdaftar.
                 </TableCell>
@@ -876,7 +877,7 @@ export function WilayahManager({
               paginatedDesa.map((d) => (
                 editingDesa?.id === d.id ? (
                   <TableRow key={d.id}>
-                    <TableCell colSpan={4} className="px-4 py-3">
+                    <TableCell colSpan={5} className="px-4 py-3">
                       <form onSubmit={handleEditDesa} className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-center">
                         <Input
                           type="text"
@@ -906,7 +907,7 @@ export function WilayahManager({
                   </TableRow>
                 ) : deletingId === d.id ? (
                   <TableRow key={d.id} className="bg-destructive/5">
-                    <TableCell colSpan={4} className="px-4 py-3">
+                    <TableCell colSpan={5} className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <p className="text-xs text-destructive font-semibold flex-1">Yakin hapus desa <strong>{d.name}</strong>?</p>
                         <Button size="sm" disabled={loading} onClick={() => handleDeleteDesa(d.id)} className="font-bold text-xs gap-1 h-8 bg-destructive hover:bg-destructive/90">
@@ -933,6 +934,9 @@ export function WilayahManager({
                     </TableCell>
                     <TableCell className="px-4 py-3.5 font-mono text-xs text-foreground font-semibold">
                       {d.code}
+                    </TableCell>
+                    <TableCell className="px-4 py-3.5 text-xs text-muted-foreground font-semibold">
+                      {d._count?.posyandus ?? 0} Posyandu
                     </TableCell>
                     <TableCell className="px-4 py-3.5">
                       <div className="flex items-center gap-1 justify-end">

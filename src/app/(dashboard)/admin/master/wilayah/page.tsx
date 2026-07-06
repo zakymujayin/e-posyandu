@@ -16,7 +16,10 @@ export default async function MasterWilayahPage() {
     }),
     prisma.desa.findMany({
       orderBy: [{ kecamatanId: "asc" }, { name: "asc" }],
-      include: { kecamatan: { select: { name: true } } },
+      include: {
+        kecamatan: { select: { name: true } },
+        _count: { select: { posyandus: true } },
+      },
     }),
     prisma.posyandu.findMany({
       orderBy: [{ desaId: "asc" }, { name: "asc" }],

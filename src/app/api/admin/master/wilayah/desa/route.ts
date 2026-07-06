@@ -16,7 +16,10 @@ export async function GET() {
   const desas = await withCache("master:desa", 1800, () =>
     prisma.desa.findMany({
       orderBy: [{ kecamatanId: "asc" }, { name: "asc" }],
-      include: { kecamatan: { select: { name: true } } },
+      include: {
+        kecamatan: { select: { name: true } },
+        _count: { select: { posyandus: true } },
+      },
     })
   )
   return ok(desas)
