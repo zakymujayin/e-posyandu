@@ -61,7 +61,7 @@ export async function POST(req: Request) {
       if (!existingPosyanduByDesa.has(p.desaId)) {
         existingPosyanduByDesa.set(p.desaId, new Set())
       }
-      existingPosyanduByDesa.get(p.desaId)!.add(p.name.toUpperCase())
+      existingPosyanduByDesa.get(p.desaId)!.add(p.name.replace(/\s+/g, "").toUpperCase())
     }
 
     const allDesa = await prisma.desa.findMany({
@@ -104,7 +104,7 @@ export async function POST(req: Request) {
       if (!desa) { results.push({ row: rowNum, status: "error", name: nama, message: `Desa "${row.desa}" / Kec "${row.kecamatan}" tidak ditemukan` }); continue }
 
       const existingNames = existingPosyanduByDesa.get(desa.id)
-      if (existingNames?.has(nama.toUpperCase())) {
+      if (existingNames?.has(nama.replace(/\s+/g, "").toUpperCase())) {
         results.push({ row: rowNum, status: "ok", name: nama, action: "skip", message: "Sudah ada — dilewati" })
         continue
       }
