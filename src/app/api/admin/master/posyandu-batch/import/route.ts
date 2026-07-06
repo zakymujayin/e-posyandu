@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
 import { generateNoRegistrasi } from "@/lib/no-registrasi"
-import { invalidatePattern } from "@/lib/cache"
+import { invalidatePattern, invalidateRekap } from "@/lib/cache"
 import bcrypt from "bcryptjs"
 
 const DEFAULT_PASSWORD = "posyandu123"
@@ -145,7 +145,6 @@ export async function POST(req: Request) {
       if (r.action === "skip") { skipped++; continue }
       const row = rows[i]
       const nama = row.nama_posyandu.trim()
-      const desaKey = row.desa.trim().toUpperCase()
       const desa = lookupDesa(row.desa, row.kecamatan)!
       const kecamatanId = desa.kecamatanId
 
@@ -188,6 +187,10 @@ export async function POST(req: Request) {
 
     invalidatePattern("master:posyandu*")
     invalidatePattern("master:users*")
+    invalidatePattern("rekap:posyandu-list:*")
+
+    const now = new Date()
+    invalidateRekap(now.getMonth() + 1, now.getFullYear())
 
     const errors = results.filter(r => r.status === "error").length
     return ok({ results, imported, skipped, errors })

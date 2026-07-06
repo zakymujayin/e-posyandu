@@ -68,10 +68,10 @@ export function PosyanduImport({ open, onClose, onSuccess }: PosyanduImportProps
       const rows: ParsedRow[] = []
       for (let r = headerRow + 1; r <= ws.rowCount; r++) {
         const row = ws.getRow(r)
-        const nama = String(row.getCell(2).value ?? "").trim()
-        const alamat = String(row.getCell(3).value ?? "").trim()
-        const desa = String(row.getCell(4).value ?? "").trim()
-        const kec = String(row.getCell(5).value ?? "").trim()
+        const nama = (row.getCell(2).text || String(row.getCell(2).value ?? "")).trim()
+        const alamat = (row.getCell(3).text || String(row.getCell(3).value ?? "")).trim()
+        const desa = (row.getCell(4).text || String(row.getCell(4).value ?? "")).trim()
+        const kec = (row.getCell(5).text || String(row.getCell(5).value ?? "")).trim()
         if (!nama) continue
         rows.push({ nama_posyandu: nama, alamat, desa, kecamatan: kec })
       }

@@ -7,12 +7,17 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (!user) return response!
   const { id } = await params
   const json = await req.json()
-  const { name, code } = json
+  const { name, code, kecamatanId } = json
   if (!name?.trim()) return err("Nama wajib diisi", 400)
   try {
     const data: Record<string, string> = { name: name.trim() }
     if (code !== undefined) data.code = code
-    const updated = await prisma.desa.update({ where: { id }, data })
+    if (kecamatanId !== undefined) data.kecamatanId = kecamatanId
+    const updated = await prisma.desa.update({
+      where: { id },
+      data,
+      include: { kecamatan: { select: { id: true, name: true } } },
+    })
     invalidatePattern("master:desa")
     return ok(updated)
   } catch (e: unknown) {

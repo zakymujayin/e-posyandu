@@ -30,7 +30,7 @@ export async function PATCH(
 
   try {
     const body = await req.json()
-    const { name, code, isActive } = body
+    const { name, code, isActive, desaId } = body
 
     const posyandu = await prisma.posyandu.update({
       where: { id },
@@ -38,8 +38,9 @@ export async function PATCH(
         ...(name !== undefined && { name }),
         ...(code !== undefined && { code }),
         ...(isActive !== undefined && { isActive }),
+        ...(desaId !== undefined && { desaId }),
       },
-      include: { desa: { select: { name: true, kecamatan: { select: { name: true } } } } },
+      include: { desa: { select: { name: true, kecamatan: { select: { id: true, name: true } } } } },
     })
 
     invalidatePattern("master:posyandu*")

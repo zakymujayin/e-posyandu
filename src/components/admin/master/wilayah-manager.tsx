@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { toast } from "sonner"
-import { Plus, X, Check, MapPin, Building, HelpCircle, Heart, Pencil, Trash2, Upload } from "lucide-react"
+import { Plus, X, Check, MapPin, Building, HelpCircle, Heart, Pencil, Trash2, Upload, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FormLabel } from "@/components/ui/typography"
@@ -75,6 +75,10 @@ export function WilayahManager({
   const [rawPos, setRawPos] = useState(1)
   const limit = 10
 
+  const [kecSearch, setKecSearch] = useState("")
+  const [desaSearch, setDesaSearch] = useState("")
+  const [posyanduSearch, setPosyanduSearch] = useState("")
+
   async function refreshData(type: "kecamatan" | "desa" | "posyandu") {
     try {
       if (type === "kecamatan") {
@@ -98,13 +102,24 @@ export function WilayahManager({
     }
   }
 
-  const filteredDesas = filterKec ? desas.filter((d) => d.kecamatanId === filterKec) : desas
-  const filteredPosyandus = filterDesaPos ? posyandus.filter((p) => p.desaId === filterDesaPos) : posyandus
+  const filteredDesas = desas.filter((d) => {
+    if (filterKec && d.kecamatanId !== filterKec) return false
+    if (desaSearch && !d.name.toLowerCase().includes(desaSearch.toLowerCase())) return false
+    return true
+  })
+  const filteredPosyandus = posyandus.filter((p) => {
+    if (filterDesaPos && p.desaId !== filterDesaPos) return false
+    if (posyanduSearch && !p.name.toLowerCase().includes(posyanduSearch.toLowerCase())) return false
+    return true
+  })
+  const filteredKecamatans = kecamatans.filter((k) => {
+    if (kecSearch && !k.name.toLowerCase().includes(kecSearch.toLowerCase())) return false
+    return true
+  })
 
-
-  const totalKec = Math.ceil(kecamatans.length / limit) || 1
+  const totalKec = Math.ceil(filteredKecamatans.length / limit) || 1
   const kecPage = Math.min(rawKec, totalKec)
-  const paginatedKec = kecamatans.slice((kecPage - 1) * limit, kecPage * limit)
+  const paginatedKec = filteredKecamatans.slice((kecPage - 1) * limit, kecPage * limit)
   const totalDesa = Math.ceil(filteredDesas.length / limit) || 1
   const desaPage = Math.min(rawDesa, totalDesa)
   const paginatedDesa = filteredDesas.slice((desaPage - 1) * limit, desaPage * limit)
@@ -203,19 +218,27 @@ export function WilayahManager({
     e.preventDefault()
     if (!editingDesa) return
     setLoading(true)
+    const oldKecId = editingDesa.kecamatanId
     try {
       const res = await fetch(`/api/admin/master/wilayah/desa/${editingDesa.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: desaForm.name, code: desaForm.code }),
+        body: JSON.stringify({ name: desaForm.name, code: desaForm.code, kecamatanId: desaForm.kecamatanId }),
       })
       const data = await res.json()
       if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
       const updatedDesa = data.data
-      setDesas((prev) => prev.map((d) => d.id === editingDesa.id ? { ...d, name: updatedDesa.name, code: updatedDesa.code } : d))
+      setDesas((prev) => prev.map((d) => d.id === editingDesa.id ? { ...d, name: updatedDesa.name, code: updatedDesa.code, kecamatanId: updatedDesa.kecamatanId, kecamatan: updatedDesa.kecamatan } : d))
       setPosyandus((prev) => prev.map((p) =>
         p.desaId === editingDesa.id ? { ...p, desa: { ...p.desa, name: updatedDesa.name } } : p
       ))
+      if (oldKecId !== desaForm.kecamatanId) {
+        setKecamatans((prev) => prev.map((k) => {
+          if (k.id === oldKecId) return { ...k, _count: { ...k._count, desas: Math.max(0, k._count.desas - 1) } }
+          if (k.id === desaForm.kecamatanId) return { ...k, _count: { ...k._count, desas: k._count.desas + 1 } }
+          return k
+        }))
+      }
       setEditingDesa(null)
       toast.success("Desa diperbarui")
     } finally {
@@ -286,7 +309,7 @@ export function WilayahManager({
       const res = await fetch(`/api/admin/master/posyandu/${editingPos.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: posyanduForm.name, code: posyanduForm.code }),
+        body: JSON.stringify({ name: posyanduForm.name, code: posyanduForm.code, desaId: posyanduForm.desaId }),
       })
       const data = await res.json()
       if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
@@ -390,7 +413,17 @@ export function WilayahManager({
       {/* Kecamatan Tab */}
       {activeTab === "kecamatan" && (
         <div className="space-y-4">
-          <div className="flex gap-2 justify-end">
+          <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Cari kecamatan..."
+                value={kecSearch}
+                onChange={(e) => { setKecSearch(e.target.value); setRawKec(1) }}
+                className="pl-9 py-2 text-xs w-full"
+              />
+            </div>
             <Button
               onClick={() => setShowImport("kecamatan")}
               variant="outline"
@@ -546,7 +579,7 @@ export function WilayahManager({
               )}
             </DataTable>
 
-            <Pagination page={kecPage} totalPages={totalKec} total={kecamatans.length} onPageChange={setRawKec} />
+            <Pagination page={kecPage} totalPages={totalKec} total={filteredKecamatans.length} onPageChange={setRawKec} />
           </div>
         )}
 
@@ -554,14 +587,26 @@ export function WilayahManager({
       {activeTab === "posyandu" && (
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
-            <select
-              value={filterDesaPos}
-              onChange={(e) => setFilterDesaPos(e.target.value)}
-              className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-full sm:w-64"
-            >
-              <option value="">Semua Desa</option>
-              {desas.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-            </select>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <select
+                value={filterDesaPos}
+                onChange={(e) => setFilterDesaPos(e.target.value)}
+                className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-48"
+              >
+                <option value="">Semua Desa</option>
+                {desas.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+              </select>
+              <div className="relative flex-1 sm:w-48">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Cari posyandu..."
+                  value={posyanduSearch}
+                  onChange={(e) => { setPosyanduSearch(e.target.value); setRawPos(1) }}
+                  className="pl-9 py-2 text-xs w-full"
+                />
+              </div>
+            </div>
             <div className="flex gap-2 w-full sm:w-auto">
               <Button
                 onClick={() => setShowImport("posyandu")}
@@ -682,7 +727,29 @@ export function WilayahManager({
                 editingPos?.id === p.id ? (
                   <TableRow key={p.id}>
                     <TableCell colSpan={5} className="px-4 py-3">
-                      <form onSubmit={handleEditPosyandu} className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-center">
+                      <form onSubmit={handleEditPosyandu} className="grid grid-cols-[1fr_1fr_1fr_auto_auto_auto_auto] gap-2 items-center">
+                        <select
+                          value={posyanduKecId}
+                          onChange={(e) => {
+                            setPosyanduKecId(e.target.value)
+                            setPosyanduForm((f) => ({ ...f, desaId: "" }))
+                          }}
+                          className="h-8 text-xs border border-border/80 rounded-lg px-2 py-1 bg-card font-normal focus:outline-none focus:border-primary text-foreground"
+                        >
+                          <option value="">Kecamatan</option>
+                          {kecamatans.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
+                        </select>
+                        <select
+                          value={posyanduForm.desaId}
+                          onChange={(e) => setPosyanduForm((f) => ({ ...f, desaId: e.target.value }))}
+                          className="h-8 text-xs border border-border/80 rounded-lg px-2 py-1 bg-card font-normal focus:outline-none focus:border-primary text-foreground"
+                          disabled={!posyanduKecId}
+                        >
+                          <option value="">Pilih Desa</option>
+                          {desas
+                            .filter((d) => d.kecamatanId === posyanduKecId)
+                            .map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                        </select>
                         <Input
                           type="text"
                           value={posyanduForm.name}
@@ -759,7 +826,7 @@ export function WilayahManager({
                         <Button
                           variant="ghost"
                           size="icon-xs"
-                          onClick={() => { setEditingPos(p); setPosyanduForm({ desaId: p.desaId, name: p.name, code: p.code }); setShowPosyandu(false) }}
+                          onClick={() => { setEditingPos(p); setPosyanduForm({ desaId: p.desaId, name: p.name, code: p.code }); setPosyanduKecId(desas.find(d => d.id === p.desaId)?.kecamatanId ?? ""); setShowPosyandu(false) }}
                         >
                           <Pencil className="w-3.5 h-3.5" />
                         </Button>
@@ -786,14 +853,26 @@ export function WilayahManager({
       {activeTab === "desa" && (
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
-            <select
-              value={filterKec}
-              onChange={(e) => setFilterKec(e.target.value)}
-              className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-full sm:w-64"
-            >
-              <option value="">Semua Kecamatan</option>
-              {kecamatans.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
-            </select>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <select
+                value={filterKec}
+                onChange={(e) => setFilterKec(e.target.value)}
+                className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-48"
+              >
+                <option value="">Semua Kecamatan</option>
+                {kecamatans.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
+              </select>
+              <div className="relative flex-1 sm:w-48">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Cari desa..."
+                  value={desaSearch}
+                  onChange={(e) => { setDesaSearch(e.target.value); setRawDesa(1) }}
+                  className="pl-9 py-2 text-xs w-full"
+                />
+              </div>
+            </div>
             <div className="flex gap-2 w-full sm:w-auto">
               <Button
                 onClick={() => setShowImport("desa")}
@@ -881,7 +960,15 @@ export function WilayahManager({
                 editingDesa?.id === d.id ? (
                   <TableRow key={d.id}>
                     <TableCell colSpan={5} className="px-4 py-3">
-                      <form onSubmit={handleEditDesa} className="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-center">
+                      <form onSubmit={handleEditDesa} className="grid grid-cols-[1fr_1fr_auto_auto_auto_auto] gap-2 items-center">
+                        <select
+                          value={desaForm.kecamatanId}
+                          onChange={(e) => setDesaForm((f) => ({ ...f, kecamatanId: e.target.value }))}
+                          className="h-8 text-xs border border-border/80 rounded-lg px-2 py-1 bg-card font-normal focus:outline-none focus:border-primary text-foreground"
+                        >
+                          <option value="">Pilih Kecamatan</option>
+                          {kecamatans.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
+                        </select>
                         <Input
                           type="text"
                           value={desaForm.name}
