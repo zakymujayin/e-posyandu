@@ -5,7 +5,7 @@ import { invalidatePattern } from "@/lib/cache"
 import bcrypt from "bcryptjs"
 
 const DEFAULT_PASSWORD = "posyandu123"
-const MAX_ROWS = 800
+const MAX_ROWS = 1000
 
 interface ImportRow {
   nama_posyandu: string
