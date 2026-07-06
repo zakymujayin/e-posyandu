@@ -22,11 +22,16 @@ interface ImportResult {
   action?: "create" | "skip"
 }
 
-function generateUsername(nama: string): string {
-  return nama
+function generateUsername(nama: string, desa: string): string {
+  const base = nama
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, "")
     .replace(/\s+/g, "")
+  const desaClean = desa
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "")
+    .slice(0, 15)
+  return `${base}_${desaClean}`
 }
 
 export async function POST(req: Request) {
@@ -104,7 +109,7 @@ export async function POST(req: Request) {
         continue
       }
 
-      const username = generateUsername(nama)
+      const username = generateUsername(nama, row.desa)
       if (seenUsernames.has(username)) {
         const alt = `${username}${i + 1}`
         seenUsernames.add(alt)
@@ -144,7 +149,7 @@ export async function POST(req: Request) {
       const desa = lookupDesa(row.desa, row.kecamatan)!
       const kecamatanId = desa.kecamatanId
 
-      let username = generateUsername(nama)
+      let username = generateUsername(nama, row.desa)
       if (existingUsernames.has(username) || seenUsernames.has(username + i)) {
         username = `${username}${i + 1}`
       }
