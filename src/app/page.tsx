@@ -20,12 +20,20 @@ export default async function RootPage() {
     redirect(redirects[role] ?? "/login")
   }
 
-  const [logoUrl, sliderPhotos, bupatiPhoto] = await Promise.all([
+  const [logoUrl, posyanduLogoUrl, sliderPhotos, bupatiPhoto] = await Promise.all([
     withCache<string | null>(
       "app_setting:logo_url",
       3600,
       async () => {
         const row = await prisma.appSetting.findUnique({ where: { key: "logo_url" } })
+        return row?.value ?? null
+      },
+    ),
+    withCache<string | null>(
+      "app_setting:logo_posyandu_url",
+      3600,
+      async () => {
+        const row = await prisma.appSetting.findUnique({ where: { key: "logo_posyandu_url" } })
         return row?.value ?? null
       },
     ),
@@ -58,6 +66,7 @@ export default async function RootPage() {
   return (
     <LandingPage
       logoUrl={logoUrl}
+      posyanduLogoUrl={posyanduLogoUrl}
       sliderPhotos={sliderPhotos.length > 0 ? sliderPhotos : undefined}
       bupatiPhoto={bupatiPhoto ?? undefined}
     />

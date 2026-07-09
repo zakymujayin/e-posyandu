@@ -1,13 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link"
-import { Building2 } from "lucide-react"
+import { Building2, Heart } from "lucide-react"
 
 interface Props {
   logoUrl?: string | null
+  posyanduLogoUrl?: string | null
 }
 
-export function FooterSection({ logoUrl }: Props) {
+export function FooterSection({ logoUrl, posyanduLogoUrl }: Props) {
   const year = new Date().getFullYear()
 
   return (
@@ -17,20 +18,37 @@ export function FooterSection({ logoUrl }: Props) {
           {/* Left: branding */}
           <div className="max-w-xs">
             <div className="flex items-center gap-3 mb-4">
-              <div className="size-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
-                {logoUrl ? (
-                  <img
-                    src={logoUrl}
-                    alt="Logo E-Posyandu"
-                    className="w-full h-full object-contain p-1"
-                    loading="lazy"
-                    decoding="async"
-                    width={36}
-                    height={36}
-                  />
-                ) : (
-                  <Building2 className="size-5 text-slate-400" />
-                )}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="size-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
+                  {logoUrl ? (
+                    <img
+                      src={logoUrl}
+                      alt="Logo E-Posyandu"
+                      className="w-full h-full object-contain p-1"
+                      loading="lazy"
+                      decoding="async"
+                      width={36}
+                      height={36}
+                    />
+                  ) : (
+                    <Building2 className="size-5 text-slate-400" />
+                  )}
+                </div>
+                <div className="size-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
+                  {posyanduLogoUrl ? (
+                    <img
+                      src={posyanduLogoUrl}
+                      alt="Logo Posyandu"
+                      className="w-full h-full object-contain p-1"
+                      loading="lazy"
+                      decoding="async"
+                      width={36}
+                      height={36}
+                    />
+                  ) : (
+                    <Heart className="size-5 text-slate-400" />
+                  )}
+                </div>
               </div>
               <div className="leading-none">
                 <span className="block text-[15px] font-bold text-white">E-Posyandu</span>
