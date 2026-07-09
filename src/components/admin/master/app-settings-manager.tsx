@@ -15,15 +15,21 @@ type SlidePhoto = {
 
 interface Props {
   initialLogoUrl: string | null
+  initialPosyanduLogoUrl: string | null
   initialSliderPhotos: SlidePhoto[]
   initialBupatiPhoto?: SlidePhoto | null
 }
 
-export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos, initialBupatiPhoto }: Props) {
+export function AppSettingsManager({ initialLogoUrl, initialPosyanduLogoUrl, initialSliderPhotos, initialBupatiPhoto }: Props) {
   const [logoUrl, setLogoUrl] = useState<string | null>(initialLogoUrl)
   const [uploading, setUploading] = useState(false)
   const [removing, setRemoving] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const [posyanduLogoUrl, setPosyanduLogoUrl] = useState<string | null>(initialPosyanduLogoUrl)
+  const [posyanduUploading, setPosyanduUploading] = useState(false)
+  const [posyanduRemoving, setPosyanduRemoving] = useState(false)
+  const posyanduFileRef = useRef<HTMLInputElement>(null)
 
   const [bupatiPhoto, setBupatiPhoto] = useState<SlidePhoto | null>(initialBupatiPhoto ?? null)
   const [bupatiUploading, setBupatiUploading] = useState(false)
@@ -145,6 +151,51 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos, initia
       toast.error(err instanceof Error ? err.message : "Terjadi kesalahan")
     } finally {
       setRemoving(false)
+    }
+  }
+
+  async function handlePosyanduUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setPosyanduUploading(true)
+    try {
+      const url = await uploadImage(await compressImage(file, false))
+
+      const saveRes = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "logo_posyandu_url", value: url }),
+      })
+      const saveJson = await saveRes.json()
+      if (!saveRes.ok) throw new Error(saveJson.error ?? "Gagal menyimpan")
+
+      setPosyanduLogoUrl(url)
+      toast.success("Logo Posyandu berhasil diupload")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Terjadi kesalahan")
+    } finally {
+      setPosyanduUploading(false)
+      if (posyanduFileRef.current) posyanduFileRef.current.value = ""
+    }
+  }
+
+  async function handlePosyanduRemove() {
+    setPosyanduRemoving(true)
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "logo_posyandu_url", value: "" }),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error ?? "Gagal menghapus")
+      setPosyanduLogoUrl(null)
+      toast.success("Logo Posyandu dihapus")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Terjadi kesalahan")
+    } finally {
+      setPosyanduRemoving(false)
     }
   }
 
@@ -313,6 +364,59 @@ export function AppSettingsManager({ initialLogoUrl, initialSliderPhotos, initia
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 {removing ? "Menghapus..." : "Hapus Logo"}
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Logo Posyandu Section */}
+      <div className="bg-white rounded-lg border border-gray-200 p-5 space-y-5">
+        <div>
+          <h2 className="text-sm font-semibold text-gray-700">Logo Posyandu</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Logo Posyandu akan ditampilkan di samping logo Kabupaten Lebak. Format: PNG, JPG, SVG, WebP. Maks 5MB.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="w-20 h-20 rounded-xl border-2 border-dashed border-border flex items-center justify-center bg-muted/30 shrink-0 overflow-hidden">
+            {posyanduLogoUrl ? (
+              <img src={posyanduLogoUrl} alt="Logo Posyandu" className="w-full h-full object-contain p-1" />
+            ) : (
+              <ImageIcon className="w-8 h-8 text-muted-foreground/40" />
+            )}
+          </div>
+          <div className="space-y-2">
+            <input
+              ref={posyanduFileRef}
+              type="file"
+              accept="image/png,image/jpeg,image/svg+xml,image/webp"
+              onChange={handlePosyanduUpload}
+              className="hidden"
+              id="posyandu-logo-upload"
+            />
+            <Button
+              type="button"
+              size="sm"
+              className="text-xs gap-1.5"
+              disabled={posyanduUploading}
+              onClick={() => posyanduFileRef.current?.click()}
+            >
+              <Upload className="w-3.5 h-3.5" />
+              {posyanduUploading ? "Mengupload..." : posyanduLogoUrl ? "Ganti Logo" : "Upload Logo"}
+            </Button>
+            {posyanduLogoUrl && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="text-xs gap-1.5 text-destructive hover:text-destructive"
+                disabled={posyanduRemoving}
+                onClick={handlePosyanduRemove}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                {posyanduRemoving ? "Menghapus..." : "Hapus Logo"}
               </Button>
             )}
           </div>

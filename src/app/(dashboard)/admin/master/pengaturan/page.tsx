@@ -12,6 +12,9 @@ export default async function PengaturanPage() {
   const logoSetting = await prisma.appSetting.findUnique({ where: { key: "logo_url" } })
   const logoUrl = logoSetting?.value || null
 
+  const posyanduLogoSetting = await prisma.appSetting.findUnique({ where: { key: "logo_posyandu_url" } })
+  const posyanduLogoUrl = posyanduLogoSetting?.value || null
+
   const sliderSetting = await prisma.appSetting.findUnique({ where: { key: "slider_photos" } })
   let sliderPhotos: { url: string; alt: string; caption?: string }[] = []
   if (sliderSetting?.value) {
@@ -40,7 +43,7 @@ export default async function PengaturanPage() {
         backHref="/admin/master"
       />
       <div className="max-w-xl">
-        <AppSettingsManager initialLogoUrl={logoUrl} initialSliderPhotos={sliderPhotos} initialBupatiPhoto={bupatiPhoto} />
+        <AppSettingsManager initialLogoUrl={logoUrl} initialPosyanduLogoUrl={posyanduLogoUrl} initialSliderPhotos={sliderPhotos} initialBupatiPhoto={bupatiPhoto} />
       </div>
     </PageContainer>
   )
