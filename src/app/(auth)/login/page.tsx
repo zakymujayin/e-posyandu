@@ -4,7 +4,11 @@ import LoginForm from "./login-form"
 export const dynamic = "force-dynamic"
 
 export default async function LoginPage() {
-  const logoSetting = await prisma.appSetting.findUnique({ where: { key: "logo_url" } })
+  const [logoSetting, posyanduLogoSetting] = await Promise.all([
+    prisma.appSetting.findUnique({ where: { key: "logo_url" } }),
+    prisma.appSetting.findUnique({ where: { key: "logo_posyandu_url" } }),
+  ])
   const logoUrl = logoSetting?.value || null
-  return <LoginForm logoUrl={logoUrl} />
+  const posyanduLogoUrl = posyanduLogoSetting?.value || null
+  return <LoginForm logoUrl={logoUrl} posyanduLogoUrl={posyanduLogoUrl} />
 }

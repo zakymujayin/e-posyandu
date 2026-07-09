@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Eye, EyeOff, Loader2, Landmark, CheckCircle, ShieldAlert, RefreshCw } from "lucide-react"
+import { Eye, EyeOff, Loader2, Landmark, CheckCircle, ShieldAlert, RefreshCw, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -31,9 +31,10 @@ type LoginForm = z.infer<typeof loginSchema>
 
 interface Props {
   logoUrl?: string | null
+  posyanduLogoUrl?: string | null
 }
 
-export default function LoginForm({ logoUrl }: Props) {
+export default function LoginForm({ logoUrl, posyanduLogoUrl }: Props) {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -132,15 +133,26 @@ export default function LoginForm({ logoUrl }: Props) {
 
         {/* Branding header */}
         <div className="flex items-center gap-3 relative z-10">
-          {logoUrl ? (
-            <div className="size-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg overflow-hidden relative">
-              <Image src={logoUrl} alt="Logo" fill className="object-contain p-1" sizes="40px" unoptimized />
-            </div>
-          ) : (
-            <div className="size-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center font-black border border-white/20 shadow-lg text-white text-sm tracking-wide">
-              EP
-            </div>
-          )}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {logoUrl ? (
+              <div className="size-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg overflow-hidden relative">
+                <Image src={logoUrl} alt="Logo Kabupaten" fill className="object-contain p-1" sizes="40px" unoptimized />
+              </div>
+            ) : (
+              <div className="size-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center font-black border border-white/20 shadow-lg text-white text-sm tracking-wide">
+                EP
+              </div>
+            )}
+            {posyanduLogoUrl ? (
+              <div className="size-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg overflow-hidden relative">
+                <Image src={posyanduLogoUrl} alt="Logo Posyandu" fill className="object-contain p-1" sizes="40px" unoptimized />
+              </div>
+            ) : (
+              <div className="size-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg">
+                <Heart className="size-5 text-white/60" />
+              </div>
+            )}
+          </div>
           <div>
             <h1 className="text-base font-bold tracking-tight text-white leading-none">
               E-Posyandu
