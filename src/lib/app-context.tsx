@@ -2,23 +2,36 @@
 
 import { createContext, useContext, ReactNode } from "react"
 
-type LogoUrlContextType = string | null | undefined
-const LogoUrlContext = createContext<LogoUrlContextType>(undefined)
+interface AppLogoContextType {
+  kabupatenLogoUrl: string | null | undefined
+  posyanduLogoUrl: string | null | undefined
+}
 
-export function LogoUrlProvider({
-  logoUrl,
+const AppLogoContext = createContext<AppLogoContextType>({
+  kabupatenLogoUrl: undefined,
+  posyanduLogoUrl: undefined,
+})
+
+export function AppLogoProvider({
+  kabupatenLogoUrl,
+  posyanduLogoUrl,
   children,
 }: {
-  logoUrl: string | null | undefined
+  kabupatenLogoUrl: string | null | undefined
+  posyanduLogoUrl: string | null | undefined
   children: ReactNode
 }) {
   return (
-    <LogoUrlContext.Provider value={logoUrl}>
+    <AppLogoContext.Provider value={{ kabupatenLogoUrl, posyanduLogoUrl }}>
       {children}
-    </LogoUrlContext.Provider>
+    </AppLogoContext.Provider>
   )
 }
 
-export function useLogoUrl() {
-  return useContext(LogoUrlContext) ?? null
+export function useAppLogos() {
+  const ctx = useContext(AppLogoContext)
+  return {
+    kabupatenLogoUrl: ctx.kabupatenLogoUrl ?? null,
+    posyanduLogoUrl: ctx.posyanduLogoUrl ?? null,
+  }
 }
