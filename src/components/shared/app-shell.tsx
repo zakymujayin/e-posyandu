@@ -3,7 +3,7 @@
 import { Sidebar } from "@/components/shared/sidebar"
 import { Header } from "@/components/shared/header"
 import { MobileBottomNav } from "@/components/shared/mobile-bottom-nav"
-import { LogoUrlProvider } from "@/lib/app-context"
+import { AppLogoProvider } from "@/lib/app-context"
 import type { UserRole } from "@/types/next-auth"
 
 interface AppShellProps {
@@ -12,11 +12,12 @@ interface AppShellProps {
     email: string
     role: UserRole
   }
-  logoUrl?: string | null
+  kabupatenLogoUrl?: string | null
+  posyanduLogoUrl?: string | null
   children: React.ReactNode
 }
 
-export function AppShell({ user, logoUrl, children }: AppShellProps) {
+export function AppShell({ user, kabupatenLogoUrl, posyanduLogoUrl, children }: AppShellProps) {
   return (
     <div className="flex min-h-screen bg-background">
       {/* Desktop Sidebar (hidden on mobile) */}
@@ -33,12 +34,12 @@ export function AppShell({ user, logoUrl, children }: AppShellProps) {
         {/* Content Body */}
         <main id="main-content" className="flex-1 flex flex-col py-0 relative z-10">
           {/* Top Header */}
-          <Header user={user} logoUrl={logoUrl} />
+          <Header user={user} logoUrl={kabupatenLogoUrl} />
 
           <div className="flex-1 pt-20 md:pt-24 px-0 pb-24 md:pb-8 animate-fade-in">
-            <LogoUrlProvider logoUrl={logoUrl}>
+            <AppLogoProvider kabupatenLogoUrl={kabupatenLogoUrl} posyanduLogoUrl={posyanduLogoUrl}>
               {children}
-            </LogoUrlProvider>
+            </AppLogoProvider>
           </div>
         </main>
       </div>

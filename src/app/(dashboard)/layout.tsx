@@ -24,6 +24,15 @@ export default async function DashboardLayout({
     },
   )
 
+  const posyanduLogoUrl = await withCache<string | null>(
+    "app_setting:logo_posyandu_url",
+    3600,
+    async () => {
+      const row = await prisma.appSetting.findUnique({ where: { key: "logo_posyandu_url" } })
+      return row?.value ?? null
+    },
+  )
+
   const formattedUser = {
     name: session.user.name || "Pengguna",
     email: session.user.email || "",
@@ -31,7 +40,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <AppShell user={formattedUser} logoUrl={logoUrl}>
+    <AppShell user={formattedUser} kabupatenLogoUrl={logoUrl} posyanduLogoUrl={posyanduLogoUrl}>
       {children}
     </AppShell>
   )
