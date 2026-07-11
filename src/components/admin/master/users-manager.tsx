@@ -6,7 +6,7 @@ const UsersCsvImport = lazy(() =>
   import("@/components/admin/master/users-csv-import").then((m) => ({ default: m.UsersCsvImport }))
 )
 import { toast } from "sonner"
-import { Plus, Pencil, X, Check, Search, UserCheck, HelpCircle, Upload, Eye, EyeOff, Trash2 } from "lucide-react"
+import { Plus, Pencil, X, Check, Search, UserCheck, HelpCircle, Upload, Eye, EyeOff, Trash2, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FormLabel, SubText } from "@/components/ui/typography"
@@ -62,6 +62,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
   const [users, setUsers] = useState<User[]>(initialUsers)
   const [search, setSearch] = useState("")
   const [filterRole, setFilterRole] = useState("")
+  const [filterActive, setFilterActive] = useState("")
   const [showForm, setShowForm] = useState(false)
   const [showImport, setShowImport] = useState(false)
   const [editing, setEditing] = useState<User | null>(null)
@@ -73,9 +74,10 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
 
   const filtered = users.filter((u) => {
     const matchRole = filterRole ? u.role === filterRole : true
+    const matchActive = filterActive === "true" ? u.isActive : filterActive === "false" ? !u.isActive : true
     const q = search.toLowerCase()
     const matchSearch = q ? u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) : true
-    return matchRole && matchSearch
+    return matchRole && matchActive && matchSearch
   })
 
   const totalPages = Math.ceil(filtered.length / limit) || 1
@@ -163,6 +165,14 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
     toast.success(data.message ?? "Pengguna berhasil dihapus")
   }
 
+  function handleExportExcel() {
+    const params = new URLSearchParams()
+    if (filterRole) params.set("role", filterRole)
+    if (filterActive) params.set("isActive", filterActive)
+    const qs = params.toString()
+    window.open(`/api/admin/master/users/export${qs ? `?${qs}` : ""}`, "_blank")
+  }
+
   const showDesa = ["POSYANDU", "PETUGAS_DESA"].includes(form.role)
   const showKec = form.role === "PETUGAS_KECAMATAN"
   const showOpd = form.role === "PETUGAS_OPD"
@@ -190,8 +200,26 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
             <option value="">Semua Peran/Role</option>
             {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
           </select>
+          <select
+            value={filterActive}
+            onChange={(e) => setFilterActive(e.target.value)}
+            className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-full sm:w-40"
+          >
+            <option value="">Semua Status</option>
+            <option value="true">Aktif</option>
+            <option value="false">Nonaktif</option>
+          </select>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
+          <Button
+            onClick={handleExportExcel}
+            variant="default"
+            size="sm"
+            className="font-bold text-xs gap-1.5 flex-1 sm:flex-none"
+          >
+            <Download className="w-4 h-4" />
+            Download Excel
+          </Button>
           <Button
             onClick={() => setShowImport(true)}
             variant="outline"
