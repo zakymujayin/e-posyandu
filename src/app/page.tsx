@@ -1,25 +1,9 @@
-import { auth } from "@/auth"
-import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { withCache } from "@/lib/cache"
 import { LandingPage } from "@/components/landing/landing-page"
 import type { Slide } from "@/components/shared/ibu-bupati-slider"
 
 export default async function RootPage() {
-  const session = await auth()
-
-  if (session?.user) {
-    const role = session.user.role
-    const redirects = {
-      POSYANDU: "/posyandu",
-      PETUGAS_DESA: "/petugas-desa",
-      PETUGAS_KECAMATAN: "/kecamatan",
-      PETUGAS_OPD: "/opd",
-      ADMIN_DPMD: "/admin",
-    } as const
-    redirect(redirects[role] ?? "/login")
-  }
-
   const [logoUrl, posyanduLogoUrl, sliderPhotos, bupatiPhoto] = await Promise.all([
     withCache<string | null>(
       "app_setting:logo_url",
