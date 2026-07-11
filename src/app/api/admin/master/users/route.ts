@@ -26,25 +26,38 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const role = searchParams.get("role")
   const search = searchParams.get("search")
+  const isActive = searchParams.get("isActive")
+  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"))
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") ?? "10")))
 
-  const users = await prisma.user.findMany({
-    where: {
-      ...(role ? { role } : {}),
-      ...(search ? { OR: [{ name: { contains: search } }, { email: { contains: search } }] } : {}),
-    },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true, name: true, email: true, username: true, role: true,
-      isActive: true, createdAt: true, lastLoginAt: true,
-      desaId: true, kecamatanId: true, opdId: true, posyanduId: true,
-      desa: { select: { name: true, kecamatan: { select: { name: true } } } },
-      kecamatan: { select: { name: true } },
-      opd: { select: { name: true } },
-      posyandu: { select: { name: true, desa: { select: { name: true, kecamatan: { select: { name: true } } } } } },
-    },
-    take: 100,
-  })
-  return ok(users)
+  const where: Record<string, unknown> = {}
+  if (role) where.role = role
+  if (search) where.OR = [{ name: { contains: search } }, { email: { contains: search } }]
+  if (isActive === "true") where.isActive = true
+  else if (isActive === "false") where.isActive = false
+
+  const select = {
+    id: true, name: true, email: true, username: true, role: true,
+    isActive: true, createdAt: true, lastLoginAt: true,
+    desaId: true, kecamatanId: true, opdId: true, posyanduId: true,
+    desa: { select: { name: true, kecamatan: { select: { name: true } } } },
+    kecamatan: { select: { name: true } },
+    opd: { select: { name: true } },
+    posyandu: { select: { name: true, desa: { select: { name: true, kecamatan: { select: { name: true } } } } } },
+  }
+
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      select,
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.user.count({ where }),
+  ])
+
+  return ok({ data: users, total, page, totalPages: Math.ceil(total / limit) || 1 })
 }
 
 export async function POST(req: Request) {

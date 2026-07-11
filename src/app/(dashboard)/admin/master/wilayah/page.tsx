@@ -9,7 +9,7 @@ export default async function MasterWilayahPage() {
   const session = await auth()
   if (!session?.user || session.user.role !== "ADMIN_DPMD") redirect("/login")
 
-  const [kecamatans, desas, posyandus] = await Promise.all([
+  const [kecamatans, desas] = await Promise.all([
     prisma.kecamatan.findMany({
       orderBy: { name: "asc" },
       include: { _count: { select: { desas: true } } },
@@ -21,14 +21,9 @@ export default async function MasterWilayahPage() {
         _count: { select: { posyandus: true } },
       },
     }),
-    prisma.posyandu.findMany({
-      orderBy: [{ desaId: "asc" }, { name: "asc" }],
-      include: { desa: { select: { name: true, kecamatan: { select: { name: true } } } } },
-    }),
   ])
   const serializedKecamatans = JSON.parse(JSON.stringify(kecamatans))
   const serializedDesas = JSON.parse(JSON.stringify(desas))
-  const serializedPosyandus = JSON.parse(JSON.stringify(posyandus))
 
   return (
     <PageContainer className="space-y-6">
@@ -40,7 +35,6 @@ export default async function MasterWilayahPage() {
       <WilayahManager
         initialKecamatans={serializedKecamatans}
         initialDesas={serializedDesas}
-        initialPosyandus={serializedPosyandus}
       />
     </PageContainer>
   )

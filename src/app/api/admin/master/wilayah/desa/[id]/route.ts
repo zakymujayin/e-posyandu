@@ -34,6 +34,12 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
   if (posCount > 0) return err(`Tidak dapat dihapus: masih ada ${posCount} posyandu terdaftar`, 400)
   const userCount = await prisma.user.count({ where: { desaId: id } })
   if (userCount > 0) return err(`Tidak dapat dihapus: masih ada ${userCount} pengguna terdaftar`, 400)
+  const pengajuanCount = await prisma.pengajuan.count({ where: { desaId: id } })
+  if (pengajuanCount > 0) return err(`Tidak dapat dihapus: masih ada ${pengajuanCount} pengajuan terdaftar`, 400)
+  const tiketCount = await prisma.desaTiketCounter.count({ where: { desaId: id } })
+  if (tiketCount > 0) return err("Tidak dapat dihapus: masih ada data tiket terkait", 400)
+  const atsCount = await prisma.anakTidakSekolah.count({ where: { desaId: id } })
+  if (atsCount > 0) return err(`Tidak dapat dihapus: masih ada ${atsCount} data ATS terdaftar`, 400)
   try {
     await prisma.desa.delete({ where: { id } })
     invalidatePattern("master:desa")

@@ -9,24 +9,12 @@ export default async function MasterUsersPage() {
   const session = await auth()
   if (!session?.user || session.user.role !== "ADMIN_DPMD") redirect("/login")
 
-  const [users, desas, kecamatans, opds, posyandus] = await Promise.all([
-    prisma.user.findMany({
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true, name: true, email: true, username: true, role: true,
-        isActive: true, createdAt: true, lastLoginAt: true,
-        desa: { select: { name: true, kecamatan: { select: { name: true } } } },
-        kecamatan: { select: { name: true } },
-        opd: { select: { name: true } },
-        posyandu: { select: { name: true, desa: { select: { name: true, kecamatan: { select: { name: true } } } } } },
-      },
-    }),
+  const [desas, kecamatans, opds, posyandus] = await Promise.all([
     prisma.desa.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kecamatanId: true, kecamatan: { select: { name: true } } } }),
     prisma.kecamatan.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.opd.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" }, select: { id: true, name: true } }),
     prisma.posyandu.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, desaId: true } }),
   ])
-  const serializedUsers = JSON.parse(JSON.stringify(users))
   const serializedDesas = JSON.parse(JSON.stringify(desas))
   const serializedKecamatans = JSON.parse(JSON.stringify(kecamatans))
   const serializedOpds = JSON.parse(JSON.stringify(opds))
@@ -40,7 +28,6 @@ export default async function MasterUsersPage() {
         backHref="/admin/master"
       />
       <UsersManager
-        initialUsers={serializedUsers}
         desas={serializedDesas}
         kecamatans={serializedKecamatans}
         opds={serializedOpds}

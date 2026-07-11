@@ -31,24 +31,34 @@ export default async function RekapATSAdminPage() {
     })
   })
 
-  const allRecords = await prisma.anakTidakSekolah.findMany({
-    where: { isActive: true },
-    select: { statusSekolah: true, alasanTidakSekolah: true, programDibutuhkan: true },
-    take: 50000,
-  })
+  const [statusGroups, alasanGroups, programRecords] = await Promise.all([
+    prisma.anakTidakSekolah.groupBy({
+      by: ["statusSekolah"],
+      where: { isActive: true },
+      _count: { id: true },
+    }),
+    prisma.anakTidakSekolah.groupBy({
+      by: ["alasanTidakSekolah"],
+      where: { isActive: true },
+      _count: { id: true },
+    }),
+    prisma.anakTidakSekolah.findMany({
+      where: { isActive: true },
+      select: { programDibutuhkan: true },
+      take: 10000,
+    }),
+  ])
 
   const statusData = [
-    { name: "Putus Sekolah", value: allRecords.filter((r) => r.statusSekolah === "Putus Sekolah").length },
-    { name: "Tidak Pernah", value: allRecords.filter((r) => r.statusSekolah === "Tidak Pernah Sekolah").length },
-    { name: "Lulus Tdk Lanjut", value: allRecords.filter((r) => r.statusSekolah === "Lulus Tidak Melanjutkan").length },
+    { name: "Putus Sekolah", value: statusGroups.find((r) => r.statusSekolah === "Putus Sekolah")?._count.id ?? 0 },
+    { name: "Tidak Pernah", value: statusGroups.find((r) => r.statusSekolah === "Tidak Pernah Sekolah")?._count.id ?? 0 },
+    { name: "Lulus Tdk Lanjut", value: statusGroups.find((r) => r.statusSekolah === "Lulus Tidak Melanjutkan")?._count.id ?? 0 },
   ]
 
-  const alasanCount: Record<string, number> = {}
-  for (const r of allRecords) { alasanCount[r.alasanTidakSekolah] = (alasanCount[r.alasanTidakSekolah] ?? 0) + 1 }
-  const alasanData = Object.entries(alasanCount).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 5)
+  const alasanData = alasanGroups.map((r) => ({ name: r.alasanTidakSekolah, value: r._count.id })).sort((a, b) => b.value - a.value).slice(0, 5)
 
   const programCount: Record<string, number> = {}
-  for (const r of allRecords) {
+  for (const r of programRecords) {
     if (Array.isArray(r.programDibutuhkan)) {
       for (const p of r.programDibutuhkan as string[]) { programCount[p] = (programCount[p] ?? 0) + 1 }
     }

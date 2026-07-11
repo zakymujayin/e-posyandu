@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, lazy, Suspense } from "react"
+import { useState, useEffect, useCallback, lazy, Suspense } from "react"
 
 const UsersCsvImport = lazy(() =>
   import("@/components/admin/master/users-csv-import").then((m) => ({ default: m.UsersCsvImport }))
 )
 import { toast } from "sonner"
-import { Plus, Pencil, X, Check, Search, UserCheck, HelpCircle, Upload, Eye, EyeOff, Trash2, Download } from "lucide-react"
+import { Plus, Pencil, X, Check, Search, UserCheck, HelpCircle, Upload, Eye, EyeOff, Trash2, Download, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FormLabel, SubText } from "@/components/ui/typography"
@@ -47,7 +47,6 @@ interface User {
 }
 
 interface Props {
-  initialUsers: User[]
   desas: { id: string; name: string; kecamatanId: string; kecamatan: { name: string } }[]
   kecamatans: { id: string; name: string }[]
   opds: { id: string; name: string }[]
@@ -59,8 +58,10 @@ const emptyForm = {
   desaId: "", kecamatanId: "", opdId: "", posyanduId: "", phone: "",
 }
 
-export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus }: Props) {
-  const [users, setUsers] = useState<User[]>(initialUsers)
+export function UsersManager({ desas, kecamatans, opds, posyandus }: Props) {
+  const [users, setUsers] = useState<User[]>([])
+  const [total, setTotal] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [filterRole, setFilterRole] = useState("")
   const [filterActive, setFilterActive] = useState("")
@@ -70,21 +71,59 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
   const [editing, setEditing] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState(emptyForm)
-  const [rawPage, setRawPage] = useState(1)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [showPassword, setShowPassword] = useState(false)
   const limit = 10
 
-  const filtered = users.filter((u) => {
-    const matchRole = filterRole ? u.role === filterRole : true
-    const matchActive = filterActive === "true" ? u.isActive : filterActive === "false" ? !u.isActive : true
-    const q = search.toLowerCase()
-    const matchSearch = q ? u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) : true
-    return matchRole && matchActive && matchSearch
-  })
+  const fetchUsers = useCallback(async (p: number, s: string, role: string, active: string) => {
+    setIsLoading(true)
+    try {
+      const params = new URLSearchParams()
+      params.set("page", String(p))
+      params.set("limit", String(limit))
+      if (s) params.set("search", s)
+      if (role) params.set("role", role)
+      if (active) params.set("isActive", active)
+      const res = await fetch(`/api/admin/master/users?${params}`)
+      const data = await res.json()
+      if (res.ok && data.data) {
+        setUsers(data.data.data)
+        setTotal(data.data.total)
+        setTotalPages(data.data.totalPages)
+      } else {
+        toast.error("Gagal memuat data pengguna")
+      }
+    } catch {
+      toast.error("Gagal memuat data, periksa koneksi Anda")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
-  const totalPages = Math.ceil(filtered.length / limit) || 1
-  const page = Math.min(rawPage, totalPages)
-  const paginated = filtered.slice((page - 1) * limit, page * limit)
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchUsers(page, search, filterRole, filterActive)
+  }, [fetchUsers, page, search, filterRole, filterActive])
+
+  function handleSearchChange(value: string) {
+    setSearch(value)
+    setPage(1)
+  }
+
+  function handleRoleChange(value: string) {
+    setFilterRole(value)
+    setPage(1)
+  }
+
+  function handleActiveChange(value: string) {
+    setFilterActive(value)
+    setPage(1)
+  }
+
+  function handlePageChange(p: number) {
+    setPage(p)
+  }
 
   function openCreate() {
     setEditing(null)
@@ -129,14 +168,9 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
       const data = await res.json()
       if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
 
-      if (editing) {
-        setUsers((prev) => prev.map((u) => u.id === editing.id ? { ...u, ...data.data } : u))
-        toast.success("Pengguna diperbarui")
-      } else {
-        setUsers((prev) => [data.data, ...prev])
-        toast.success("Pengguna ditambahkan")
-      }
+      toast.success(editing ? "Pengguna diperbarui" : "Pengguna ditambahkan")
       setShowForm(false)
+      fetchUsers(page, search, filterRole, filterActive)
     } finally {
       setLoading(false)
     }
@@ -159,12 +193,8 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
     const res = await fetch(`/api/admin/master/users/${u.id}`, { method: "DELETE" })
     const data = await res.json()
     if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
-    if (data.data?.isActive === false) {
-      setUsers((prev) => prev.map((x) => x.id === u.id ? { ...x, isActive: false } : x))
-    } else {
-      setUsers((prev) => prev.filter((x) => x.id !== u.id))
-    }
     toast.success(data.message ?? "Pengguna berhasil dihapus")
+    fetchUsers(page, search, filterRole, filterActive)
   }
 
   function handleExportExcel() {
@@ -186,13 +216,13 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
               type="text"
               placeholder="Cari nama / email..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="pl-9 text-xs"
             />
           </div>
           <select
             value={filterRole}
-            onChange={(e) => setFilterRole(e.target.value)}
+            onChange={(e) => handleRoleChange(e.target.value)}
             className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-full sm:w-48"
           >
             <option value="">Semua Peran/Role</option>
@@ -200,7 +230,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
           </select>
           <select
             value={filterActive}
-            onChange={(e) => setFilterActive(e.target.value)}
+            onChange={(e) => handleActiveChange(e.target.value)}
             className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-full sm:w-40"
           >
             <option value="">Semua Status</option>
@@ -426,9 +456,16 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
 
       <DataTable
         columns={["Nama & Email", "Username Login", "Hak Akses/Role", "Unit/Wilayah Kerja", "Login Terakhir", "Status", "Aksi"]}
-        dataLength={paginated.length}
+        dataLength={isLoading ? 1 : users.length}
       >
-        {paginated.length === 0 ? (
+        {isLoading ? (
+          <TableRow>
+            <TableCell colSpan={7} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
+              <Loader2 className="w-6 h-6 text-muted-foreground mx-auto mb-2 animate-spin" />
+              Memuat data...
+            </TableCell>
+          </TableRow>
+        ) : users.length === 0 ? (
           <TableRow>
             <TableCell colSpan={7} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
               <HelpCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-55" />
@@ -436,7 +473,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
             </TableCell>
           </TableRow>
         ) : (
-          paginated.map((u) => {
+          users.map((u) => {
             const wilayah = u.opd?.name
               ?? (u.desa ? `${u.desa.name}, Kec. ${u.desa.kecamatan.name}` : null)
               ?? (u.kecamatan ? `Kec. ${u.kecamatan.name}` : null)
@@ -509,7 +546,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
           })
         )}
       </DataTable>
-      <Pagination page={page} totalPages={totalPages} total={filtered.length} onPageChange={setRawPage} />
+      <Pagination page={page} totalPages={totalPages} total={total} onPageChange={handlePageChange} />
     </div>
   )
 }

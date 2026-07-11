@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { requireAuth, ok, err } from "@/lib/api-helpers"
-import { withCache, invalidatePattern } from "@/lib/cache"
+import { invalidatePattern } from "@/lib/cache"
 
 export async function GET(req: Request) {
   const { user, response } = await requireAuth(["ADMIN_DPMD"])
@@ -8,19 +8,28 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url)
   const desaId = searchParams.get("desaId")
+  const search = searchParams.get("search")
+  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"))
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") ?? "10")))
 
-  const posyandus = await withCache(
-    desaId ? `master:posyandu:${desaId}` : "master:posyandu",
-    1800,
-    () =>
-      prisma.posyandu.findMany({
-        where: desaId ? { desaId } : undefined,
-        orderBy: [{ desaId: "asc" }, { name: "asc" }],
-        include: { desa: { select: { name: true, kecamatan: { select: { name: true } } } } },
-      })
-  )
+  const where: Record<string, unknown> = {}
+  if (desaId) where.desaId = desaId
+  if (search) where.name = { contains: search }
 
-  return ok(posyandus)
+  const include = { desa: { select: { name: true, kecamatan: { select: { name: true } } } } }
+
+  const [posyandus, total] = await Promise.all([
+    prisma.posyandu.findMany({
+      where,
+      orderBy: [{ desaId: "asc" }, { name: "asc" }],
+      include,
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.posyandu.count({ where }),
+  ])
+
+  return ok({ data: posyandus, total, page, totalPages: Math.ceil(total / limit) || 1 })
 }
 
 export async function POST(req: Request) {

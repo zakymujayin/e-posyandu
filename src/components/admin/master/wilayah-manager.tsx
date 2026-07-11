@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { Plus, X, Check, MapPin, Building, HelpCircle, Heart, Pencil, Trash2, Upload, Search, Download } from "lucide-react"
 import ExcelJS from "exceljs"
@@ -42,15 +42,13 @@ interface Posyandu {
 export function WilayahManager({
   initialKecamatans,
   initialDesas,
-  initialPosyandus,
 }: {
   initialKecamatans: Kecamatan[]
   initialDesas: Desa[]
-  initialPosyandus: Posyandu[]
 }) {
   const [kecamatans, setKecamatans] = useState<Kecamatan[]>(initialKecamatans)
   const [desas, setDesas] = useState<Desa[]>(initialDesas)
-  const [posyandus, setPosyandus] = useState<Posyandu[]>(initialPosyandus)
+  const [posyandus, setPosyandus] = useState<Posyandu[]>([])
   const [activeTab, setActiveTab] = useState<"kecamatan" | "desa" | "posyandu">("kecamatan")
   const [filterKec, setFilterKec] = useState("")
   const [filterDesaPos, setFilterDesaPos] = useState("")
@@ -93,15 +91,20 @@ export function WilayahManager({
         if (res.ok) setDesas(data.data)
         else toast.error(data.error ?? "Gagal memuat data desa")
       } else {
-        const res = await fetch("/api/admin/master/posyandu")
+        const res = await fetch("/api/admin/master/posyandu?limit=10000")
         const data = await res.json()
-        if (res.ok) setPosyandus(data.data)
+        if (res.ok) setPosyandus(data.data?.data ?? data.data ?? [])
         else toast.error(data.error ?? "Gagal memuat data posyandu")
       }
     } catch {
       toast.error("Gagal memuat data, periksa koneksi Anda")
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    refreshData("posyandu")
+  }, [])
 
   const filteredDesas = desas.filter((d) => {
     if (filterKec && d.kecamatanId !== filterKec) return false
