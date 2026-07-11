@@ -13,6 +13,14 @@ const ROLE_LABELS: Record<string, string> = {
   ADMIN_DPMD: "Admin DPMD",
 }
 
+const DEFAULT_PASSWORDS: Record<string, string> = {
+  POSYANDU: "posyandu123",
+  PETUGAS_DESA: "petugas123",
+  PETUGAS_KECAMATAN: "kecamatan123",
+  PETUGAS_OPD: "opd123",
+  ADMIN_DPMD: "admin123",
+}
+
 export async function GET(req: NextRequest) {
   const { user, response } = await requireAuth(["ADMIN_DPMD"])
   if (!user) return response!
@@ -61,7 +69,7 @@ export async function GET(req: NextRequest) {
     return [
       u.name,
       u.username ?? "",
-      "posyandu123",
+      DEFAULT_PASSWORDS[u.role] || "",
       ROLE_LABELS[u.role] || u.role,
       wilayah,
     ]
