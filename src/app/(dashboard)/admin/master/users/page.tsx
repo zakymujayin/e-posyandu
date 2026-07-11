@@ -21,7 +21,7 @@ export default async function MasterUsersPage() {
         posyandu: { select: { name: true, desa: { select: { name: true, kecamatan: { select: { name: true } } } } } },
       },
     }),
-    prisma.desa.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kecamatan: { select: { name: true } } } }),
+    prisma.desa.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, kecamatanId: true, kecamatan: { select: { name: true } } } }),
     prisma.kecamatan.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.opd.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" }, select: { id: true, name: true } }),
     prisma.posyandu.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, desaId: true } }),

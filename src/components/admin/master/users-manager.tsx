@@ -16,6 +16,7 @@ import { DataTable } from "@/components/shared/data-table"
 import { Pagination } from "@/components/ui/pagination"
 import { TableRow, TableCell } from "@/components/ui/table"
 import { FormSection } from "@/components/shared/form-section"
+import { UsersExportModal } from "@/components/admin/master/users-export-modal"
 
 const ROLES = ["POSYANDU", "PETUGAS_DESA", "PETUGAS_KECAMATAN", "PETUGAS_OPD", "ADMIN_DPMD"] as const
 const ROLE_LABELS: Record<string, string> = {
@@ -47,7 +48,7 @@ interface User {
 
 interface Props {
   initialUsers: User[]
-  desas: { id: string; name: string; kecamatan: { name: string } }[]
+  desas: { id: string; name: string; kecamatanId: string; kecamatan: { name: string } }[]
   kecamatans: { id: string; name: string }[]
   opds: { id: string; name: string }[]
   posyandus: { id: string; name: string; desaId: string }[]
@@ -65,6 +66,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
   const [filterActive, setFilterActive] = useState("")
   const [showForm, setShowForm] = useState(false)
   const [showImport, setShowImport] = useState(false)
+  const [showExportModal, setShowExportModal] = useState(false)
   const [editing, setEditing] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState(emptyForm)
@@ -166,11 +168,7 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
   }
 
   function handleExportExcel() {
-    const params = new URLSearchParams()
-    if (filterRole) params.set("role", filterRole)
-    if (filterActive) params.set("isActive", filterActive)
-    const qs = params.toString()
-    window.open(`/api/admin/master/users/export${qs ? `?${qs}` : ""}`, "_blank")
+    setShowExportModal(true)
   }
 
   const showDesa = ["POSYANDU", "PETUGAS_DESA"].includes(form.role)
@@ -245,6 +243,13 @@ export function UsersManager({ initialUsers, desas, kecamatans, opds, posyandus 
           <UsersCsvImport onClose={() => setShowImport(false)} />
         </Suspense>
       )}
+
+      <UsersExportModal
+        open={showExportModal}
+        onOpenChange={setShowExportModal}
+        kecamatans={kecamatans}
+        desas={desas}
+      />
 
       {showForm && (
         <form onSubmit={handleSubmit} className="transition-all duration-300">

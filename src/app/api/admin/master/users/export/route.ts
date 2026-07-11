@@ -36,11 +36,26 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const role = searchParams.get("role")
   const isActiveParam = searchParams.get("isActive")
+  const kecId = searchParams.get("kecId")
+  const desaId = searchParams.get("desaId")
 
   const where: Record<string, unknown> = {}
   if (role) where.role = role
   if (isActiveParam === "true") where.isActive = true
   else if (isActiveParam === "false") where.isActive = false
+
+  if (desaId) {
+    where.OR = [
+      { desaId },
+      { posyandu: { desaId } },
+    ]
+  } else if (kecId) {
+    where.OR = [
+      { kecamatanId: kecId },
+      { desa: { kecamatanId: kecId } },
+      { posyandu: { desa: { kecamatanId: kecId } } },
+    ]
+  }
 
   const users = await prisma.user.findMany({
     where,
