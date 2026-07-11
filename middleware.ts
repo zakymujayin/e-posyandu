@@ -31,14 +31,8 @@ export default auth((req) => {
   const session = req.auth
   const user = session?.user
 
-  // Redirect "/" to role-appropriate dashboard, or show landing page for guests
+  // Allow landing page for everyone (guest + logged in)
   if (pathname === "/") {
-    if (user) {
-      const dashboard = ROLE_REDIRECTS[user.role]
-      if (dashboard) {
-        return NextResponse.redirect(new URL(dashboard, req.url))
-      }
-    }
     return NextResponse.next()
   }
 
