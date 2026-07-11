@@ -1,15 +1,27 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link"
-import { Building2, Heart } from "lucide-react"
+import { Building2, Heart, LayoutDashboard } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import type { UserRole } from "@/types/next-auth"
+
+const ROLE_DASHBOARDS: Record<string, string> = {
+  POSYANDU: "/posyandu",
+  PETUGAS_DESA: "/petugas-desa",
+  PETUGAS_KECAMATAN: "/kecamatan",
+  PETUGAS_OPD: "/opd",
+  ADMIN_DPMD: "/admin",
+}
 
 interface Props {
+  userRole?: UserRole | null
   logoUrl?: string | null
   posyanduLogoUrl?: string | null
 }
 
-export function LandingNavbar({ logoUrl, posyanduLogoUrl }: Props) {
+export function LandingNavbar({ userRole, logoUrl, posyanduLogoUrl }: Props) {
+  const dashboardHref = userRole ? ROLE_DASHBOARDS[userRole] || "/" : null
+
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-slate-100 shadow-sm">
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -58,9 +70,18 @@ export function LandingNavbar({ logoUrl, posyanduLogoUrl }: Props) {
         </Link>
 
         {/* CTA */}
-        <Button asChild size="sm" variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 font-semibold rounded-lg">
-          <Link href="/login">Masuk</Link>
-        </Button>
+        {dashboardHref ? (
+          <Button asChild size="sm" className="bg-blue-600 text-white hover:bg-blue-700 font-semibold rounded-lg shadow-sm">
+            <Link href={dashboardHref}>
+              <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" />
+              Dashboard
+            </Link>
+          </Button>
+        ) : (
+          <Button asChild size="sm" variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-800 font-semibold rounded-lg">
+            <Link href="/login">Masuk</Link>
+          </Button>
+        )}
       </nav>
     </header>
   )

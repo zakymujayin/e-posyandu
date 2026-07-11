@@ -1,9 +1,12 @@
+import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { withCache } from "@/lib/cache"
 import { LandingPage } from "@/components/landing/landing-page"
 import type { Slide } from "@/components/shared/ibu-bupati-slider"
 
 export default async function RootPage() {
+  const session = await auth()
+
   const [logoUrl, posyanduLogoUrl, sliderPhotos, bupatiPhoto] = await Promise.all([
     withCache<string | null>(
       "app_setting:logo_url",
@@ -49,6 +52,7 @@ export default async function RootPage() {
 
   return (
     <LandingPage
+      userRole={session?.user?.role ?? null}
       logoUrl={logoUrl}
       posyanduLogoUrl={posyanduLogoUrl}
       sliderPhotos={sliderPhotos.length > 0 ? sliderPhotos : undefined}

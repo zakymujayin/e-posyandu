@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { signIn } from "next-auth/react"
+import { signIn, getSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -100,7 +100,16 @@ export default function LoginForm({ logoUrl, posyanduLogoUrl }: Props) {
       return
     }
 
-    router.push("/")
+    const session = await getSession()
+    const roleRedirects: Record<string, string> = {
+      POSYANDU: "/posyandu",
+      PETUGAS_DESA: "/petugas-desa",
+      PETUGAS_KECAMATAN: "/kecamatan",
+      PETUGAS_OPD: "/opd",
+      ADMIN_DPMD: "/admin",
+    }
+    const target = session?.user?.role ? roleRedirects[session.user.role] || "/" : "/"
+    router.push(target)
     router.refresh()
   }
 
