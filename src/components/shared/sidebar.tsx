@@ -26,8 +26,8 @@ export function Sidebar({ user }: SidebarProps) {
   return (
     <aside className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-white/60 dark:bg-card/60 border-r border-sidebar-border/60 flex-col z-40 shadow-[4px_0_24px_rgba(0,0,0,0.02)] backdrop-blur-2xl transition-all duration-500">
       {/* Branding Header */}
-      <div className="h-[72px] px-6 border-b border-sidebar-border/50 flex flex-col justify-center bg-transparent">
-        <div className="flex items-center gap-3 relative group cursor-default">
+      <Link href="/" className="block h-[72px] px-6 border-b border-sidebar-border/50 flex flex-col justify-center bg-transparent hover:bg-blue-500/[0.02] transition-colors duration-300">
+        <div className="flex items-center gap-3 relative group cursor-pointer">
           <div className="absolute -left-2 -top-2 size-14 bg-blue-500/20 dark:bg-blue-500/10 blur-xl rounded-full z-0 pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-70" />
           <div className="relative z-10 size-10 rounded-2xl shrink-0 overflow-hidden transition-transform duration-500 group-hover:scale-105 group-hover:rotate-3">
             <div className="w-full h-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-[0_4px_10px_rgba(37,99,235,0.3),inset_0_1px_rgba(255,255,255,0.4)]">
@@ -46,7 +46,7 @@ export function Sidebar({ user }: SidebarProps) {
             </p>
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Navigation Items */}
       <nav className="flex-1 px-4 py-6 flex flex-col gap-1 overflow-y-auto bg-transparent">
