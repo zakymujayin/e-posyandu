@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { toast } from "sonner"
-import { Plus, X, Check, MapPin, Building, HelpCircle, Heart, Pencil, Trash2, Upload, Search, Download } from "lucide-react"
+import { Plus, X, Check, MapPin, Building, HelpCircle, Heart, Pencil, Trash2, Upload, Search, Download, Loader2 } from "lucide-react"
 import ExcelJS from "exceljs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -49,6 +49,9 @@ export function WilayahManager({
   const [kecamatans, setKecamatans] = useState<Kecamatan[]>(initialKecamatans)
   const [desas, setDesas] = useState<Desa[]>(initialDesas)
   const [posyandus, setPosyandus] = useState<Posyandu[]>([])
+  const [posTotal, setPosTotal] = useState(0)
+  const [posTotalPages, setPosTotalPages] = useState(1)
+  const [posLoading, setPosLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<"kecamatan" | "desa" | "posyandu">("kecamatan")
   const [filterKec, setFilterKec] = useState("")
   const [filterDesaPos, setFilterDesaPos] = useState("")
@@ -78,6 +81,37 @@ export function WilayahManager({
   const [desaSearch, setDesaSearch] = useState("")
   const [posyanduSearch, setPosyanduSearch] = useState("")
 
+  const posyanduParams = useCallback(
+    (page: number, take: number) => {
+      const params = new URLSearchParams()
+      params.set("page", String(page))
+      params.set("limit", String(take))
+      if (filterDesaPos) params.set("desaId", filterDesaPos)
+      if (posyanduSearch) params.set("search", posyanduSearch)
+      return params
+    },
+    [filterDesaPos, posyanduSearch]
+  )
+
+  const fetchPosyandus = useCallback(
+    async (page: number) => {
+      setPosLoading(true)
+      try {
+        const res = await fetch(`/api/admin/master/posyandu?${posyanduParams(page, limit)}`)
+        const data = await res.json()
+        if (!res.ok) { toast.error(data.error ?? "Gagal memuat data posyandu"); return }
+        setPosyandus(data.data.data)
+        setPosTotal(data.data.total)
+        setPosTotalPages(data.data.totalPages)
+      } catch {
+        toast.error("Gagal memuat data, periksa koneksi Anda")
+      } finally {
+        setPosLoading(false)
+      }
+    },
+    [posyanduParams]
+  )
+
   async function refreshData(type: "kecamatan" | "desa" | "posyandu") {
     try {
       if (type === "kecamatan") {
@@ -91,10 +125,7 @@ export function WilayahManager({
         if (res.ok) setDesas(data.data)
         else toast.error(data.error ?? "Gagal memuat data desa")
       } else {
-        const res = await fetch("/api/admin/master/posyandu?limit=10000")
-        const data = await res.json()
-        if (res.ok) setPosyandus(data.data?.data ?? data.data ?? [])
-        else toast.error(data.error ?? "Gagal memuat data posyandu")
+        await fetchPosyandus(rawPos)
       }
     } catch {
       toast.error("Gagal memuat data, periksa koneksi Anda")
@@ -102,18 +133,15 @@ export function WilayahManager({
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    refreshData("posyandu")
-  }, [])
+    const t = setTimeout(() => {
+      fetchPosyandus(rawPos)
+    }, posyanduSearch ? 300 : 0)
+    return () => clearTimeout(t)
+  }, [fetchPosyandus, rawPos, posyanduSearch])
 
   const filteredDesas = desas.filter((d) => {
     if (filterKec && d.kecamatanId !== filterKec) return false
     if (desaSearch && !d.name.toLowerCase().includes(desaSearch.toLowerCase())) return false
-    return true
-  })
-  const filteredPosyandus = posyandus.filter((p) => {
-    if (filterDesaPos && p.desaId !== filterDesaPos) return false
-    if (posyanduSearch && !p.name.toLowerCase().includes(posyanduSearch.toLowerCase())) return false
     return true
   })
   const filteredKecamatans = kecamatans.filter((k) => {
@@ -127,11 +155,24 @@ export function WilayahManager({
   const totalDesa = Math.ceil(filteredDesas.length / limit) || 1
   const desaPage = Math.min(rawDesa, totalDesa)
   const paginatedDesa = filteredDesas.slice((desaPage - 1) * limit, desaPage * limit)
-  const totalPos = Math.ceil(filteredPosyandus.length / limit) || 1
-  const posPage = Math.min(rawPos, totalPos)
-  const paginatedPos = filteredPosyandus.slice((posPage - 1) * limit, posPage * limit)
 
-  function downloadExport(type: "kecamatan" | "desa" | "posyandu") {
+  async function fetchAllPosyandus(): Promise<Posyandu[]> {
+    const chunk = 100
+    const all: Posyandu[] = []
+    let page = 1
+    let totalPages = 1
+    do {
+      const res = await fetch(`/api/admin/master/posyandu?${posyanduParams(page, chunk)}`)
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? "Gagal memuat data posyandu")
+      all.push(...data.data.data)
+      totalPages = data.data.totalPages
+      page++
+    } while (page <= totalPages)
+    return all
+  }
+
+  async function downloadExport(type: "kecamatan" | "desa" | "posyandu") {
     const wb = new ExcelJS.Workbook()
 
     if (type === "kecamatan") {
@@ -163,18 +204,24 @@ export function WilayahManager({
         { header: "KODE", key: "kode", width: 20 },
         { header: "STATUS", key: "status", width: 12 },
       ]
-      filteredPosyandus.forEach((p, i) => ws.addRow({ no: i + 1, nama: p.name, desa: p.desa.name, kecamatan: p.desa.kecamatan.name, kode: p.code, status: p.isActive ? "Aktif" : "Nonaktif" }))
+      let rows: Posyandu[]
+      try {
+        rows = await fetchAllPosyandus()
+      } catch {
+        toast.error("Gagal mengunduh data posyandu")
+        return
+      }
+      rows.forEach((p, i) => ws.addRow({ no: i + 1, nama: p.name, desa: p.desa.name, kecamatan: p.desa.kecamatan.name, kode: p.code, status: p.isActive ? "Aktif" : "Nonaktif" }))
     }
 
-    wb.xlsx.writeBuffer().then(buffer => {
-      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `daftar_${type}_${new Date().toISOString().slice(0, 10)}.xlsx`
-      a.click()
-      URL.revokeObjectURL(url)
-    })
+    const buffer = await wb.xlsx.writeBuffer()
+    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `daftar_${type}_${new Date().toISOString().slice(0, 10)}.xlsx`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   async function handleAddKecamatan(e: React.FormEvent) {
@@ -329,7 +376,7 @@ export function WilayahManager({
       })
       const data = await res.json()
       if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
-      setPosyandus((prev) => [...prev, data.data])
+      await fetchPosyandus(rawPos)
       setPosyanduForm({ desaId: "", name: "", code: "" })
       setPosyanduKecId("")
       setShowPosyandu(false)
@@ -347,7 +394,7 @@ export function WilayahManager({
     })
     const data = await res.json()
     if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
-    setPosyandus((prev) => prev.map((x) => x.id === p.id ? { ...data.data } : x))
+    setPosyandus((prev) => prev.map((x) => x.id === p.id ? { ...x, ...data.data } : x))
     toast.success(`Posyandu ${p.name} ${!p.isActive ? "diaktifkan" : "dinonaktifkan"}`)
   }
 
@@ -363,7 +410,7 @@ export function WilayahManager({
       })
       const data = await res.json()
       if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
-      setPosyandus((prev) => prev.map((p) => p.id === editingPos.id ? { ...p, name: data.data.name, code: data.data.code } : p))
+      await fetchPosyandus(rawPos)
       setEditingPos(null)
       toast.success("Posyandu diperbarui")
     } finally {
@@ -377,7 +424,7 @@ export function WilayahManager({
       const res = await fetch(`/api/admin/master/posyandu/${id}`, { method: "DELETE" })
       const data = await res.json()
       if (!res.ok) { toast.error(data.error ?? "Terjadi kesalahan"); return }
-      setPosyandus((prev) => prev.filter((p) => p.id !== id))
+      await fetchPosyandus(rawPos)
       setDeletingId(null)
       toast.success("Posyandu dihapus")
     } finally {
@@ -456,7 +503,7 @@ export function WilayahManager({
           onClick={() => setActiveTab("posyandu")}
           className="font-bold text-xs whitespace-nowrap px-4"
         >
-          Posyandu ({posyandus.length})
+          Posyandu ({posTotal})
         </Button>
       </div>
 
@@ -650,7 +697,7 @@ export function WilayahManager({
             <div className="flex gap-2 w-full sm:w-auto">
               <select
                 value={filterDesaPos}
-                onChange={(e) => setFilterDesaPos(e.target.value)}
+                onChange={(e) => { setFilterDesaPos(e.target.value); setRawPos(1) }}
                 className="border border-border/80 rounded-lg px-3 py-2 text-xs bg-card font-normal focus:outline-none focus:border-primary text-foreground w-48"
               >
                 <option value="">Semua Desa</option>
@@ -781,9 +828,16 @@ export function WilayahManager({
 
           <DataTable
             columns={["Nama Posyandu", "Desa", "Kecamatan", "Status", ""]}
-            dataLength={paginatedPos.length}
+            dataLength={posLoading ? 1 : posyandus.length}
           >
-            {paginatedPos.length === 0 ? (
+            {posLoading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
+                  <Loader2 className="w-6 h-6 text-muted-foreground mx-auto mb-2 animate-spin" />
+                  Memuat data...
+                </TableCell>
+              </TableRow>
+            ) : posyandus.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="px-4 py-8 text-center text-muted-foreground font-semibold text-xs">
                   <HelpCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-55" />
@@ -791,7 +845,7 @@ export function WilayahManager({
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedPos.map((p) => (
+              posyandus.map((p) => (
                 editingPos?.id === p.id ? (
                   <TableRow key={p.id}>
                     <TableCell colSpan={5} className="px-4 py-3">
@@ -914,7 +968,7 @@ export function WilayahManager({
               )}
             </DataTable>
 
-            <Pagination page={posPage} totalPages={totalPos} total={filteredPosyandus.length} onPageChange={setRawPos} />
+            <Pagination page={rawPos} totalPages={posTotalPages} total={posTotal} onPageChange={setRawPos} />
           </div>
         )}
       {/* Desa Tab */}
