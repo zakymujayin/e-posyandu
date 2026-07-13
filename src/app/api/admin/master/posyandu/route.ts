@@ -14,14 +14,14 @@ export async function GET(req: Request) {
 
   const where: Record<string, unknown> = {}
   if (desaId) where.desaId = desaId
-  if (search) where.name = { contains: search }
+  if (search) where.name = { contains: search, mode: "insensitive" }
 
   const include = { desa: { select: { name: true, kecamatan: { select: { name: true } } } } }
 
   const [posyandus, total] = await Promise.all([
     prisma.posyandu.findMany({
       where,
-      orderBy: [{ desaId: "asc" }, { name: "asc" }],
+      orderBy: [{ desaId: "asc" }, { name: "asc" }, { id: "asc" }],
       include,
       skip: (page - 1) * limit,
       take: limit,

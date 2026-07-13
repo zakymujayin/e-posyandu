@@ -157,19 +157,13 @@ export function WilayahManager({
   const paginatedDesa = filteredDesas.slice((desaPage - 1) * limit, desaPage * limit)
 
   async function fetchAllPosyandus(): Promise<Posyandu[]> {
-    const chunk = 100
-    const all: Posyandu[] = []
-    let page = 1
-    let totalPages = 1
-    do {
-      const res = await fetch(`/api/admin/master/posyandu?${posyanduParams(page, chunk)}`)
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? "Gagal memuat data posyandu")
-      all.push(...data.data.data)
-      totalPages = data.data.totalPages
-      page++
-    } while (page <= totalPages)
-    return all
+    const params = new URLSearchParams()
+    if (filterDesaPos) params.set("desaId", filterDesaPos)
+    if (posyanduSearch) params.set("search", posyanduSearch)
+    const res = await fetch(`/api/admin/master/posyandu/export?${params}`)
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error ?? "Gagal memuat data posyandu")
+    return data.data
   }
 
   async function downloadExport(type: "kecamatan" | "desa" | "posyandu") {

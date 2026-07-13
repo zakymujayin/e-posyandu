@@ -32,7 +32,10 @@ export async function GET(req: Request) {
 
   const where: Record<string, unknown> = {}
   if (role) where.role = role
-  if (search) where.OR = [{ name: { contains: search } }, { email: { contains: search } }]
+  if (search) where.OR = [
+    { name: { contains: search, mode: "insensitive" } },
+    { email: { contains: search, mode: "insensitive" } },
+  ]
   if (isActive === "true") where.isActive = true
   else if (isActive === "false") where.isActive = false
 
@@ -49,7 +52,7 @@ export async function GET(req: Request) {
   const [users, total] = await Promise.all([
     prisma.user.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "asc" }],
       select,
       skip: (page - 1) * limit,
       take: limit,
