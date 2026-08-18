@@ -32,12 +32,6 @@ export async function GET(req: NextRequest) {
       if (!user.kecamatanId) return new Response("Akun belum terhubung ke kecamatan", { status: 400 })
       where.kecamatanId = user.kecamatanId
     } else {
-      if (level === "all" && !id) {
-        return new Response(
-          JSON.stringify({ success: false, error: "Untuk ekspor semua data, pilih minimal level kecamatan atau desa." }),
-          { status: 400, headers: { "Content-Type": "application/json" } }
-        )
-      }
       if (level === "desa" && id) where.desaId = id
       else if (level === "kecamatan" && id) where.kecamatanId = id
     }
